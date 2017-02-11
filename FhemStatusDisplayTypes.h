@@ -15,17 +15,16 @@ enum deviceType
 
 struct deviceMapping
 {
-  deviceType type;
   String name;
+  deviceType type;
   int ledNumber;
 };
 
 struct colorMapping
 {
-  deviceType type;
   String msg;
+  deviceType type;
   LedSwitcher::ledState state;
 };
-
 
 #endif

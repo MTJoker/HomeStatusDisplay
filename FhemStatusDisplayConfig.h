@@ -26,14 +26,14 @@ const uint8_t LED_DATA_PIN = D2;
  */
 deviceMapping deviceMap[] =
 {
-  {TYPE_WINDOW, "bath_left",   7},
-  {TYPE_WINDOW, "bath_right",  6},
-  {TYPE_WINDOW, "child",       5},
-  {TYPE_WINDOW, "sleep",       4},
-  {TYPE_WINDOW, "work",        3},
-  {TYPE_WINDOW, "kitchen",     2},
-  {TYPE_DOOR,   "main",        1},
-  {TYPE_DOOR,   "terrace",     0}
+  {"bath_left",  TYPE_WINDOW, 7},
+  {"bath_right", TYPE_WINDOW, 6},
+  {"child",      TYPE_WINDOW, 5},
+  {"sleep",      TYPE_WINDOW, 4},
+  {"work",       TYPE_WINDOW, 3},
+  {"kitchen",    TYPE_WINDOW, 2},
+  {"main",       TYPE_DOOR,   1},
+  {"terrace",    TYPE_DOOR,   0}
 };
 
 /*
@@ -41,17 +41,17 @@ deviceMapping deviceMap[] =
  */
 colorMapping colorMap[] = 
 {
-  {TYPE_WINDOW, "open",     {LedSwitcher::COLOR_BLUE,   LedSwitcher::MODE_ON}}, 
-  {TYPE_WINDOW, "closed",   {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {TYPE_WINDOW, "tilted",   {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
-  {TYPE_DOOR,   "open",     {LedSwitcher::COLOR_BLUE,   LedSwitcher::MODE_ON}}, 
-  {TYPE_DOOR,   "closed",   {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {TYPE_DOOR,   "tilted",   {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
-  {TYPE_LIGHT,  "on",       {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_ON}}, 
-  {TYPE_LIGHT,  "off",      {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {TYPE_ALARM,  "high",     {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_BLINKING}}, 
-  {TYPE_ALARM,  "low",      {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
-  {TYPE_ALARM,  "off",      {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
+  {"open",   TYPE_WINDOW, {LedSwitcher::COLOR_BLUE,   LedSwitcher::MODE_ON}}, 
+  {"closed", TYPE_WINDOW, {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
+  {"tilted", TYPE_WINDOW, {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
+  {"open",   TYPE_DOOR,   {LedSwitcher::COLOR_BLUE,   LedSwitcher::MODE_ON}}, 
+  {"closed", TYPE_DOOR,   {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
+  {"tilted", TYPE_DOOR,   {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
+  {"on",     TYPE_LIGHT,  {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_ON}}, 
+  {"off",    TYPE_LIGHT,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
+  {"high",   TYPE_ALARM,  {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_BLINKING}}, 
+  {"low",    TYPE_ALARM,  {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
+  {"off",    TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
 };
 
 #endif
