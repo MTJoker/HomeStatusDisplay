@@ -38,7 +38,7 @@ colorMapping colorMap[] =
   {TYPE_DOOR,   "tilted",   {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
   {TYPE_LIGHT,  "on",       {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_ON}}, 
   {TYPE_LIGHT,  "off",      {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {TYPE_ALARM,  "high",     {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_FLASHING}}, 
+  {TYPE_ALARM,  "high",     {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_BLINKING}}, 
   {TYPE_ALARM,  "low",      {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
   {TYPE_ALARM,  "off",      {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
 };
