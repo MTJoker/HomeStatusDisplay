@@ -6,21 +6,21 @@
 /*
  * WLAN config
  */
-const char* WLAN_SSID =  "ADD_YOUR_WLAN_SSID_HERE";
-const char* WLAN_PWD  =  "ADD_YOUR_WLAN_PASSWORD_HERE";
+const char* WLAN_SSID =  "xxx";
+const char* WLAN_PWD  =  "xxx";
 
 /*
  * MQTT config
  */
-const char* MQTT_SERVER = "ADD_YOUR_MQTT_SERVER_NAME_HERE";
-const char* MQTT_IN_TOPIC = "ADD_YOUR_SUBSCRIPTION_TOPIC_HERE";
+const char* MQTT_SERVER = "xxx";
+const char* MQTT_IN_TOPIC = "xxx";
 
 /*
  * LED config
  */
 const uint16_t NUMBER_OF_LEDS = 8;
 const uint8_t LED_DATA_PIN = D2;
-
+const uint8_t HEARTBEAT_LED_PIN = D1;
 /*
  * List of known devices with mapping to led number
  */

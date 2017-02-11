@@ -2,6 +2,7 @@
 #include "WifiConnector.h"
 #include "MQTTHandler.h"
 #include "LedSwitcher.h"
+#include "Heartbeat.h"
 #include <Adafruit_NeoPixel.h>
 
 // function declarations
@@ -12,6 +13,7 @@ WifiConnector wifiConnector(WLAN_SSID, WLAN_PWD);
 MQTTHandler mqttHandler(MQTT_SERVER, 1883, MQTT_IN_TOPIC, handleMqttMessage);
 Adafruit_NeoPixel leds(NUMBER_OF_LEDS, LED_DATA_PIN, NEO_GRB + NEO_KHZ800);
 LedSwitcher ledSwitchers[NUMBER_OF_LEDS];
+Heartbeat heartbeat(HEARTBEAT_LED_PIN, 300, 3000);
 
 int getLedNumber(String deviceName, deviceType deviceType)
 {
@@ -107,6 +109,7 @@ void signalInitDone()
 
 void setup() 
 { 
+  pinMode(HEARTBEAT_LED_PIN, OUTPUT);
   Serial.begin(115200);
   wifiConnector.connect();
   leds.begin();
@@ -127,5 +130,7 @@ void loop()
   {
     ledSwitchers[i].update();
   }
+
+  heartbeat.update();
 }
 
