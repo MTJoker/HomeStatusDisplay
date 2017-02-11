@@ -13,7 +13,7 @@ enum deviceType
   TYPE_ALARM  
 };
 
-struct device
+struct deviceMapping
 {
   deviceType type;
   String name;
