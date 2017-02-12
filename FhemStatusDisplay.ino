@@ -124,6 +124,8 @@ void setup()
 
 void loop() 
 { 
+  wifiConnector.checkConnection();
+  
   mqttHandler.handle();
   
   for(uint32_t i=0; i<NUMBER_OF_LEDS; i++)

@@ -25,3 +25,12 @@ void WifiConnector::connect()
   Serial.print(" connected, got IP address ");
   Serial.println(WiFi.localIP());
 }
+
+void WifiConnector::checkConnection()
+{
+  if(WiFi.status() != WL_CONNECTED) 
+  {
+    connect();
+  }
+}
+
