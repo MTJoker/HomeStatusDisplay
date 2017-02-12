@@ -65,6 +65,10 @@ void handleMqttMessage(String topic, String msg)
   {
     handleStatus(topic.substring(18), TYPE_ALARM, msg);
   }
+  else if(topic.substring(12, 16) == "test")
+  {
+    handleStatus(topic.substring(17), TYPE_TEST, msg);
+  }
   else
   {
     Serial.println("Unknown topic, ignoring");
@@ -73,37 +77,47 @@ void handleMqttMessage(String topic, String msg)
 
 void handleStatus(String device, deviceType type, String msg)
 {
-  uint32_t ledNumber = getLedNumber(device, type);
-
-  if(ledNumber != -1)
+  if(type == TYPE_TEST)
   {
-    LedSwitcher::ledState state = getLedState(type, msg);
-    ledSwitchers[ledNumber].set(state);
+    doLedStripeTestPattern(msg.toInt());
   }
   else
   {
-    Serial.println("No LED defined for device " + device + " of type " + String(type) + ", ignoring it");
+    uint32_t ledNumber = getLedNumber(device, type);
+  
+    if(ledNumber != -1)
+    {
+      LedSwitcher::ledState state = getLedState(type, msg);
+      ledSwitchers[ledNumber].set(state);
+    }
+    else
+    {
+      Serial.println("No LED defined for device " + device + " of type " + String(type) + ", ignoring it");
+    }
   }
 }
 
-void signalInitDone()
+void doLedStripeTestPattern(uint32_t numberOfCycles)
 {
   uint32_t colors[] = {LedSwitcher::COLOR_RED, LedSwitcher::COLOR_GREEN, LedSwitcher::COLOR_BLUE};
 
-  for(uint32_t colorIndex = 0; colorIndex < NUMBER_OF_ELEMENTS(colors); colorIndex++)
+  for(uint32_t cycle = 0; cycle < numberOfCycles; cycle++)
   {
+    for(uint32_t colorIndex = 0; colorIndex < NUMBER_OF_ELEMENTS(colors); colorIndex++)
+    {
+      for(uint32_t i = 0; i < NUMBER_OF_LEDS; i++)
+      {
+        leds.setPixelColor(i, colors[colorIndex]);
+        leds.show();
+        delay(50);
+      }
+    }
+  
     for(uint32_t i = 0; i < NUMBER_OF_LEDS; i++)
     {
-      leds.setPixelColor(i, colors[colorIndex]);
+      leds.setPixelColor(i, LedSwitcher::COLOR_OFF);
       leds.show();
-      delay(50);
     }
-  }
-
-  for(uint32_t i = 0; i < NUMBER_OF_LEDS; i++)
-  {
-    leds.setPixelColor(i, LedSwitcher::COLOR_OFF);
-    leds.show();
   }
 }
 
@@ -119,7 +133,7 @@ void setup()
     ledSwitchers[i].init(i, leds);
   }
 
-  signalInitDone();
+  doLedStripeTestPattern(1);
 }
 
 void loop() 
