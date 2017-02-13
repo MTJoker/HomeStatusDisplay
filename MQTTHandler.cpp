@@ -7,36 +7,46 @@ mqttCallback myCallback;
 MQTTHandler::MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback)
 :
 m_pubSubClient(m_wifiClient),
-m_domain(NULL),
-m_inTopic(inTopic),
-m_fwUpdateTopic(NULL),
-m_testTopic(NULL)
+m_domain(NULL)
 {
-    myCallback = callback;
-    m_pubSubClient.setServer(ip, port);
-    m_pubSubClient.setCallback(callbackInternal);   
+  initTopics();
+  addTopic(inTopic);
+  
+  myCallback = callback;
+  m_pubSubClient.setServer(ip, port);
+  m_pubSubClient.setCallback(callbackInternal);   
 }
 
 MQTTHandler::MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback)
 :
 m_pubSubClient(m_wifiClient),
-m_domain(domain),
-m_inTopic(inTopic),
-m_fwUpdateTopic(NULL),
-m_testTopic(NULL)
+m_domain(domain)
 {
-    myCallback = callback;
-    m_pubSubClient.setServer(domain, port);
-    m_pubSubClient.setCallback(callbackInternal);
+  initTopics();
+  addTopic(inTopic);
+  
+  myCallback = callback;
+  m_pubSubClient.setServer(domain, port);
+  m_pubSubClient.setCallback(callbackInternal);
 }
 
 MQTTHandler::MQTTHandler(const char * domain, uint16_t port)
 :
 m_pubSubClient(m_wifiClient),
-m_domain(domain),
-m_inTopic(NULL)
+m_domain(domain)
 {
+  initTopics();
   m_pubSubClient.setServer(domain, port);
+}
+
+void MQTTHandler::initTopics()
+{
+  for(uint32_t index = 0; index < MAX_IN_TOPICS; index++)
+  {
+    m_inTopics[index] = NULL;
+  }
+
+  m_numberOfInTopics = 0;
 }
 
 void MQTTHandler::handle()
@@ -67,9 +77,10 @@ void MQTTHandler::connectToMqttServer()
     {
       Serial.println("connected");
 
-      subscribe(m_inTopic);
-      subscribe(m_fwUpdateTopic);
-      subscribe(m_testTopic);
+      for(uint32_t index = 0; index < m_numberOfInTopics; index++)
+      {
+        subscribe(m_inTopics[index]);
+      }
     } 
     else 
     {
@@ -109,14 +120,18 @@ void MQTTHandler::publish(String topic, String msg)
   }
 }
 
-void MQTTHandler::addFwUpdateTopic(const char* topic)
+bool MQTTHandler::addTopic(const char* topic)
 {
-  m_fwUpdateTopic = topic;
-}
+  bool success = false;
+  
+  if(m_numberOfInTopics < (MAX_IN_TOPICS - 1))
+  {
+    m_inTopics[m_numberOfInTopics] = topic;
+    m_numberOfInTopics++;
+    success = true;
+  }
 
-void MQTTHandler::addTestTopic(const char* topic)
-{
-  m_testTopic = topic;
+  return success;
 }
 
 void callbackInternal(char* topic, byte* payload, unsigned int length) 

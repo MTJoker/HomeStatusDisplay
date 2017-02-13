@@ -140,8 +140,8 @@ void doLedStripeTestPattern(uint32_t numberOfCycles)
 void setup() 
 { 
   pinMode(HEARTBEAT_LED_PIN, OUTPUT);
-  mqttHandler.addFwUpdateTopic(MQTT_IN_TOPIC_FW_UPDATE);
-  mqttHandler.addTestTopic(MQTT_IN_TOPIC_TEST);
+  mqttHandler.addTopic(MQTT_IN_TOPIC_FW_UPDATE);
+  mqttHandler.addTopic(MQTT_IN_TOPIC_TEST);
   Serial.begin(115200);
   wifiConnector.connect();
   leds.begin();
