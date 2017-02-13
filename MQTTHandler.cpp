@@ -11,7 +11,7 @@ m_domain(NULL),
 m_inTopic(inTopic)
 {
     myCallback = callback;
-    m_pubSubClient.setServer(ip, 1883);
+    m_pubSubClient.setServer(ip, port);
     m_pubSubClient.setCallback(callbackInternal);   
 }
 
@@ -22,7 +22,7 @@ m_domain(domain),
 m_inTopic(inTopic)
 {
     myCallback = callback;
-    m_pubSubClient.setServer(domain, 1883);
+    m_pubSubClient.setServer(domain, port);
     m_pubSubClient.setCallback(callbackInternal);
 }
 
@@ -54,11 +54,17 @@ void MQTTHandler::connectToMqttServer()
     {
       Serial.println("connected");
 
-      //subscribe topic
-      Serial.print("Subscribing to topic ");
-      Serial.println(m_inTopic);
-      
-      m_pubSubClient.subscribe(m_inTopic);
+      if(m_inTopic != NULL)
+      {
+        Serial.print("Subscribing to topic ");
+        Serial.println(m_inTopic);
+        
+        m_pubSubClient.subscribe(m_inTopic);
+      }
+      else
+      {
+        Serial.println("No topics to subscribe");
+      }
     } 
     else 
     {
@@ -68,6 +74,18 @@ void MQTTHandler::connectToMqttServer()
       
       delay(5000);  //retry after 5secs
     }
+  }
+}
+
+void MQTTHandler::publish(String topic, String msg)
+{
+  if(m_pubSubClient.publish(topic.c_str(), msg.c_str()))
+  {
+    Serial.println("Published msg " + msg + " for topic " + topic);
+  }
+  else
+  {
+    Serial.println("Error publishing msg " + msg + " for topic " + topic);
   }
 }
 

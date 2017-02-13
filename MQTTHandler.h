@@ -12,7 +12,9 @@ public:
 
     MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback);
     MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback);
+    
     void handle();
+    void publish(String topic, String msg);
 
 private:
     void connectToMqttServer(); 
