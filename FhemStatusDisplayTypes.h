@@ -16,8 +16,7 @@ enum deviceType
   TYPE_WINDOW,
   TYPE_DOOR,
   TYPE_LIGHT,
-  TYPE_ALARM,
-  TYPE_TEST  
+  TYPE_ALARM
 };
 
 /*

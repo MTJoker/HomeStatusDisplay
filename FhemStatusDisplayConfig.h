@@ -13,7 +13,9 @@ const char* WLAN_PWD  =  "xxx";
  * MQTT config
  */
 const char* MQTT_SERVER = "xxx";
-const char* MQTT_IN_TOPIC = "xxx";
+const char* MQTT_IN_TOPIC_STATUS    = "fhem/status/#";
+const char* MQTT_IN_TOPIC_FW_UPDATE = "fhem/cmd/fwupdate/statusdisplay_01";
+const char* MQTT_IN_TOPIC_TEST      = "fhem/cmd/test/statusdisplay_01";
 
 /*
  * LED config
@@ -21,6 +23,15 @@ const char* MQTT_IN_TOPIC = "xxx";
 const uint16_t NUMBER_OF_LEDS = 8;
 const uint8_t LED_DATA_PIN = D2;
 const uint8_t HEARTBEAT_LED_PIN = D1;
+
+/*
+ * Misc config
+ */
+const long HEARTBEAT_ON_TIME_DEFAULT = 300;
+const long HEARTBEAT_OFF_TIME_DEFAULT = 3000;
+const long HEARTBEAT_ON_TIME_FWUPDATE = 100;
+const long HEARTBEAT_OFF_TIME_FWUPDATE = 100;
+
 /*
  * List of known devices with mapping to led number
  */

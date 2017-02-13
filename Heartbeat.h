@@ -13,6 +13,7 @@ public:
   Heartbeat(int ledPin, long onTime, long offTime);
 
   void update();
+  void changeTiming(long onTime, long offTime);
   
 private:
 

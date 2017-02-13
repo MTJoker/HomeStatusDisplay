@@ -16,14 +16,20 @@ public:
     
     void handle();
     void publish(String topic, String msg);
+    void addFwUpdateTopic(const char* topic);
+    void addTestTopic(const char* topic);
 
 private:
+
     void connectToMqttServer(); 
+    void subscribe(const char* topic);
  
     WiFiClient m_wifiClient;
     PubSubClient m_pubSubClient;
     const char* m_domain;
     const char* m_inTopic;
+    const char* m_fwUpdateTopic;
+    const char* m_testTopic;
 };
 
 #endif

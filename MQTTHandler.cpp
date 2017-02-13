@@ -8,7 +8,9 @@ MQTTHandler::MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttC
 :
 m_pubSubClient(m_wifiClient),
 m_domain(NULL),
-m_inTopic(inTopic)
+m_inTopic(inTopic),
+m_fwUpdateTopic(NULL),
+m_testTopic(NULL)
 {
     myCallback = callback;
     m_pubSubClient.setServer(ip, port);
@@ -19,7 +21,9 @@ MQTTHandler::MQTTHandler(const char * domain, uint16_t port, const char* inTopic
 :
 m_pubSubClient(m_wifiClient),
 m_domain(domain),
-m_inTopic(inTopic)
+m_inTopic(inTopic),
+m_fwUpdateTopic(NULL),
+m_testTopic(NULL)
 {
     myCallback = callback;
     m_pubSubClient.setServer(domain, port);
@@ -63,17 +67,9 @@ void MQTTHandler::connectToMqttServer()
     {
       Serial.println("connected");
 
-      if(m_inTopic != NULL)
-      {
-        Serial.print("Subscribing to topic ");
-        Serial.println(m_inTopic);
-        
-        m_pubSubClient.subscribe(m_inTopic);
-      }
-      else
-      {
-        Serial.println("No topics to subscribe");
-      }
+      subscribe(m_inTopic);
+      subscribe(m_fwUpdateTopic);
+      subscribe(m_testTopic);
     } 
     else 
     {
@@ -82,6 +78,21 @@ void MQTTHandler::connectToMqttServer()
       Serial.println(" try again in 5 seconds");
       
       delay(5000);  //retry after 5secs
+    }
+  }
+}
+
+void MQTTHandler::subscribe(const char* topic)
+{
+  if(topic)
+  {
+    Serial.print("Subscribing to topic ");
+    Serial.println(topic);
+    
+    if(!m_pubSubClient.subscribe(topic))
+    {
+      Serial.print("Failed to subscribe to topic ");
+      Serial.println(topic);
     }
   }
 }
@@ -96,6 +107,16 @@ void MQTTHandler::publish(String topic, String msg)
   {
     Serial.println("Error publishing msg " + msg + " for topic " + topic);
   }
+}
+
+void MQTTHandler::addFwUpdateTopic(const char* topic)
+{
+  m_fwUpdateTopic = topic;
+}
+
+void MQTTHandler::addTestTopic(const char* topic)
+{
+  m_testTopic = topic;
 }
 
 void callbackInternal(char* topic, byte* payload, unsigned int length) 
