@@ -12,6 +12,7 @@ public:
 
     MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback);
     MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback);
+    MQTTHandler(const char * domain, uint16_t port);
     
     void handle();
     void publish(String topic, String msg);

@@ -26,6 +26,15 @@ m_inTopic(inTopic)
     m_pubSubClient.setCallback(callbackInternal);
 }
 
+MQTTHandler::MQTTHandler(const char * domain, uint16_t port)
+:
+m_pubSubClient(m_wifiClient),
+m_domain(domain),
+m_inTopic(NULL)
+{
+  m_pubSubClient.setServer(domain, port);
+}
+
 void MQTTHandler::handle()
 {
   if (!m_pubSubClient.connected()) 
