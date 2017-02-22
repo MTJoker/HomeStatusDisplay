@@ -119,21 +119,19 @@ void doLedStripeTestPattern(uint32_t numberOfCycles)
 
   for(uint32_t cycle = 0; cycle < numberOfCycles; cycle++)
   {
-    for(uint32_t colorIndex = 0; colorIndex < NUMBER_OF_ELEMENTS(colors); colorIndex++)
-    {
       for(uint32_t i = 0; i < NUMBER_OF_LEDS; i++)
       {
-        leds.setPixelColor(i, colors[colorIndex]);
+        for(uint32_t colorIndex = 0; colorIndex < NUMBER_OF_ELEMENTS(colors); colorIndex++)
+        {
+          leds.setPixelColor(i, colors[colorIndex]);
+          leds.show();
+          delay(20);
+        }
+
+        leds.setPixelColor(i, LedSwitcher::COLOR_OFF);
         leds.show();
-        delay(50);
+        delay(5);
       }
-    }
-  
-    for(uint32_t i = 0; i < NUMBER_OF_LEDS; i++)
-    {
-      leds.setPixelColor(i, LedSwitcher::COLOR_OFF);
-      leds.show();
-    }
   }
 }
 
