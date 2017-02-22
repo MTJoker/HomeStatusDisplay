@@ -90,7 +90,7 @@ colorMapping colorMap[] =
   {"tilted",   TYPE_DOOR,   {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
   {"on",       TYPE_LIGHT,  {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_ON}}, 
   {"off",      TYPE_LIGHT,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {"true",     TYPE_ALARM,  {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_BLINKING}}, // used by oven, defectDevices, battery
+  {"true",     TYPE_ALARM,  {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_FLASHING}}, // used by oven, defectDevices, battery
   {"false",    TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}},      // used by oven, defectDevices, battery
   {"closed",   TYPE_ALARM,  {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_BLINKING}}, // used by water detectors
   {"open",     TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}},      // used by water detectors

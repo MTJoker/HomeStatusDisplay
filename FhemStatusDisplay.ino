@@ -63,6 +63,12 @@ void handleMqttMessage(String topic, String msg)
       heartbeat.changeTiming(HEARTBEAT_ON_TIME_FWUPDATE, HEARTBEAT_OFF_TIME_FWUPDATE);
       firmwareUpdate = true;
     }
+    else
+    {
+      Serial.println("Leave OTA firmware update mode");
+      heartbeat.changeTiming(HEARTBEAT_ON_TIME_DEFAULT, HEARTBEAT_OFF_TIME_DEFAULT);
+      firmwareUpdate = false;
+    }
   }
   else if(topic.equals(MQTT_IN_TOPIC_TEST))
   {
