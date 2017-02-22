@@ -12,6 +12,13 @@ m_previousMillis(0)
   pinMode(ledPin, OUTPUT);
 }
 
+void Heartbeat::changeTiming(long onTime, long offTime)
+{
+  m_onTime = onTime;
+  m_offTime = offTime;
+  m_previousMillis = 0;
+}
+
 void Heartbeat::update()
 {
   unsigned long currentMillis = millis();

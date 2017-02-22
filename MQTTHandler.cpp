@@ -7,23 +7,46 @@ mqttCallback myCallback;
 MQTTHandler::MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback)
 :
 m_pubSubClient(m_wifiClient),
-m_domain(NULL),
-m_inTopic(inTopic)
+m_domain(NULL)
 {
-    myCallback = callback;
-    m_pubSubClient.setServer(ip, 1883);
-    m_pubSubClient.setCallback(callbackInternal);   
+  initTopics();
+  addTopic(inTopic);
+  
+  myCallback = callback;
+  m_pubSubClient.setServer(ip, port);
+  m_pubSubClient.setCallback(callbackInternal);   
 }
 
 MQTTHandler::MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback)
 :
 m_pubSubClient(m_wifiClient),
-m_domain(domain),
-m_inTopic(inTopic)
+m_domain(domain)
 {
-    myCallback = callback;
-    m_pubSubClient.setServer(domain, 1883);
-    m_pubSubClient.setCallback(callbackInternal);
+  initTopics();
+  addTopic(inTopic);
+  
+  myCallback = callback;
+  m_pubSubClient.setServer(domain, port);
+  m_pubSubClient.setCallback(callbackInternal);
+}
+
+MQTTHandler::MQTTHandler(const char * domain, uint16_t port)
+:
+m_pubSubClient(m_wifiClient),
+m_domain(domain)
+{
+  initTopics();
+  m_pubSubClient.setServer(domain, port);
+}
+
+void MQTTHandler::initTopics()
+{
+  for(uint32_t index = 0; index < MAX_IN_TOPICS; index++)
+  {
+    m_inTopics[index] = NULL;
+  }
+
+  m_numberOfInTopics = 0;
 }
 
 void MQTTHandler::handle()
@@ -54,11 +77,10 @@ void MQTTHandler::connectToMqttServer()
     {
       Serial.println("connected");
 
-      //subscribe topic
-      Serial.print("Subscribing to topic ");
-      Serial.println(m_inTopic);
-      
-      m_pubSubClient.subscribe(m_inTopic);
+      for(uint32_t index = 0; index < m_numberOfInTopics; index++)
+      {
+        subscribe(m_inTopics[index]);
+      }
     } 
     else 
     {
@@ -69,6 +91,47 @@ void MQTTHandler::connectToMqttServer()
       delay(5000);  //retry after 5secs
     }
   }
+}
+
+void MQTTHandler::subscribe(const char* topic)
+{
+  if(topic)
+  {
+    Serial.print("Subscribing to topic ");
+    Serial.println(topic);
+    
+    if(!m_pubSubClient.subscribe(topic))
+    {
+      Serial.print("Failed to subscribe to topic ");
+      Serial.println(topic);
+    }
+  }
+}
+
+void MQTTHandler::publish(String topic, String msg)
+{
+  if(m_pubSubClient.publish(topic.c_str(), msg.c_str()))
+  {
+    Serial.println("Published msg " + msg + " for topic " + topic);
+  }
+  else
+  {
+    Serial.println("Error publishing msg " + msg + " for topic " + topic);
+  }
+}
+
+bool MQTTHandler::addTopic(const char* topic)
+{
+  bool success = false;
+  
+  if(m_numberOfInTopics < (MAX_IN_TOPICS - 1))
+  {
+    m_inTopics[m_numberOfInTopics] = topic;
+    m_numberOfInTopics++;
+    success = true;
+  }
+
+  return success;
 }
 
 void callbackInternal(char* topic, byte* payload, unsigned int length) 

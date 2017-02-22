@@ -1,6 +1,11 @@
 #ifndef _HEARTBEAT_H
 #define _HEARTBEAT_H
 
+/**
+ * Simple class to realize a "heartbeat" - that is a led which blinks in
+ * a given interval to visualize the system is still working.
+ */
+
 class Heartbeat
 {
 public:
@@ -8,6 +13,7 @@ public:
   Heartbeat(int ledPin, long onTime, long offTime);
 
   void update();
+  void changeTiming(long onTime, long offTime);
   
 private:
 

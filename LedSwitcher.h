@@ -11,7 +11,8 @@ public:
   {
     MODE_OFF,
     MODE_ON,
-    MODE_BLINKING
+    MODE_BLINKING,
+    MODE_FLASHING
   };
 
   enum ledColor
@@ -34,13 +35,14 @@ public:
 
   void init(int ledNumber, Adafruit_NeoPixel& leds);
   void set(ledState& state);
-  void setBlinkTiming(uint32_t onTime, uint32_t offTime);
   void update();
   
 private:
-
-  static const uint32_t defaultBlinkOnTime = 500;
-  static const uint32_t defaultBlinkOffTime = 500;
+  
+  static const uint32_t blinkOnTime = 500;
+  static const uint32_t blinkOffTime = 500;
+  static const uint32_t flashOnTime = 2000;
+  static const uint32_t flashOffTime = 200;
 
   Adafruit_NeoPixel m_leds;
   
@@ -48,8 +50,8 @@ private:
   ledState m_ledState;
   bool m_isOn;
     
-  uint32_t m_blinkOnTime;
-  uint32_t m_blinkOffTime;
+  uint32_t m_onTime;
+  uint32_t m_offTime;
 
   unsigned long m_previousMillis;
 };

@@ -10,17 +10,29 @@ class MQTTHandler
 {
 public:
 
-    MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback);
-    MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback);
-    void handle();
+  MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback);
+  MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback);
+  MQTTHandler(const char * domain, uint16_t port);
+
+  static const uint32_t MAX_IN_TOPICS = 10;
+  
+  void handle();
+  void publish(String topic, String msg);
+  bool addTopic(const char* topic);
 
 private:
-    void connectToMqttServer(); 
- 
-    WiFiClient m_wifiClient;
-    PubSubClient m_pubSubClient;
-    const char* m_domain;
-    const char* m_inTopic;
+
+  void initTopics();
+  void connectToMqttServer(); 
+  void subscribe(const char* topic);
+
+  WiFiClient m_wifiClient;
+  PubSubClient m_pubSubClient;
+  const char* m_domain;
+  const char* m_inTopics[MAX_IN_TOPICS];
+  uint32_t m_numberOfInTopics;
+  const char* m_fwUpdateTopic;
+  const char* m_testTopic;
 };
 
 #endif
