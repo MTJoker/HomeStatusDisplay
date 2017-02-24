@@ -21,15 +21,6 @@ const char* MQTT_IN_TOPIC_TEST      = "fhem/cmd/statusdisplay_01/test";
  */
 const uint16_t NUMBER_OF_LEDS = 33;
 const uint8_t LED_DATA_PIN = D2;
-const uint8_t HEARTBEAT_LED_PIN = D1;
-
-/*
- * Misc config
- */
-const long HEARTBEAT_ON_TIME_DEFAULT = 300;
-const long HEARTBEAT_OFF_TIME_DEFAULT = 3000;
-const long HEARTBEAT_ON_TIME_FWUPDATE = 100;
-const long HEARTBEAT_OFF_TIME_FWUPDATE = 100;
 
 /*
  * List of known devices with mapping to led number
