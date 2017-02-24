@@ -134,6 +134,12 @@ bool MQTTHandler::addTopic(const char* topic)
   return success;
 }
 
+void MQTTHandler::reconnect()
+{
+  m_pubSubClient.disconnect();
+  connectToMqttServer();
+}
+
 void callbackInternal(char* topic, byte* payload, unsigned int length) 
 { 
   int i = 0;

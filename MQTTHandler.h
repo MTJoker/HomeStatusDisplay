@@ -19,6 +19,7 @@ public:
   void handle();
   void publish(String topic, String msg);
   bool addTopic(const char* topic);
+  void reconnect();
 
 private:
 
