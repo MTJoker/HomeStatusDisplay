@@ -14,8 +14,7 @@ const char* WLAN_PWD  =  "xxx";
  */
 const char* MQTT_SERVER = "xxx";
 const char* MQTT_IN_TOPIC_STATUS    = "fhem/status/#";
-const char* MQTT_IN_TOPIC_FW_UPDATE = "fhem/cmd/fwupdate/statusdisplay_01";
-const char* MQTT_IN_TOPIC_TEST      = "fhem/cmd/test/statusdisplay_01";
+const char* MQTT_IN_TOPIC_TEST      = "fhem/cmd/statusdisplay_01/test";
 
 /*
  * LED config
