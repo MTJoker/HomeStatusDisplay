@@ -1,7 +1,6 @@
-#ifndef _FHEM_STATUS_DISPLAY_TYPES_H_
-#define _FHEM_STATUS_DISPLAY_TYPES_H_
+#pragma once
 
-#include "StatusDisplayLeds.h"
+#include "Led.h"
 
 // Helper macro for getting the number of elements in an array
 #define NUMBER_OF_ELEMENTS(array)  (sizeof(array)/sizeof(array[0]))
@@ -42,4 +41,3 @@ struct colorMapping
   Led::Behavior behavior;  // led behavior for message from device type
 };
 
-#endif

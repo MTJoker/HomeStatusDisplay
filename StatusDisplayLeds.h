@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FhemStatusDisplayConfig.h"
 #include "Led.h"
 #include <Adafruit_NeoPixel.h>
 
@@ -7,9 +8,10 @@ class StatusDisplayLeds
 {
 public:
 
-  StatusDisplayLeds(uint32_t numLeds, uint8_t dataPin);
+  StatusDisplayLeds(const FhemStatusDisplayConfig& config);
   ~StatusDisplayLeds();
-  
+
+  void begin();
   void update();
   void set(uint32_t ledNum, Led::Behavior behavior, Led::Color color);
   void clear();
@@ -23,6 +25,8 @@ private:
   static const uint32_t flashOffTime = 200;
 
   void updateStripe();
+
+  const FhemStatusDisplayConfig& m_config;
 
   uint32_t m_numLeds;
   Led* m_pLeds;

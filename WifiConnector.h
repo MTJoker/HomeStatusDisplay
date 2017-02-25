@@ -1,5 +1,6 @@
-#ifndef _WIFI_CONNECTOR_
-#define _WIFI_CONNECTOR_
+#pragma once
+
+#include "FhemStatusDisplayConfig.h"
 
 class WifiConnector
 {
@@ -8,7 +9,7 @@ public:
   /*
    * Constructor. Supply SSID and PWD to the WLAN you want to connect
    */
-  WifiConnector(const char* ssid, const char* pwd);
+  WifiConnector(const FhemStatusDisplayConfig& config);
 
   /*
    * Connect to WLAN with credentials supplied in constructor.
@@ -25,8 +26,6 @@ public:
     
 private:
 
-    const char* m_wlanSSID;
-    const char* m_wlanPwd;
+  const FhemStatusDisplayConfig& m_config;
 };
 
-#endif

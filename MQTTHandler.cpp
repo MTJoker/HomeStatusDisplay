@@ -4,39 +4,28 @@ static void callbackInternal(char* topic, byte* payload, unsigned int length);
 char mqttMsgBuffer[20];
 mqttCallback myCallback;
 
-MQTTHandler::MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback)
+MQTTHandler::MQTTHandler(const FhemStatusDisplayConfig& config, mqttCallback callback)
 :
-m_pubSubClient(m_wifiClient),
-m_domain(NULL)
+m_config(config),
+m_pubSubClient(m_wifiClient)
 {
-  initTopics();
-  addTopic(inTopic);
-  
   myCallback = callback;
-  m_pubSubClient.setServer(ip, port);
-  m_pubSubClient.setCallback(callbackInternal);   
 }
 
-MQTTHandler::MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback)
-:
-m_pubSubClient(m_wifiClient),
-m_domain(domain)
+void MQTTHandler::begin()
 {
-  initTopics();
-  addTopic(inTopic);
+  Serial.println("");
+  Serial.print("Initializing MQTT connection to ");
+  Serial.println(m_config.getMqttServer());
   
-  myCallback = callback;
-  m_pubSubClient.setServer(domain, port);
-  m_pubSubClient.setCallback(callbackInternal);
-}
-
-MQTTHandler::MQTTHandler(const char * domain, uint16_t port)
-:
-m_pubSubClient(m_wifiClient),
-m_domain(domain)
-{
   initTopics();
-  m_pubSubClient.setServer(domain, port);
+  addTopic(m_config.getMqttStatusTopic());
+  addTopic(m_config.getMqttTestTopic());
+  
+  m_pubSubClient.setServer(m_config.getMqttServer(), 1883);
+  m_pubSubClient.setCallback(callbackInternal);  
+
+  connectToMqttServer();
 }
 
 void MQTTHandler::initTopics()
@@ -69,7 +58,6 @@ void MQTTHandler::connectToMqttServer()
     clientId += String(random(0xffff), HEX);
 
     Serial.print("Connecting to MQTT broker ");
-    if(m_domain) Serial.print(m_domain);
     Serial.print(" with client id " + clientId + "... ");
     
     // Attempt to connect

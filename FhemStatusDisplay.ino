@@ -9,57 +9,16 @@
 void handleMqttMessage(String topic, String msg);
 
 // Create class instances
-WifiConnector wifiConnector(WLAN_SSID, WLAN_PWD);
-MQTTHandler mqttHandler(MQTT_SERVER, 1883, MQTT_IN_TOPIC_STATUS, handleMqttMessage);
-StatusDisplayLeds leds(NUMBER_OF_LEDS, LED_DATA_PIN);
+FhemStatusDisplayConfig config;
+WifiConnector wifiConnector(config);
+MQTTHandler mqttHandler(config, handleMqttMessage);
+StatusDisplayLeds leds(config);
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
 
-int getLedNumber(String deviceName, deviceType deviceType)
-{
-  int number = -1;
-
-  for(uint32_t i=0; i<NUMBER_OF_ELEMENTS(deviceMap); i++)
-  {
-    if(deviceName.equals(deviceMap[i].name) && (deviceType == deviceMap[i].type))
-    {
-      number = deviceMap[i].ledNumber;
-      break;
-    }
-  }
-
-  return number;
-}
-
-int getColorMapIndex(deviceType deviceType, String msg)
-{
-  int index = -1;
-
-  for(uint32_t i=0; i<NUMBER_OF_ELEMENTS(colorMap); i++)
-  {
-    if(msg.equals(colorMap[i].msg) && (deviceType == colorMap[i].type))
-    {
-      index = i;
-      break;
-    }
-  }
-
-  return index;
-}
-
-Led::Behavior getLedBehavior(int colorMapIndex)
-{
-  return colorMap[colorMapIndex].behavior;
-}
-
-Led::Color getLedColor(int colorMapIndex)
-{
-  return colorMap[colorMapIndex].color;
-}
-
 void handleMqttMessage(String topic, String msg)
 {
-  if(topic.equals(MQTT_IN_TOPIC_TEST))
+  if(topic.equals(config.getMqttTestTopic()))
   {
     uint32_t type = msg.toInt();
     if(type > 0)
@@ -100,13 +59,13 @@ void handleMqttMessage(String topic, String msg)
 
 void handleStatus(String device, deviceType type, String msg)
 {
-  int ledNumber = getLedNumber(device, type);
-  int colorMapIndex = getColorMapIndex(type, msg);
+  int ledNumber = config.getLedNumber(device, type);
+  int colorMapIndex = config.getColorMapIndex(type, msg);
 
   if( (ledNumber != -1) && (colorMapIndex != -1) )
   {
-    Led::Behavior behavior = getLedBehavior(colorMapIndex);
-    Led::Color color = getLedColor(colorMapIndex);
+    Led::Behavior behavior = config.getLedBehavior(colorMapIndex);
+    Led::Color color = config.getLedColor(colorMapIndex);
 
     Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
     leds.set(ledNumber, behavior, color);
@@ -119,12 +78,14 @@ void handleStatus(String device, deviceType type, String msg)
 
 void setup() 
 { 
-  mqttHandler.addTopic(MQTT_IN_TOPIC_TEST);
   Serial.begin(115200);
+  config.begin();
   wifiConnector.connect();
+  mqttHandler.begin();
   httpUpdater.setup(&httpServer);
   httpServer.begin();
-
+  leds.begin();
+  
   leds.test(4);
 }
 

@@ -1,19 +1,32 @@
 #include "StatusDisplayLeds.h"
 #include "FhemStatusDisplayTypes.h"
 
-StatusDisplayLeds::StatusDisplayLeds(uint32_t numLeds, uint8_t dataPin)
+StatusDisplayLeds::StatusDisplayLeds(const FhemStatusDisplayConfig& config)
 :
-m_numLeds(numLeds),
-m_stripe(m_numLeds, dataPin, NEO_GRB + NEO_KHZ800),
-m_pLeds(new Led[m_numLeds])
+m_config(config)
 {
-  clear();
-  m_stripe.begin();
+
 }
 
 StatusDisplayLeds::~StatusDisplayLeds()
 {
-  delete [] m_pLeds;
+  if(m_pLeds)
+  {
+    delete [] m_pLeds;
+  }
+}
+
+void StatusDisplayLeds::begin()
+{
+  m_numLeds = m_config.getNumberOfLeds();
+  m_pLeds = new Led[m_numLeds];
+
+  m_stripe.setPin(m_config.getLedDataPin());
+  m_stripe.updateLength(m_numLeds);
+  m_stripe.updateType(NEO_GRB + NEO_KHZ800);
+  
+  clear();
+  m_stripe.begin();
 }
 
 void StatusDisplayLeds::set(uint32_t ledNum, Led::Behavior behavior, Led::Color color)
