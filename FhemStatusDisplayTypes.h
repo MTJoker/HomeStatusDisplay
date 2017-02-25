@@ -1,7 +1,7 @@
 #ifndef _FHEM_STATUS_DISPLAY_TYPES_H_
 #define _FHEM_STATUS_DISPLAY_TYPES_H_
 
-#include "LedSwitcher.h"
+#include "StatusDisplayLeds.h"
 
 // Helper macro for getting the number of elements in an array
 #define NUMBER_OF_ELEMENTS(array)  (sizeof(array)/sizeof(array[0]))
@@ -36,9 +36,10 @@ struct deviceMapping
  */
 struct colorMapping
 {
-  String msg;                   // message 
-  deviceType type;              // type of the device
-  LedSwitcher::ledState state;  // led behavior for messege from device type
+  String msg;              // message 
+  deviceType type;         // type of the device
+  Led::Color color;        // led color for message from device type
+  Led::Behavior behavior;  // led behavior for message from device type
 };
 
 #endif

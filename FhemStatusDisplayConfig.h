@@ -72,24 +72,24 @@ deviceMapping deviceMap[] =
  */
 colorMapping colorMap[] = 
 {
-  {"open",     TYPE_WINDOW, {LedSwitcher::COLOR_BLUE,   LedSwitcher::MODE_ON}}, 
-  {"closed",   TYPE_WINDOW, {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {"tilted",   TYPE_WINDOW, {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
-  {"open",     TYPE_DOOR,   {LedSwitcher::COLOR_BLUE,   LedSwitcher::MODE_ON}}, 
-  {"closed",   TYPE_DOOR,   {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {"tilted",   TYPE_DOOR,   {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}}, 
-  {"on",       TYPE_LIGHT,  {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_ON}}, 
-  {"off",      TYPE_LIGHT,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}, 
-  {"true",     TYPE_ALARM,  {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_FLASHING}}, // used by oven, defectDevices, battery
-  {"false",    TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}},      // used by oven, defectDevices, battery
-  {"closed",   TYPE_ALARM,  {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_BLINKING}}, // used by water detectors
-  {"open",     TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}},      // used by water detectors
-  {"on",       TYPE_ALARM,  {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_ON}},       // used by washing machine
-  {"off",      TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}},      // used by washing machine
-  {"standby",  TYPE_ALARM,  {LedSwitcher::COLOR_GREEN,  LedSwitcher::MODE_BLINKING}}, // used by washing machine
-  {"today",    TYPE_ALARM,  {LedSwitcher::COLOR_RED,    LedSwitcher::MODE_ON}},       // used by waste
-  {"tomorrow", TYPE_ALARM,  {LedSwitcher::COLOR_YELLOW, LedSwitcher::MODE_ON}},       // used by waste
-  {"none",     TYPE_ALARM,  {LedSwitcher::COLOR_OFF,    LedSwitcher::MODE_OFF}}       // used by waste
+  {"open",     TYPE_WINDOW, Led::BLUE,   Led::ON}, 
+  {"closed",   TYPE_WINDOW, Led::NONE,   Led::OFF}, 
+  {"tilted",   TYPE_WINDOW, Led::YELLOW, Led::ON}, 
+  {"open",     TYPE_DOOR,   Led::BLUE,   Led::ON}, 
+  {"closed",   TYPE_DOOR,   Led::NONE,   Led::OFF}, 
+  {"tilted",   TYPE_DOOR,   Led::YELLOW, Led::ON}, 
+  {"on",       TYPE_LIGHT,  Led::GREEN,  Led::ON}, 
+  {"off",      TYPE_LIGHT,  Led::NONE,   Led::OFF}, 
+  {"true",     TYPE_ALARM,  Led::YELLOW, Led::FLASHING}, // used by oven, defectDevices, battery
+  {"false",    TYPE_ALARM,  Led::NONE,   Led::OFF},      // used by oven, defectDevices, battery
+  {"closed",   TYPE_ALARM,  Led::RED,    Led::BLINKING}, // used by water detectors
+  {"open",     TYPE_ALARM,  Led::NONE,   Led::OFF},      // used by water detectors
+  {"on",       TYPE_ALARM,  Led::GREEN,  Led::ON},       // used by washing machine
+  {"off",      TYPE_ALARM,  Led::NONE,   Led::OFF},      // used by washing machine
+  {"standby",  TYPE_ALARM,  Led::GREEN,  Led::BLINKING}, // used by washing machine
+  {"today",    TYPE_ALARM,  Led::RED,    Led::ON},       // used by waste
+  {"tomorrow", TYPE_ALARM,  Led::YELLOW, Led::ON},       // used by waste
+  {"none",     TYPE_ALARM,  Led::NONE,   Led::OFF}       // used by waste
 };
 
 #endif
