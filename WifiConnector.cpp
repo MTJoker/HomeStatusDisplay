@@ -9,7 +9,7 @@ m_config(config)
 
 void WifiConnector::connect()
 {
-  WiFi.begin(m_config.getWifiSSID().c_str(), m_config.getWifiPSK().c_str());
+  WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
 
   Serial.println("");
   Serial.print("Starting Wifi connection to ");

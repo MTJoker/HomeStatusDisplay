@@ -1,15 +1,11 @@
 #include "MQTTHandler.h"
 
-static void callbackInternal(char* topic, byte* payload, unsigned int length);
-char mqttMsgBuffer[20];
-mqttCallback myCallback;
-
-MQTTHandler::MQTTHandler(const FhemStatusDisplayConfig& config, mqttCallback callback)
+MQTTHandler::MQTTHandler(const FhemStatusDisplayConfig& config, MQTT_CALLBACK_SIGNATURE)
 :
 m_config(config),
 m_pubSubClient(m_wifiClient)
 {
-  myCallback = callback;
+  m_pubSubClient.setCallback(callback);
 }
 
 void MQTTHandler::begin()
@@ -22,8 +18,7 @@ void MQTTHandler::begin()
   addTopic(m_config.getMqttStatusTopic());
   addTopic(m_config.getMqttTestTopic());
   
-  m_pubSubClient.setServer(m_config.getMqttServer(), 1883);
-  m_pubSubClient.setCallback(callbackInternal);  
+  m_pubSubClient.setServer(m_config.getMqttServer(), 1883);  
 
   connectToMqttServer();
 }
@@ -126,23 +121,5 @@ void MQTTHandler::reconnect()
 {
   m_pubSubClient.disconnect();
   connectToMqttServer();
-}
-
-void callbackInternal(char* topic, byte* payload, unsigned int length) 
-{ 
-  int i = 0;
-
-  for (i = 0; i < length; i++) 
-  {
-    mqttMsgBuffer[i] = payload[i];
-  }
-  mqttMsgBuffer[i] = '\0';
-
-  String mqttTopicString(topic);
-  String mqttMsgString = String(mqttMsgBuffer);
-  
-  Serial.println("Received an MQTT message for topic " + mqttTopicString + ": " + mqttMsgString);
-
-  myCallback(mqttTopicString, mqttMsgString);
 }
 

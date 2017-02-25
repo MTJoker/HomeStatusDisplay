@@ -1,4 +1,9 @@
 #include "FhemStatusDisplayConfig.h"
+#include <FS.h>
+
+static const char* configFileName = "/config.json";
+static const char* version = "0.1_dev";
+static const char* host = "FhemStatusDisplay";
 
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
@@ -11,11 +16,12 @@ void FhemStatusDisplayConfig::begin()
   Serial.println("Initializing config.");
 
   // TODO: read from config file
+  setHost(host);
 
-  setWifiSSID("xxx");
-  setWifiPSK("xxx");
+  setWifiSSID("xx");
+  setWifiPSK("xx");
 
-  setMqttServer("xxx");
+  setMqttServer("xx");
   setMqttStatusTopic("fhem/status/#");
   setMqttTestTopic("fhem/cmd/statusdisplay_01/test");  
 
@@ -23,25 +29,41 @@ void FhemStatusDisplayConfig::begin()
   setLedDataPin(D2);
 }
 
-const String FhemStatusDisplayConfig::getWifiSSID() const
+const char* FhemStatusDisplayConfig::getHost() const
 {
-  return String(m_cfgWifiSSID);
+  return m_cfgHost;
 }
 
-bool FhemStatusDisplayConfig::setWifiSSID(String ssid)
+bool FhemStatusDisplayConfig::setHost(const char* host)
 {
-  strcpy(m_cfgWifiSSID, ssid.c_str());
+  strcpy(m_cfgHost, host);
   return true;
 }
 
-const String FhemStatusDisplayConfig::getWifiPSK() const
+const char* FhemStatusDisplayConfig::getVersion() const
 {
-  return String(m_cfgWifiPSK);
+  return version;
 }
 
-bool FhemStatusDisplayConfig::setWifiPSK(String psk)
+const char* FhemStatusDisplayConfig::getWifiSSID() const
 {
-  strcpy(m_cfgWifiPSK, psk.c_str());
+  return m_cfgWifiSSID;
+}
+
+bool FhemStatusDisplayConfig::setWifiSSID(const char* ssid)
+{
+  strcpy(m_cfgWifiSSID, ssid);
+  return true;
+}
+
+const char* FhemStatusDisplayConfig::getWifiPSK() const
+{
+  return m_cfgWifiPSK;
+}
+
+bool FhemStatusDisplayConfig::setWifiPSK(const char* psk)
+{
+  strcpy(m_cfgWifiPSK, psk);
   return true;
 }
 

@@ -4,13 +4,11 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-typedef void (*mqttCallback)(String topic, String msg);
-
 class MQTTHandler
 {
 public:
 
-  MQTTHandler(const FhemStatusDisplayConfig& config, mqttCallback callback);
+  MQTTHandler(const FhemStatusDisplayConfig& config, MQTT_CALLBACK_SIGNATURE);
 
   static const uint32_t MAX_IN_TOPICS = 10;
 

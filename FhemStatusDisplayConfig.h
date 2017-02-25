@@ -76,11 +76,16 @@ public:
 
   void begin();
 
-  const String getWifiSSID() const;
-  bool setWifiSSID(String ssid);
+  const char* getVersion() const;
 
-  const String getWifiPSK() const;
-  bool setWifiPSK(String psk);
+  const char* getHost() const;
+  bool setHost(const char* host);
+
+  const char* getWifiSSID() const;
+  bool setWifiSSID(const char* ssid);
+
+  const char* getWifiPSK() const;
+  bool setWifiPSK(const char* psk);
 
   const char* getMqttServer() const;
   bool setMqttServer(const char* ip);
@@ -104,6 +109,7 @@ public:
 
 private:
 
+  char m_cfgHost[20];
   char m_cfgWifiSSID[40];
   char m_cfgWifiPSK[40];
   char m_cfgMqttServer[40];
