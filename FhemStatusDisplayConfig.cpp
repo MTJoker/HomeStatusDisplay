@@ -1,10 +1,6 @@
 #include "FhemStatusDisplayConfig.h"
 #include <FS.h>
 
-static const char* configFileName = "/config.json";
-static const char* version = "0.1_dev";
-static const char* host = "FhemStatusDisplay";
-
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
   // reset all members
@@ -19,25 +15,125 @@ FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 
   setNumberOfLeds(0);
   setLedDataPin(0);
+
+  memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
+  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
+  m_numDeviceMappingEntries = 0;
+  m_numColorMappingEntries = 0;
 }
 
-void FhemStatusDisplayConfig::begin()
+void FhemStatusDisplayConfig::begin(const char* configFileName, const char* version, const char* defaultIdentifier)
 {
   Serial.println("");
   Serial.println("Initializing config.");
 
+  // TODO: store config file name
+
+  setVersion(version);
+
   // TODO: read from config file
-  setHost(host);
+  setHost(defaultIdentifier);
 
-  setWifiSSID("xx");
-  setWifiPSK("xx");
+  setWifiSSID("xxx");
+  setWifiPSK("xxx");
 
-  setMqttServer("xx");
+  setMqttServer("xxx");
   setMqttStatusTopic("fhem/status/#");
   setMqttTestTopic("fhem/cmd/statusdisplay_01/test");  
 
   setNumberOfLeds(33);
   setLedDataPin(D2);
+
+  // 1st row
+  addDeviceMappingEntry("basement",   TYPE_DOOR,    0);
+  addDeviceMappingEntry("main",       TYPE_DOOR,    1);
+  addDeviceMappingEntry("kitchen",    TYPE_WINDOW,  2);
+  addDeviceMappingEntry("eating",     TYPE_WINDOW,  3);
+  addDeviceMappingEntry("terrace",    TYPE_DOOR,    4);
+  addDeviceMappingEntry("bath_left",  TYPE_WINDOW,  5);
+  addDeviceMappingEntry("bath_right", TYPE_WINDOW,  6);
+  addDeviceMappingEntry("child",      TYPE_WINDOW,  7);
+  addDeviceMappingEntry("sleep",      TYPE_WINDOW,  8);
+  addDeviceMappingEntry("work",       TYPE_WINDOW,  9);
+  addDeviceMappingEntry("garage",     TYPE_DOOR,   10);
+
+  //2nd row
+  addDeviceMappingEntry("kitchen_ceiling_right", TYPE_LIGHT, 11);
+  addDeviceMappingEntry("kitchen_ceiling_left",  TYPE_LIGHT, 12);
+  addDeviceMappingEntry("eating_ceiling",        TYPE_LIGHT, 13);
+  addDeviceMappingEntry("living_ceiling",        TYPE_LIGHT, 14);
+  addDeviceMappingEntry("living_stonewall",      TYPE_LIGHT, 15);
+  addDeviceMappingEntry("living_lowboard",       TYPE_LIGHT, 16);
+  addDeviceMappingEntry("living_shelf",          TYPE_LIGHT, 17);
+  addDeviceMappingEntry("bath_ceiling",          TYPE_LIGHT, 18);
+  addDeviceMappingEntry("child_ceiling",         TYPE_LIGHT, 19);
+  addDeviceMappingEntry("sleep_ceiling",         TYPE_LIGHT, 20);
+  addDeviceMappingEntry("work_ceiling",          TYPE_LIGHT, 21);
+
+  //3rd row
+  addDeviceMappingEntry("washing_machine",    TYPE_ALARM, 22);
+  addDeviceMappingEntry("waterdetector_1",    TYPE_ALARM, 23);
+  addDeviceMappingEntry("waterdetector_2",    TYPE_ALARM, 24);
+  addDeviceMappingEntry("oven",               TYPE_ALARM, 25);
+  addDeviceMappingEntry("waste_residual_bio", TYPE_ALARM, 26);
+  addDeviceMappingEntry("waste_paper_yellow", TYPE_ALARM, 27);
+  addDeviceMappingEntry("device_error",       TYPE_ALARM, 28);
+  addDeviceMappingEntry("battery_error",      TYPE_ALARM, 29);
+  addDeviceMappingEntry("unused_3",           TYPE_ALARM, 30);
+  addDeviceMappingEntry("unused_2",           TYPE_ALARM, 31);
+  addDeviceMappingEntry("unused_1",           TYPE_ALARM, 32);
+
+  addColorMappingEntry("open",     TYPE_WINDOW, Led::BLUE,   Led::ON); 
+  addColorMappingEntry("closed",   TYPE_WINDOW, Led::NONE,   Led::OFF); 
+  addColorMappingEntry("tilted",   TYPE_WINDOW, Led::YELLOW, Led::ON); 
+  addColorMappingEntry("open",     TYPE_DOOR,   Led::BLUE,   Led::ON); 
+  addColorMappingEntry("closed",   TYPE_DOOR,   Led::NONE,   Led::OFF); 
+  addColorMappingEntry("tilted",   TYPE_DOOR,   Led::YELLOW, Led::ON); 
+  addColorMappingEntry("on",       TYPE_LIGHT,  Led::GREEN,  Led::ON); 
+  addColorMappingEntry("off",      TYPE_LIGHT,  Led::NONE,   Led::OFF); 
+  addColorMappingEntry("true",     TYPE_ALARM,  Led::YELLOW, Led::FLASHING); // used by oven, defectDevices, battery
+  addColorMappingEntry("false",    TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by oven, defectDevices, battery
+  addColorMappingEntry("closed",   TYPE_ALARM,  Led::RED,    Led::BLINKING); // used by water detectors
+  addColorMappingEntry("open",     TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by water detectors
+  addColorMappingEntry("on",       TYPE_ALARM,  Led::GREEN,  Led::ON);       // used by washing machine
+  addColorMappingEntry("off",      TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by washing machine
+  addColorMappingEntry("standby",  TYPE_ALARM,  Led::YELLOW, Led::BLINKING); // used by washing machine
+  addColorMappingEntry("today",    TYPE_ALARM,  Led::RED,    Led::ON);       // used by waste
+  addColorMappingEntry("tomorrow", TYPE_ALARM,  Led::YELLOW, Led::ON);       // used by waste
+  addColorMappingEntry("none",     TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by waste
+}
+
+bool FhemStatusDisplayConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
+{
+  bool success = false;
+
+  if(m_numDeviceMappingEntries < (MAX_DEVICE_MAP_ENTRIES - 1))
+  {
+    m_cfgDeviceMapping[m_numDeviceMappingEntries].name = name;
+    m_cfgDeviceMapping[m_numDeviceMappingEntries].type = type;
+    m_cfgDeviceMapping[m_numDeviceMappingEntries].ledNumber = ledNumber;
+    m_numDeviceMappingEntries++;
+    success = true;
+  }
+
+  return success;
+}
+
+bool FhemStatusDisplayConfig::addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior)
+{
+  bool success = false;
+
+  if(m_numColorMappingEntries < (MAX_COLOR_MAP_ENTRIES - 1))
+  {
+    m_cfgColorMapping[m_numColorMappingEntries].msg = msg;
+    m_cfgColorMapping[m_numColorMappingEntries].type = type;
+    m_cfgColorMapping[m_numColorMappingEntries].color = color;
+    m_cfgColorMapping[m_numColorMappingEntries].behavior = behavior;
+    m_numColorMappingEntries++;
+    success = true;
+  }
+  
+  return success;  
 }
 
 const char* FhemStatusDisplayConfig::getHost() const
@@ -54,7 +150,14 @@ bool FhemStatusDisplayConfig::setHost(const char* host)
 
 const char* FhemStatusDisplayConfig::getVersion() const
 {
-  return version;
+  return m_cfgVersion;
+}
+
+bool FhemStatusDisplayConfig::setVersion(const char* version)
+{
+  strncpy(m_cfgVersion, version, MAX_VERSION_LEN);
+  m_cfgVersion[MAX_VERSION_LEN] = '\0';
+  return true;
 }
 
 const char* FhemStatusDisplayConfig::getWifiSSID() const
@@ -113,7 +216,7 @@ const char* FhemStatusDisplayConfig::getMqttTestTopic() const
 bool FhemStatusDisplayConfig::setMqttTestTopic(const char* topic)
 {
   strncpy(m_cfgMqttTestTopic, topic, MAX_MQTT_TEST_TOPIC_LEN);
-  m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
+  m_cfgHost[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
   return true;
 }
 
@@ -141,11 +244,11 @@ int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceTy
 {
   int number = -1;
 
-  for(uint32_t i=0; i<NUMBER_OF_ELEMENTS(deviceMap); i++)
+  for(uint32_t i = 0; i < m_numDeviceMappingEntries; i++)
   {
-    if(deviceName.equals(deviceMap[i].name) && (deviceType == deviceMap[i].type))
+    if(deviceName.equals(m_cfgDeviceMapping[i].name) && (deviceType == m_cfgDeviceMapping[i].type))
     {
-      number = deviceMap[i].ledNumber;
+      number = m_cfgDeviceMapping[i].ledNumber;
       break;
     }
   }
@@ -157,9 +260,9 @@ int FhemStatusDisplayConfig::getColorMapIndex(deviceType deviceType, String msg)
 {
   int index = -1;
 
-  for(uint32_t i=0; i<NUMBER_OF_ELEMENTS(colorMap); i++)
+  for(uint32_t i = 0; i < m_numColorMappingEntries; i++)
   {
-    if(msg.equals(colorMap[i].msg) && (deviceType == colorMap[i].type))
+    if(msg.equals(m_cfgColorMapping[i].msg) && (deviceType == m_cfgColorMapping[i].type))
     {
       index = i;
       break;
@@ -171,11 +274,11 @@ int FhemStatusDisplayConfig::getColorMapIndex(deviceType deviceType, String msg)
 
 Led::Behavior FhemStatusDisplayConfig::getLedBehavior(int colorMapIndex)
 {
-  return colorMap[colorMapIndex].behavior;
+  return m_cfgColorMapping[colorMapIndex].behavior;
 }
 
 Led::Color FhemStatusDisplayConfig::getLedColor(int colorMapIndex)
 {
-  return colorMap[colorMapIndex].color;
+  return m_cfgColorMapping[colorMapIndex].color;
 }
 
