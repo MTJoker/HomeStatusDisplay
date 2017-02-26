@@ -5,8 +5,6 @@
 const char* softApSsid = "FhemStatusDisplay";
 const char* softApPw = "FhemStatusDisplay";
 
-char mqttMsgBuffer[50];
-
 // function declarations
 void handleMqttMessage(String topic, String msg);
 
@@ -123,7 +121,7 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
 {
   int i = 0;
 
-  for (i = 0; i < length; i++) 
+  for( i = 0; (i < length) && (i < MQTT_MSG_MAX_LEN); i++) 
   {
     mqttMsgBuffer[i] = payload[i];
   }
@@ -134,47 +132,47 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
   
   Serial.println("Received an MQTT message for topic " + mqttTopicString + ": " + mqttMsgString);
 
-  handleMqttMessage(mqttTopicString, mqttMsgString);
-}
-
-void FhemStatusDisplay::handleMqttMessage(String topic, String msg)
-{
-  if(topic.equals(m_config.getMqttTestTopic()))
+  if(mqttTopicString.equals(m_config.getMqttTestTopic()))
   {
-    uint32_t type = msg.toInt();
-    if(type > 0)
-    {
-      Serial.println("Showing testpattern " + String(type));
-      m_leds.test(type);
-    }
-    else if(type == 0)
-    {
-      m_leds.clear();
-      m_mqttHandler.reconnect();  // back to normal
-    }
+    handleTest(mqttMsgString);
   }
   else
   {
-    if(topic.substring(12, 17) == "light")
+    if(mqttTopicString.substring(12, 17) == "light")
     {
-      handleStatus(topic.substring(18), TYPE_LIGHT, msg);
+      handleStatus(mqttTopicString.substring(18), TYPE_LIGHT, mqttMsgString);
     }
-    else if(topic.substring(12, 18) == "window")
+    else if(mqttTopicString.substring(12, 18) == "window")
     {
-      handleStatus(topic.substring(19), TYPE_WINDOW, msg);
+      handleStatus(mqttTopicString.substring(19), TYPE_WINDOW, mqttMsgString);
     }
-    else if(topic.substring(12, 16) == "door")
+    else if(mqttTopicString.substring(12, 16) == "door")
     {
-      handleStatus(topic.substring(17), TYPE_DOOR, msg);
+      handleStatus(mqttTopicString.substring(17), TYPE_DOOR, mqttMsgString);
     }
-    else if(topic.substring(12, 17) == "alarm")
+    else if(mqttTopicString.substring(12, 17) == "alarm")
     {
-      handleStatus(topic.substring(18), TYPE_ALARM, msg);
+      handleStatus(mqttTopicString.substring(18), TYPE_ALARM, mqttMsgString);
     }
     else
     {
       Serial.println("Unknown topic, ignoring");
     }
+  }
+}
+
+void FhemStatusDisplay::handleTest(String msg)
+{
+  uint32_t type = msg.toInt();
+  if(type > 0)
+  {
+    Serial.println("Showing testpattern " + String(type));
+    m_leds.test(type);
+  }
+  else if(type == 0)
+  {
+    m_leds.clear();
+    m_mqttHandler.reconnect();  // back to normal
   }
 }
 
