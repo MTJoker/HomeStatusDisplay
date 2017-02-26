@@ -74,9 +74,10 @@ public:
 
   FhemStatusDisplayConfig();
 
-  void begin();
+  void begin(const char* configFileName, const char* version, const char* defaultIdentifier);
 
   const char* getVersion() const;
+  bool setVersion(const char* version);
 
   const char* getHost() const;
   bool setHost(const char* host);
@@ -109,6 +110,7 @@ public:
 
 private:
 
+  static const uint32_t MAX_VERSION_LEN           = 30;
   static const uint32_t MAX_HOST_LEN              = 30;
   static const uint32_t MAX_WIFI_SSID_LEN         = 40;
   static const uint32_t MAX_WIFI_PSK_LEN          = 40;
@@ -116,6 +118,7 @@ private:
   static const uint32_t MAX_MQTT_STATUS_TOPIC_LEN = 60;
   static const uint32_t MAX_MQTT_TEST_TOPIC_LEN   = 60;
 
+  char m_cfgVersion[MAX_VERSION_LEN + 1];
   char m_cfgHost[MAX_HOST_LEN + 1];
   char m_cfgWifiSSID[MAX_WIFI_SSID_LEN + 1];
   char m_cfgWifiPSK[MAX_WIFI_PSK_LEN + 1];

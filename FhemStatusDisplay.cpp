@@ -1,9 +1,5 @@
 #include "FhemStatusDisplay.h"
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-
-const char* softApSsid = "FhemStatusDisplay";
-const char* softApPw = "FhemStatusDisplay";
 
 // function declarations
 void handleMqttMessage(String topic, String msg);
@@ -11,35 +7,33 @@ void handleMqttMessage(String topic, String msg);
 FhemStatusDisplay::FhemStatusDisplay()
 :
 m_webServer(m_config),
+m_wifi(m_config),
 m_mqttHandler(m_config, std::bind(&FhemStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
 m_leds(m_config)
 {
 }
 
-void FhemStatusDisplay::begin()
+void FhemStatusDisplay::begin(const char* configFileName, const char* version, const char* identifier)
 {
   // initialize serial
   Serial.begin(115200);
   Serial.println("");
 
-  m_config.begin();
+  m_config.begin(configFileName, version, identifier);
   m_webServer.begin();
   m_leds.begin();
-
-  if(!startWifi())
+  m_wifi.begin();
+  m_mqttHandler.begin(); 
+  
+  if(m_wifi.connected())
   {
-    startAccessPoint();
-  }
-  else
-  {
-    m_mqttHandler.begin();    
     m_leds.test(4);
   }
 }
 
 void FhemStatusDisplay::work()
 {
-  if(WiFi.status() != WL_CONNECTED)
+  if(!m_wifi.connected())
   {
     m_leds.set(32, Led::ON, Led::RED);
   }
@@ -60,59 +54,8 @@ void FhemStatusDisplay::work()
   m_webServer.handleClient();
   m_mqttHandler.handle();
   m_leds.update();
-}
 
-void FhemStatusDisplay::startAccessPoint()
-{
-  Serial.println("");
-  Serial.println("Starting access point.");
-  
-  if(WiFi.softAP(softApSsid, softApPw))
-  {
-    IPAddress ip = WiFi.softAPIP();
-  
-    Serial.printf("AccessPoint SSID is %s and IP is ", softApSsid);
-    Serial.println(ip);
-  }
-  else
-  {
-    Serial.println("Error starting access point.");
-  }
-}
-
-bool FhemStatusDisplay::startWifi()
-{
-  bool success = false;
-  
-  Serial.println("");
-  Serial.print("Starting Wifi connection to ");
-  Serial.print(m_config.getWifiSSID());
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
-  
-  uint32_t timeout = 0;
-  while( (WiFi.status() != WL_CONNECTED) && (timeout < 20) ) 
-  {
-    delay(500);
-    Serial.print(".");
-    timeout++;
-  }
-  Serial.println("");
-  
-  if(WiFi.status() == WL_CONNECTED)
-  {
-    success = true; 
-    Serial.print("WiFi connected with IP ");
-    Serial.print(WiFi.localIP());
-    Serial.println(".");
-  }  
-  else
-  {
-    Serial.println("Failed to connect WiFi.");
-  }
-
-  return success;
+  delay(50);
 }
 
 void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int length)
