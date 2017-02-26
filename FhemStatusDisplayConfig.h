@@ -10,7 +10,9 @@ public:
 
   FhemStatusDisplayConfig();
 
-  void begin(const char* configFileName, const char* version, const char* defaultIdentifier);
+  void begin(const char* version, const char* defaultIdentifier);
+
+  void save();
 
   const char* getVersion() const;
   bool setVersion(const char* version);
@@ -48,6 +50,11 @@ public:
   Led::Color getLedColor(int colorMapIndex);
 
 private:
+
+  void resetConfigurableData();
+  bool readConfigFile();
+  void writeConfigFile();
+  void createDefaultConfigFile();
 
   static const uint32_t MAX_VERSION_LEN           = 30;
   static const uint32_t MAX_HOST_LEN              = 30;

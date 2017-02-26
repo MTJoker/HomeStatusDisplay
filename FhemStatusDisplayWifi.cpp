@@ -1,8 +1,8 @@
 #include "FhemStatusDisplayWifi.h"
 #include <ESP8266WiFi.h>
 
-const char* softApSsid = "FhemStatusDisplay";
-const char* softApPw = "FhemStatusDisplay";
+const char* softApSsid = "StatusDisplay";
+const char* softApPw = "statusdisplay";
 
 FhemStatusDisplayWifi::FhemStatusDisplayWifi(const FhemStatusDisplayConfig& config)
 :
@@ -63,7 +63,8 @@ void FhemStatusDisplayWifi::startAccessPoint()
 {
   Serial.println("");
   Serial.println("Starting access point.");
-  
+
+  WiFi.mode(WIFI_AP);
   if(WiFi.softAP(softApSsid, softApPw))
   {
     IPAddress ip = WiFi.softAPIP();

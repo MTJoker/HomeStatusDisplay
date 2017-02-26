@@ -28,7 +28,7 @@ void FhemStatusDisplayWebServer::handleClient()
 
 void FhemStatusDisplayWebServer::deliverRootPage()
 {
-  //bool needSave = updateConfig();
+  bool needSave = updateConfig();
   
   String html = ""
   "<!doctype html> <html>"
@@ -41,11 +41,11 @@ void FhemStatusDisplayWebServer::deliverRootPage()
  
   if (WiFi.status() == WL_CONNECTED)
   {
-    html += "ESP8266 is connected to WLAN <b>" + WiFi.SSID() + "</b> and has IP <b>" + ip2String(WiFi.localIP()) + "</b>.<br/><br/>";
+    html += "Device is connected to WLAN <b>" + WiFi.SSID() + "</b> and has IP <b>" + ip2String(WiFi.localIP()) + "</b>.<br/><br/>";
   }
   else
   {
-    html += "ESP8266 ist not connected to local network yet.<br/><br/>";
+    html += "Device is not connected to local network yet.<br/><br/>";
   }
 
   html += ""
@@ -148,7 +148,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   "</font></body></html>";
 
   m_server.send(200, "text/html", html);
-/*
+
   if(needSave)
   {
     Serial.println("Config has changed, storing it.");
@@ -159,7 +159,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   {
     Serial.println("Rebooting ESP.");
     ESP.restart();
-  }*/
+  }
 }
 
 void FhemStatusDisplayWebServer::deliverNotFoundPage()

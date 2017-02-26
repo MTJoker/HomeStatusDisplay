@@ -13,13 +13,13 @@ m_leds(m_config)
 {
 }
 
-void FhemStatusDisplay::begin(const char* configFileName, const char* version, const char* identifier)
+void FhemStatusDisplay::begin(const char* version, const char* identifier)
 {
   // initialize serial
   Serial.begin(115200);
   Serial.println("");
 
-  m_config.begin(configFileName, version, identifier);
+  m_config.begin(version, identifier);
   m_webServer.begin();
   m_leds.begin();
   m_wifi.begin();
@@ -32,7 +32,12 @@ void FhemStatusDisplay::work()
   checkMqttConnection();
 
   m_webServer.handleClient();
-  m_mqttHandler.handle();
+
+  if(m_wifi.connected())
+  {
+    m_mqttHandler.handle();
+  }
+  
   m_leds.update();
 
   delay(50);
@@ -120,7 +125,7 @@ void FhemStatusDisplay::checkWiFiConnection()
 {
   if(!m_wifi.connected())
   {
-    m_leds.set(32, Led::ON, Led::RED);
+    m_leds.set(32, Led::BLINKING, Led::RED);
   }
   else
   {
@@ -132,7 +137,7 @@ void FhemStatusDisplay::checkMqttConnection()
 {
   if(!m_mqttHandler.connected())
   {
-    m_leds.set(31, Led::ON, Led::RED);
+    m_leds.set(31, Led::BLINKING, Led::RED);
   }
   else
   {

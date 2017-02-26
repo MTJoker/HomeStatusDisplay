@@ -11,7 +11,7 @@ class FhemStatusDisplay
 public:
 
   FhemStatusDisplay();
-  void begin(const char* configFileName, const char* version, const char* identifier);
+  void begin(const char* version, const char* identifier);
   void work();
   
 private:
