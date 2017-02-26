@@ -3,7 +3,8 @@
 MQTTHandler::MQTTHandler(const FhemStatusDisplayConfig& config, MQTT_CALLBACK_SIGNATURE)
 :
 m_config(config),
-m_pubSubClient(m_wifiClient)
+m_pubSubClient(m_wifiClient),
+m_lastReconnectAttempt(0)
 {
   m_pubSubClient.setCallback(callback);
 }
@@ -19,8 +20,6 @@ void MQTTHandler::begin()
   addTopic(m_config.getMqttTestTopic());
   
   m_pubSubClient.setServer(m_config.getMqttServer(), 1883);  
-
-  connectToMqttServer();
 }
 
 void MQTTHandler::initTopics()
@@ -37,10 +36,21 @@ void MQTTHandler::handle()
 {
   if (!m_pubSubClient.connected()) 
   {
-    connectToMqttServer();
+    long now = millis();
+    if (now - m_lastReconnectAttempt > 5000) 
+    {
+      m_lastReconnectAttempt = now;
+      // Attempt to reconnect
+      if (reconnect()) 
+      {
+        m_lastReconnectAttempt = 0;
+      }
+    }
   }
-
-  m_pubSubClient.loop();
+  else
+  {
+    m_pubSubClient.loop();
+  }
 }
 
 bool MQTTHandler::isConnected()
@@ -48,37 +58,42 @@ bool MQTTHandler::isConnected()
   return (m_pubSubClient.state() == MQTT_CONNECTED);
 }
 
-void MQTTHandler::connectToMqttServer()
+bool MQTTHandler::reconnect()
 {
-  // Loop until we're reconnected
-  while (!m_pubSubClient.connected()) 
-  { 
-    // Create a random client ID
-    String clientId = "ESP8266Client-";
-    clientId += String(random(0xffff), HEX);
+  // Create a random client ID
+  String clientId = "ESP8266Client-";
+  clientId += String(random(0xffff), HEX);
 
-    Serial.print("Connecting to MQTT broker ");
-    Serial.print(" with client id " + clientId + "... ");
-    
-    // Attempt to connect
-    if (m_pubSubClient.connect(clientId.c_str())) 
-    {
-      Serial.println("connected");
+  Serial.print("Connecting to MQTT broker ");
+  Serial.print(" with client id " + clientId + "... ");
+  
+  if (m_pubSubClient.connect(clientId.c_str())) 
+  {
+    Serial.println("connected");
 
-      for(uint32_t index = 0; index < m_numberOfInTopics; index++)
-      {
-        subscribe(m_inTopics[index]);
-      }
-    } 
-    else 
+    publish("/fhem/status/statusdisplay_01/", "Hello!");
+
+    for(uint32_t index = 0; index < m_numberOfInTopics; index++)
     {
-      Serial.print("failed, rc=");
-      Serial.print(m_pubSubClient.state());
-      Serial.println(" try again in 5 seconds");
-      
-      delay(5000);  //retry after 5secs
+      subscribe(m_inTopics[index]);
+    }
+  } 
+  else 
+  {
+    Serial.print("failed, rc=");
+    Serial.print(m_pubSubClient.state());
+
+    if(WiFi.status() != WL_CONNECTED)
+    {
+      Serial.println("DEBUG: WIFI Status is NOT connected!");
+    }
+    else
+    {
+      Serial.println("DEBUG: WIFI Status is connected!");
     }
   }
+
+  return m_pubSubClient.connected();
 }
 
 void MQTTHandler::subscribe(const char* topic)
@@ -120,11 +135,5 @@ bool MQTTHandler::addTopic(const char* topic)
   }
 
   return success;
-}
-
-void MQTTHandler::reconnect()
-{
-  m_pubSubClient.disconnect();
-  connectToMqttServer();
 }
 

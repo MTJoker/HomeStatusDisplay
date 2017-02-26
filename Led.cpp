@@ -26,22 +26,28 @@ void Led::setOff()
 
 void Led::setBlinking(Color color)
 {
-  m_behavior = BLINKING;
-  m_color = color;
-  m_isOn = true;
-  m_previousMillis = 0;
-  m_onTime = blinkOnTime;
-  m_offTime = blinkOffTime;
+  if( (m_behavior != BLINKING) && (m_color != color) ) 
+  {
+    m_behavior = BLINKING;
+    m_color = color;
+    m_isOn = true;
+    m_previousMillis = 0;
+    m_onTime = blinkOnTime;
+    m_offTime = blinkOffTime;
+  }
 }
 
 void Led::setFlashing(Color color)
 {
-  m_behavior = FLASHING;
-  m_color = color;
-  m_isOn = true;
-  m_previousMillis = 0;
-  m_onTime = flashOnTime;
-  m_offTime = flashOffTime;
+  if( (m_behavior != FLASHING) && (m_color != color) ) 
+  {
+    m_behavior = FLASHING;
+    m_color = color;
+    m_isOn = true;
+    m_previousMillis = 0;
+    m_onTime = flashOnTime;
+    m_offTime = flashOffTime;
+  }
 }
 
 Led::Color Led::getColor()

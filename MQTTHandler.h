@@ -15,14 +15,13 @@ public:
   void begin();
   void handle();
   void publish(String topic, String msg);
+  bool reconnect(); 
   bool addTopic(const char* topic);
-  void reconnect();
   bool isConnected();
 
 private:
 
   void initTopics();
-  void connectToMqttServer(); 
   void subscribe(const char* topic);
 
   WiFiClient m_wifiClient;
@@ -32,5 +31,6 @@ private:
 
   const char* m_inTopics[MAX_IN_TOPICS];
   uint32_t m_numberOfInTopics;
+  long m_lastReconnectAttempt;
 };
 

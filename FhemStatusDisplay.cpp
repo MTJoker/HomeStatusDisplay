@@ -57,12 +57,9 @@ void FhemStatusDisplay::work()
     m_leds.set(31, Led::OFF, Led::NONE);
   }
 
-  if( (WiFi.status() == WL_CONNECTED) && (m_mqttHandler.isConnected()) )
-  {
-    m_webServer.handleClient();
-    m_mqttHandler.handle();
-    m_leds.update();
-  }
+  m_webServer.handleClient();
+  m_mqttHandler.handle();
+  m_leds.update();
 }
 
 void FhemStatusDisplay::startAccessPoint()
@@ -91,6 +88,7 @@ bool FhemStatusDisplay::startWifi()
   Serial.print("Starting Wifi connection to ");
   Serial.print(m_config.getWifiSSID());
 
+  WiFi.mode(WIFI_STA);
   WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
   
   uint32_t timeout = 0;
