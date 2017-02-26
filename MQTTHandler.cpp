@@ -55,7 +55,7 @@ void MQTTHandler::handle()
 
 bool MQTTHandler::connected()
 {
-  return (m_pubSubClient.state() == MQTT_CONNECTED);
+  return m_pubSubClient.connected();
 }
 
 bool MQTTHandler::reconnect()
@@ -81,16 +81,7 @@ bool MQTTHandler::reconnect()
   else 
   {
     Serial.print("failed, rc=");
-    Serial.print(m_pubSubClient.state());
-
-    if(WiFi.status() != WL_CONNECTED)
-    {
-      Serial.println("DEBUG: WIFI Status is NOT connected!");
-    }
-    else
-    {
-      Serial.println("DEBUG: WIFI Status is connected!");
-    }
+    Serial.println(m_pubSubClient.state());
   }
 
   return m_pubSubClient.connected();

@@ -36,10 +36,10 @@ public:
   bool setMqttTestTopic(const char* topic);
 
   uint32_t getNumberOfLeds() const;
-  void setNumberOfLeds(uint32_t numberOfLeds);
+  bool setNumberOfLeds(uint32_t numberOfLeds);
 
   uint32_t getLedDataPin() const;
-  void setLedDataPin(uint32 dataPin);
+  bool setLedDataPin(uint32 dataPin);
 
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);

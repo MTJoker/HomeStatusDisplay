@@ -27,7 +27,7 @@ bool FhemStatusDisplayWifi::connected()
 bool FhemStatusDisplayWifi::startWifi()
 {
   bool success = false;
-  
+ 
   Serial.println("");
   Serial.print("Starting Wifi connection to ");
   Serial.print(m_config.getWifiSSID());

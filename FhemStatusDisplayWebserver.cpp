@@ -101,11 +101,11 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   " </tr>"
   " <tr>"
   "  <td>Number of LEDs</td>"
-  "  <td><input type='text' id='numberOfLeds' name='numberOfLeds' value='" + String(m_config.getNumberOfLeds()) + "' size='30' maxlength='40' placeholder='1'></td>"
+  "  <td><input type='text' id='ledCount' name='ledCount' value='" + String(m_config.getNumberOfLeds()) + "' size='30' maxlength='40' placeholder='0'></td>"
   " </tr>"
   " <tr>"
   "  <td>LED pin</td>"
-  "  <td><input type='text' id='ledPin' name='ledPin' value='" + String(m_config.getLedDataPin()) + "' size='30' maxlength='40' placeholder='#'></td>"
+  "  <td><input type='text' id='ledPin' name='ledPin' value='" + String(m_config.getLedDataPin()) + "' size='30' maxlength='40' placeholder='0'></td>"
   " </tr>";
 
   html += ""
@@ -208,6 +208,41 @@ bool FhemStatusDisplayWebServer::updateConfig()
   if (m_server.hasArg("wifiPSK")) 
   {
     needSave |= m_config.setWifiPSK(m_server.arg("wifiPSK").c_str());
+  }
+
+  if (m_server.hasArg("mqttServer"))
+  {
+    needSave |= m_config.setMqttServer(m_server.arg("mqttServer").c_str());
+  }
+  
+  if (m_server.hasArg("mqttStatusTopic"))
+  {
+    needSave |= m_config.setMqttStatusTopic(m_server.arg("mqttStatusTopic").c_str());
+  }
+  
+  if (m_server.hasArg("mqttTestTopic")) 
+  {
+    needSave |= m_config.setMqttTestTopic(m_server.arg("mqttTestTopic").c_str());
+  }
+
+  if (m_server.hasArg("ledCount"))
+  {
+    uint32_t ledCount = m_server.arg("ledCount").toInt();
+    
+    if(ledCount > 0)
+    {
+      needSave |= m_config.setNumberOfLeds(ledCount);
+    }
+  }
+  
+  if (m_server.hasArg("ledPin")) 
+  {
+    uint32_t ledPin = m_server.arg("ledPin").toInt();
+    
+    if(ledPin > 0)
+    {
+      needSave |= m_config.setLedDataPin(ledPin);
+    }
   }
 
   return needSave;

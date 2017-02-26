@@ -36,12 +36,6 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   }
 
   // TODO: read from config file
-  setMqttServer("fhempi");
-  setMqttStatusTopic("fhem/status/#");
-  setMqttTestTopic("fhem/cmd/statusdisplay_01/test");  
-
-  setNumberOfLeds(33);
-  setLedDataPin(D2);
 
   // 1st row
   addDeviceMappingEntry("basement",   TYPE_DOOR,    0);
@@ -157,13 +151,20 @@ bool FhemStatusDisplayConfig::readConfigFile()
       json.printTo(Serial);
       Serial.println("");
 
-      if(json.containsKey("host") && json.containsKey("wifiSSID") && json.containsKey("wifiPSK"))
+      if(json.containsKey("host") && json.containsKey("wifiSSID") && json.containsKey("wifiPSK") && 
+         json.containsKey("mqttServer") && json.containsKey("mqttStatusTopic") && json.containsKey("mqttTestTopic") &&
+         json.containsKey("ledCount") && json.containsKey("ledPin"))
       {
         Serial.println("All config file keys available.");
 
         setHost(json["host"]);
         setWifiSSID(json["wifiSSID"]);
         setWifiPSK(json["wifiPSK"]);
+        setMqttServer(json["mqttServer"]);
+        setMqttStatusTopic(json["mqttStatusTopic"]);
+        setMqttTestTopic(json["mqttTestTopic"]);
+        setNumberOfLeds(json["ledCount"]);
+        setLedDataPin(json["ledPin"]);
 
         success = true;
       }
@@ -195,6 +196,11 @@ void FhemStatusDisplayConfig::writeConfigFile()
   json["host"] = m_cfgHost;
   json["wifiSSID"] = m_cfgWifiSSID;
   json["wifiPSK"] = m_cfgWifiPSK;
+  json["mqttServer"] = m_cfgMqttServer;
+  json["mqttStatusTopic"] = m_cfgMqttStatusTopic;
+  json["mqttTestTopic"] = m_cfgMqttTestTopic;
+  json["ledCount"] = m_cfgNumberOfLeds;
+  json["ledPin"] = m_cfgLedDataPin;
   
   File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
   
@@ -339,9 +345,10 @@ uint32_t FhemStatusDisplayConfig::getNumberOfLeds() const
   return m_cfgNumberOfLeds;
 }
 
-void FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)
+bool FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)
 {
   m_cfgNumberOfLeds = numberOfLeds;
+  return true;
 }
 
 uint32_t FhemStatusDisplayConfig::getLedDataPin() const
@@ -349,9 +356,10 @@ uint32_t FhemStatusDisplayConfig::getLedDataPin() const
   return m_cfgLedDataPin;
 }
 
-void FhemStatusDisplayConfig::setLedDataPin(uint32 dataPin)
+bool FhemStatusDisplayConfig::setLedDataPin(uint32 dataPin)
 {
   m_cfgLedDataPin = dataPin;
+  return true;
 }
 
 int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceType)
