@@ -109,12 +109,19 @@ public:
 
 private:
 
-  char m_cfgHost[20];
-  char m_cfgWifiSSID[40];
-  char m_cfgWifiPSK[40];
-  char m_cfgMqttServer[40];
-  char m_cfgMqttStatusTopic[100];
-  char m_cfgMqttTestTopic[100];
+  static const uint32_t MAX_HOST_LEN              = 30;
+  static const uint32_t MAX_WIFI_SSID_LEN         = 40;
+  static const uint32_t MAX_WIFI_PSK_LEN          = 40;
+  static const uint32_t MAX_MQTT_SERVER_LEN       = 40;
+  static const uint32_t MAX_MQTT_STATUS_TOPIC_LEN = 60;
+  static const uint32_t MAX_MQTT_TEST_TOPIC_LEN   = 60;
+
+  char m_cfgHost[MAX_HOST_LEN + 1];
+  char m_cfgWifiSSID[MAX_WIFI_SSID_LEN + 1];
+  char m_cfgWifiPSK[MAX_WIFI_PSK_LEN + 1];
+  char m_cfgMqttServer[MAX_MQTT_SERVER_LEN + 1];
+  char m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN + 1];
+  char m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN + 1];
   uint32_t m_cfgNumberOfLeds;
   uint32_t m_cfgLedDataPin;
 

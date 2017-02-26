@@ -43,6 +43,11 @@ void MQTTHandler::handle()
   m_pubSubClient.loop();
 }
 
+bool MQTTHandler::isConnected()
+{
+  return (m_pubSubClient.state() == MQTT_CONNECTED);
+}
+
 void MQTTHandler::connectToMqttServer()
 {
   // Loop until we're reconnected

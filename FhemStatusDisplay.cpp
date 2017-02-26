@@ -26,23 +26,45 @@ void FhemStatusDisplay::begin()
 
   m_config.begin();
   m_webServer.begin();
+  m_leds.begin();
 
   if(!startWifi())
   {
     startAccessPoint();
   }
-
-  m_mqttHandler.begin();
-  m_leds.begin();
-  
-  m_leds.test(4);
+  else
+  {
+    m_mqttHandler.begin();    
+    m_leds.test(4);
+  }
 }
 
 void FhemStatusDisplay::work()
 {
-  m_webServer.handleClient();
-  m_mqttHandler.handle();
-  m_leds.update();
+  if(WiFi.status() != WL_CONNECTED)
+  {
+    m_leds.set(32, Led::ON, Led::RED);
+  }
+  else
+  {
+    m_leds.set(32, Led::OFF, Led::NONE);
+  }
+
+  if(!m_mqttHandler.isConnected())
+  {
+    m_leds.set(31, Led::ON, Led::RED);
+  }
+  else
+  {
+    m_leds.set(31, Led::OFF, Led::NONE);
+  }
+
+  if( (WiFi.status() == WL_CONNECTED) && (m_mqttHandler.isConnected()) )
+  {
+    m_webServer.handleClient();
+    m_mqttHandler.handle();
+    m_leds.update();
+  }
 }
 
 void FhemStatusDisplay::startAccessPoint()

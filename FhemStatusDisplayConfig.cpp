@@ -7,7 +7,18 @@ static const char* host = "FhemStatusDisplay";
 
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
-  // TODO: reset all members
+  // reset all members
+  setHost("");
+
+  setWifiSSID("");
+  setWifiPSK("");
+
+  setMqttServer("");
+  setMqttStatusTopic("");
+  setMqttTestTopic("");  
+
+  setNumberOfLeds(0);
+  setLedDataPin(0);
 }
 
 void FhemStatusDisplayConfig::begin()
@@ -36,7 +47,8 @@ const char* FhemStatusDisplayConfig::getHost() const
 
 bool FhemStatusDisplayConfig::setHost(const char* host)
 {
-  strcpy(m_cfgHost, host);
+  strncpy(m_cfgHost, host, MAX_HOST_LEN);
+  m_cfgHost[MAX_HOST_LEN] = '\0';
   return true;
 }
 
@@ -52,7 +64,8 @@ const char* FhemStatusDisplayConfig::getWifiSSID() const
 
 bool FhemStatusDisplayConfig::setWifiSSID(const char* ssid)
 {
-  strcpy(m_cfgWifiSSID, ssid);
+  strncpy(m_cfgWifiSSID, ssid, MAX_WIFI_SSID_LEN);
+  m_cfgWifiSSID[MAX_WIFI_SSID_LEN] = '\0';
   return true;
 }
 
@@ -63,7 +76,8 @@ const char* FhemStatusDisplayConfig::getWifiPSK() const
 
 bool FhemStatusDisplayConfig::setWifiPSK(const char* psk)
 {
-  strcpy(m_cfgWifiPSK, psk);
+  strncpy(m_cfgWifiPSK, psk, MAX_WIFI_PSK_LEN);
+  m_cfgWifiPSK[MAX_WIFI_PSK_LEN] = '\0';
   return true;
 }
 
@@ -74,7 +88,8 @@ const char* FhemStatusDisplayConfig::getMqttServer() const
 
 bool FhemStatusDisplayConfig::setMqttServer(const char* ip)
 {
-  strcpy(m_cfgMqttServer, ip);
+  strncpy(m_cfgMqttServer, ip, MAX_MQTT_SERVER_LEN);
+  m_cfgMqttServer[MAX_MQTT_SERVER_LEN] = '\0';
   return true;
 }
 
@@ -85,7 +100,8 @@ const char* FhemStatusDisplayConfig::getMqttStatusTopic() const
 
 bool FhemStatusDisplayConfig::setMqttStatusTopic(const char* topic)
 {
-  strcpy(m_cfgMqttStatusTopic, topic);
+  strncpy(m_cfgMqttStatusTopic, topic, MAX_MQTT_STATUS_TOPIC_LEN);
+  m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN] = '\0';
   return true;
 }
 
@@ -96,7 +112,8 @@ const char* FhemStatusDisplayConfig::getMqttTestTopic() const
 
 bool FhemStatusDisplayConfig::setMqttTestTopic(const char* topic)
 {
-  strcpy(m_cfgMqttTestTopic, topic);
+  strncpy(m_cfgMqttTestTopic, topic, MAX_MQTT_TEST_TOPIC_LEN);
+  m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
   return true;
 }
 
