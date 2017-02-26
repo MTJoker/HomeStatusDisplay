@@ -1,42 +1,25 @@
 #include "MQTTHandler.h"
 
-static void callbackInternal(char* topic, byte* payload, unsigned int length);
-char mqttMsgBuffer[20];
-mqttCallback myCallback;
-
-MQTTHandler::MQTTHandler(IPAddress ip, uint16_t port, const char* inTopic, mqttCallback callback)
+MQTTHandler::MQTTHandler(const FhemStatusDisplayConfig& config, MQTT_CALLBACK_SIGNATURE)
 :
+m_config(config),
 m_pubSubClient(m_wifiClient),
-m_domain(NULL)
+m_lastReconnectAttempt(0)
 {
-  initTopics();
-  addTopic(inTopic);
-  
-  myCallback = callback;
-  m_pubSubClient.setServer(ip, port);
-  m_pubSubClient.setCallback(callbackInternal);   
+  m_pubSubClient.setCallback(callback);
 }
 
-MQTTHandler::MQTTHandler(const char * domain, uint16_t port, const char* inTopic, mqttCallback callback)
-:
-m_pubSubClient(m_wifiClient),
-m_domain(domain)
+void MQTTHandler::begin()
 {
-  initTopics();
-  addTopic(inTopic);
+  Serial.println("");
+  Serial.print("Initializing MQTT connection to ");
+  Serial.println(m_config.getMqttServer());
   
-  myCallback = callback;
-  m_pubSubClient.setServer(domain, port);
-  m_pubSubClient.setCallback(callbackInternal);
-}
-
-MQTTHandler::MQTTHandler(const char * domain, uint16_t port)
-:
-m_pubSubClient(m_wifiClient),
-m_domain(domain)
-{
   initTopics();
-  m_pubSubClient.setServer(domain, port);
+  addTopic(m_config.getMqttStatusTopic());
+  addTopic(m_config.getMqttTestTopic());
+  
+  m_pubSubClient.setServer(m_config.getMqttServer(), 1883);  
 }
 
 void MQTTHandler::initTopics()
@@ -53,44 +36,64 @@ void MQTTHandler::handle()
 {
   if (!m_pubSubClient.connected()) 
   {
-    connectToMqttServer();
-  }
-
-  m_pubSubClient.loop();
-}
-
-void MQTTHandler::connectToMqttServer()
-{
-  // Loop until we're reconnected
-  while (!m_pubSubClient.connected()) 
-  { 
-    // Create a random client ID
-    String clientId = "ESP8266Client-";
-    clientId += String(random(0xffff), HEX);
-
-    Serial.print("Connecting to MQTT broker ");
-    if(m_domain) Serial.print(m_domain);
-    Serial.print(" with client id " + clientId + "... ");
-    
-    // Attempt to connect
-    if (m_pubSubClient.connect(clientId.c_str())) 
+    long now = millis();
+    if (now - m_lastReconnectAttempt > 5000) 
     {
-      Serial.println("connected");
-
-      for(uint32_t index = 0; index < m_numberOfInTopics; index++)
+      m_lastReconnectAttempt = now;
+      // Attempt to reconnect
+      if (reconnect()) 
       {
-        subscribe(m_inTopics[index]);
+        m_lastReconnectAttempt = 0;
       }
-    } 
-    else 
-    {
-      Serial.print("failed, rc=");
-      Serial.print(m_pubSubClient.state());
-      Serial.println(" try again in 5 seconds");
-      
-      delay(5000);  //retry after 5secs
     }
   }
+  else
+  {
+    m_pubSubClient.loop();
+  }
+}
+
+bool MQTTHandler::connected()
+{
+  return (m_pubSubClient.state() == MQTT_CONNECTED);
+}
+
+bool MQTTHandler::reconnect()
+{
+  // Create a random client ID
+  String clientId = "ESP8266Client-";
+  clientId += String(random(0xffff), HEX);
+
+  Serial.print("Connecting to MQTT broker ");
+  Serial.print(" with client id " + clientId + "... ");
+  
+  if (m_pubSubClient.connect(clientId.c_str())) 
+  {
+    Serial.println("connected");
+
+    publish("/fhem/status/statusdisplay_01/", "Hello!");
+
+    for(uint32_t index = 0; index < m_numberOfInTopics; index++)
+    {
+      subscribe(m_inTopics[index]);
+    }
+  } 
+  else 
+  {
+    Serial.print("failed, rc=");
+    Serial.print(m_pubSubClient.state());
+
+    if(WiFi.status() != WL_CONNECTED)
+    {
+      Serial.println("DEBUG: WIFI Status is NOT connected!");
+    }
+    else
+    {
+      Serial.println("DEBUG: WIFI Status is connected!");
+    }
+  }
+
+  return m_pubSubClient.connected();
 }
 
 void MQTTHandler::subscribe(const char* topic)
@@ -132,23 +135,5 @@ bool MQTTHandler::addTopic(const char* topic)
   }
 
   return success;
-}
-
-void callbackInternal(char* topic, byte* payload, unsigned int length) 
-{ 
-  int i = 0;
-
-  for (i = 0; i < length; i++) 
-  {
-    mqttMsgBuffer[i] = payload[i];
-  }
-  mqttMsgBuffer[i] = '\0';
-
-  String mqttTopicString(topic);
-  String mqttMsgString = String(mqttMsgBuffer);
-  
-  Serial.println("Received an MQTT message for topic " + mqttTopicString + ": " + mqttMsgString);
-
-  myCallback(mqttTopicString, mqttMsgString);
 }
 
