@@ -17,7 +17,7 @@ public:
   void publish(String topic, String msg);
   bool reconnect(); 
   bool addTopic(const char* topic);
-  bool isConnected();
+  bool connected();
 
 private:
 

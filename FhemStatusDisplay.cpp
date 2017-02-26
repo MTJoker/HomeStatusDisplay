@@ -24,32 +24,12 @@ void FhemStatusDisplay::begin(const char* configFileName, const char* version, c
   m_leds.begin();
   m_wifi.begin();
   m_mqttHandler.begin(); 
-  
-  if(m_wifi.connected())
-  {
-    m_leds.test(4);
-  }
 }
 
 void FhemStatusDisplay::work()
 {
-  if(!m_wifi.connected())
-  {
-    m_leds.set(32, Led::ON, Led::RED);
-  }
-  else
-  {
-    m_leds.set(32, Led::OFF, Led::NONE);
-  }
-
-  if(!m_mqttHandler.isConnected())
-  {
-    m_leds.set(31, Led::ON, Led::RED);
-  }
-  else
-  {
-    m_leds.set(31, Led::OFF, Led::NONE);
-  }
+  checkWiFiConnection();
+  checkMqttConnection();
 
   m_webServer.handleClient();
   m_mqttHandler.handle();
@@ -135,3 +115,28 @@ void FhemStatusDisplay::handleStatus(String device, deviceType type, String msg)
     Serial.println("No LED defined for device " + device + " of type " + String(type) + ", ignoring it");
   }
 }
+
+void FhemStatusDisplay::checkWiFiConnection()
+{
+  if(!m_wifi.connected())
+  {
+    m_leds.set(32, Led::ON, Led::RED);
+  }
+  else
+  {
+    m_leds.set(32, Led::OFF, Led::NONE);
+  }
+}
+
+void FhemStatusDisplay::checkMqttConnection()
+{
+  if(!m_mqttHandler.connected())
+  {
+    m_leds.set(31, Led::ON, Led::RED);
+  }
+  else
+  {
+    m_leds.set(31, Led::OFF, Led::NONE);
+  }
+}
+

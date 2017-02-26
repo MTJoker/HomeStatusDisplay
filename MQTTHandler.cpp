@@ -53,7 +53,7 @@ void MQTTHandler::handle()
   }
 }
 
-bool MQTTHandler::isConnected()
+bool MQTTHandler::connected()
 {
   return (m_pubSubClient.state() == MQTT_CONNECTED);
 }

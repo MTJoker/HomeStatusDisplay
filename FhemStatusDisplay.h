@@ -23,6 +23,9 @@ private:
   void handleStatus(String device, deviceType type, String msg);
   void handleTest(String msg);
 
+  void checkWiFiConnection();
+  void checkMqttConnection();
+
   char mqttMsgBuffer[MQTT_MSG_MAX_LEN + 1];
   
   FhemStatusDisplayConfig m_config;
