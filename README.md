@@ -1,20 +1,24 @@
 # FhemStatusDisplay
 
-Show status information from FHEM server sent via MQTT using RGB LEDs.
+Show status information sent via MQTT (e.g. from FHEM or any other MQTT-speaking system) using RGB LEDs.
 
 ## Requirements
 ### Hardware
 This code was tested on a wemos D1 mini ESP8266 board. It <i>should</i> run on any ESP8266 board. You need a number of WS2812B LEDs (e.g. a NeoPixel stripe) connected to 5V and GND and a data pin of the ESP. Please notice the wiring tips from Adafruit- use a large capacitor (around 1000uF) between the 5V and GND of the LEDs and put a 300-500 ohm resistor into the data line connection to the LEDs.<br>
-An optional heartbeat LED can be connected to another data pin of the ESP and over a 1k resistor to GND. This led will flash every 3s as long as the ESP executes the main loop.
 
 ### Software
-The code was developed using the Arduino IDE and the ESP8266 library. You need to install the following libraries to compile the code:<br>
+The code was developed using the Arduino IDE and the ESP8266 library. You need to install the following additional libraries to compile the code:<br>
 Adafruit_NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel<br>
 PubSubClient: https://github.com/knolleary/pubsubclient<br>
+ArduinoJson: https://github.com/bblanchon/ArduinoJson<br>
 All libraries can be installed using the library manager of the Arduino IDE.
 
-You also need a running FHEM server and an installed mosquitto installation for MQTT usage. The status information which you want to display, has to be configured using the FHEM modules MQTT and MQTT_BRIDGE.
+You also need a running MQTT broker (e.g. https://mosquitto.org), to which the system you want to monitor (e.g. FHEM) pushes its status information. For example, in FHEM the status information which you want to display, can be configured using the FHEM modules MQTT and MQTT_BRIDGE.
 
 ## How to use
-All user-specific configuration has to be entered in the file <i>FhemStatusDisplayConfig.h</i>.
-Most important are your WLAN credentials and MQTT server name and topics. Please have a look into the file for more information.
+Upon first usage, the system will create an access point. Connect to this access point with any WiFi-capable device and open the page 192.168.4.1.
+There you will find a configuration page in which you have to enter your settings:
+- WLAN credentials
+- MQTT setup
+- LED setup
+More detailed information will follow.
