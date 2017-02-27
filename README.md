@@ -20,5 +20,5 @@ Upon first usage, the system will create an access point. Connect to this access
 There you will find a configuration page in which you have to enter your settings:
 - WLAN credentials
 - MQTT setup
-- LED setup
+- LED setup<br>
 More detailed information will follow.
