@@ -13,8 +13,9 @@ public:
 
   void begin();
   void update();
-  void set(uint32_t ledNum, Led::Behavior behavior, Led::Color color);
   void clear();
+  void set(uint32_t ledNum, Led::Behavior behavior, Led::Color color);
+  void setAll(Led::Behavior behavior, Led::Color color);
   void test(uint32_t type);
 
 private:

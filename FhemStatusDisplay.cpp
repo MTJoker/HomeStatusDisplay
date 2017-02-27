@@ -28,8 +28,7 @@ void FhemStatusDisplay::begin(const char* version, const char* identifier)
 
 void FhemStatusDisplay::work()
 {
-  checkWiFiConnection();
-  checkMqttConnection();
+  checkConnections();
 
   m_webServer.handleClient();
 
@@ -121,27 +120,9 @@ void FhemStatusDisplay::handleStatus(String device, deviceType type, String msg)
   }
 }
 
-void FhemStatusDisplay::checkWiFiConnection()
+void FhemStatusDisplay::checkConnections()
 {
-  if(!m_wifi.connected())
-  {
-    m_leds.set(32, Led::BLINKING, Led::RED);
-  }
-  else
-  {
-    m_leds.set(32, Led::OFF, Led::NONE);
-  }
+  // TODO
 }
 
-void FhemStatusDisplay::checkMqttConnection()
-{
-  if(!m_mqttHandler.connected())
-  {
-    m_leds.set(31, Led::BLINKING, Led::RED);
-  }
-  else
-  {
-    m_leds.set(31, Led::OFF, Led::NONE);
-  }
-}
 

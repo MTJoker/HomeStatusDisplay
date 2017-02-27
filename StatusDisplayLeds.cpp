@@ -54,6 +54,16 @@ void StatusDisplayLeds::set(uint32_t ledNum, Led::Behavior behavior, Led::Color 
   }
 }
 
+void StatusDisplayLeds::setAll(Led::Behavior behavior, Led::Color color)
+{
+  for(uint32_t i=0; i < m_numLeds; i++)
+  {
+    set(i, behavior, color);
+  }
+
+  updateStripe();
+}
+
 void StatusDisplayLeds::updateStripe()
 {
   for(uint32_t i=0; i < m_numLeds; i++)
