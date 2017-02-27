@@ -67,11 +67,11 @@ bool MQTTHandler::reconnect()
   Serial.print("Connecting to MQTT broker ");
   Serial.print(" with client id " + clientId + "... ");
   
-  if (m_pubSubClient.connect(clientId.c_str())) 
+  if(m_pubSubClient.connect(clientId.c_str(), m_config.getMqttWillTopic(), 0, false, "off")) 
   {
     Serial.println("connected");
 
-    publish("/fhem/status/statusdisplay_01/", "Hello!");
+    publish(m_config.getMqttWillTopic(), "on");
 
     for(uint32_t index = 0; index < m_numberOfInTopics; index++)
     {

@@ -35,6 +35,9 @@ public:
   const char* getMqttTestTopic() const;
   bool setMqttTestTopic(const char* topic);
 
+  const char* getMqttWillTopic() const;
+  bool setMqttWillTopic(const char* topic);
+
   uint32_t getNumberOfLeds() const;
   bool setNumberOfLeds(uint32_t numberOfLeds);
 
@@ -63,6 +66,7 @@ private:
   static const uint32_t MAX_MQTT_SERVER_LEN       = 40;
   static const uint32_t MAX_MQTT_STATUS_TOPIC_LEN = 60;
   static const uint32_t MAX_MQTT_TEST_TOPIC_LEN   = 60;
+  static const uint32_t MAX_MQTT_WILL_TOPIC_LEN   = 60;
 
   static const uint32_t MAX_COLOR_MAP_ENTRIES  = 50;
   static const uint32_t MAX_DEVICE_MAP_ENTRIES = 50;
@@ -80,6 +84,8 @@ private:
   char m_cfgMqttServer[MAX_MQTT_SERVER_LEN + 1];
   char m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN + 1];
   char m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN + 1];
+  char m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN + 1];
+  
   uint32_t m_cfgNumberOfLeds;
   uint32_t m_cfgLedDataPin;
 

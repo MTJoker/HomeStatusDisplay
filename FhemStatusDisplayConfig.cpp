@@ -104,6 +104,7 @@ void FhemStatusDisplayConfig::resetConfigurableData()
   setMqttServer("");
   setMqttStatusTopic("");
   setMqttTestTopic("");  
+  setMqttWillTopic(""); 
 
   setNumberOfLeds(0);
   setLedDataPin(0);
@@ -148,11 +149,11 @@ bool FhemStatusDisplayConfig::readConfigFile()
     {
       Serial.println("Config data successfully parsed.");
 
-      json.printTo(Serial);
+      json.prettyPrintTo(Serial);
       Serial.println("");
 
       if(json.containsKey("host") && json.containsKey("wifiSSID") && json.containsKey("wifiPSK") && 
-         json.containsKey("mqttServer") && json.containsKey("mqttStatusTopic") && json.containsKey("mqttTestTopic") &&
+         json.containsKey("mqttServer") && json.containsKey("mqttStatusTopic") && json.containsKey("mqttTestTopic") && json.containsKey("mqttWillTopic") &&
          json.containsKey("ledCount") && json.containsKey("ledPin"))
       {
         Serial.println("All config file keys available.");
@@ -163,6 +164,7 @@ bool FhemStatusDisplayConfig::readConfigFile()
         setMqttServer(json["mqttServer"]);
         setMqttStatusTopic(json["mqttStatusTopic"]);
         setMqttTestTopic(json["mqttTestTopic"]);
+        setMqttWillTopic(json["mqttWillTopic"]);
         setNumberOfLeds(json["ledCount"]);
         setLedDataPin(json["ledPin"]);
 
@@ -199,6 +201,7 @@ void FhemStatusDisplayConfig::writeConfigFile()
   json["mqttServer"] = m_cfgMqttServer;
   json["mqttStatusTopic"] = m_cfgMqttStatusTopic;
   json["mqttTestTopic"] = m_cfgMqttTestTopic;
+  json["mqttWillTopic"] = m_cfgMqttWillTopic;
   json["ledCount"] = m_cfgNumberOfLeds;
   json["ledPin"] = m_cfgLedDataPin;
   
@@ -211,7 +214,7 @@ void FhemStatusDisplayConfig::writeConfigFile()
     Serial.println("Done.");
   }
 
-  json.printTo(Serial);
+  json.prettyPrintTo(Serial);
   Serial.println("");
   
   json.printTo(configFile);
@@ -336,13 +339,25 @@ const char* FhemStatusDisplayConfig::getMqttTestTopic() const
 bool FhemStatusDisplayConfig::setMqttTestTopic(const char* topic)
 {
   strncpy(m_cfgMqttTestTopic, topic, MAX_MQTT_TEST_TOPIC_LEN);
-  m_cfgHost[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
+  m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
   return true;
 }
 
 uint32_t FhemStatusDisplayConfig::getNumberOfLeds() const
 {
   return m_cfgNumberOfLeds;
+}
+
+const char* FhemStatusDisplayConfig::getMqttWillTopic() const
+{
+  return m_cfgMqttWillTopic;
+}
+
+bool FhemStatusDisplayConfig::setMqttWillTopic(const char* topic)
+{
+  strncpy(m_cfgMqttWillTopic, topic, MAX_MQTT_WILL_TOPIC_LEN);
+  m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN] = '\0';
+  return true;
 }
 
 bool FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)

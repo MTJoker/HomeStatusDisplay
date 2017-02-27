@@ -92,6 +92,10 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   " <tr>"
   "  <td>Test topic</td>"
   "  <td><input type='text' id='mqttTestTopic' name='mqttTestTopic' value='" + String(m_config.getMqttTestTopic()) + "' size='30' maxlength='40' placeholder='#'></td>"
+  " </tr>"
+  " <tr>"
+  "  <td>Will topic</td>"
+  "  <td><input type='text' id='mqttWillTopic' name='mqttWillTopic' value='" + String(m_config.getMqttWillTopic()) + "' size='30' maxlength='40' placeholder='#'></td>"
   " </tr>";
 
   html += ""
@@ -223,6 +227,11 @@ bool FhemStatusDisplayWebServer::updateConfig()
   if (m_server.hasArg("mqttTestTopic")) 
   {
     needSave |= m_config.setMqttTestTopic(m_server.arg("mqttTestTopic").c_str());
+  }
+
+  if (m_server.hasArg("mqttWillTopic")) 
+  {
+    needSave |= m_config.setMqttWillTopic(m_server.arg("mqttWillTopic").c_str());
   }
 
   if (m_server.hasArg("ledCount"))
