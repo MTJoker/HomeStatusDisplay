@@ -132,8 +132,12 @@ void FhemStatusDisplay::checkConnections()
   else if(m_lastMqttConnectionState && !m_mqttHandler.connected())
   {
     m_leds.clear();
-    m_leds.setAll(Led::ON, Led::YELLOW);
     m_lastMqttConnectionState = false;
+  }
+
+  if(!m_mqttHandler.connected() && m_wifi.connected())
+  {
+    m_leds.setAll(Led::ON, Led::YELLOW);
   }
   
   if(!m_lastWifiConnectionState && m_wifi.connected())
@@ -150,9 +154,12 @@ void FhemStatusDisplay::checkConnections()
   else if(m_lastWifiConnectionState && !m_wifi.connected())
   {
     m_leds.clear();
-
-    m_leds.setAll(Led::ON, Led::RED);
     m_lastWifiConnectionState = false;
+  }
+
+  if(!m_wifi.connected())
+  {
+    m_leds.setAll(Led::ON, Led::RED);
   }
 }
 
