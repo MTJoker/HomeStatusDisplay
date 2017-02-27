@@ -55,7 +55,7 @@ void MQTTHandler::handle()
 
 bool MQTTHandler::connected()
 {
-  return (m_pubSubClient.state() == MQTT_CONNECTED);
+  return m_pubSubClient.connected();
 }
 
 bool MQTTHandler::reconnect()
@@ -67,11 +67,11 @@ bool MQTTHandler::reconnect()
   Serial.print("Connecting to MQTT broker ");
   Serial.print(" with client id " + clientId + "... ");
   
-  if (m_pubSubClient.connect(clientId.c_str())) 
+  if(m_pubSubClient.connect(clientId.c_str(), m_config.getMqttWillTopic(), 0, false, "off")) 
   {
     Serial.println("connected");
 
-    publish("/fhem/status/statusdisplay_01/", "Hello!");
+    publish(m_config.getMqttWillTopic(), "on");
 
     for(uint32_t index = 0; index < m_numberOfInTopics; index++)
     {
@@ -81,16 +81,7 @@ bool MQTTHandler::reconnect()
   else 
   {
     Serial.print("failed, rc=");
-    Serial.print(m_pubSubClient.state());
-
-    if(WiFi.status() != WL_CONNECTED)
-    {
-      Serial.println("DEBUG: WIFI Status is NOT connected!");
-    }
-    else
-    {
-      Serial.println("DEBUG: WIFI Status is connected!");
-    }
+    Serial.println(m_pubSubClient.state());
   }
 
   return m_pubSubClient.connected();

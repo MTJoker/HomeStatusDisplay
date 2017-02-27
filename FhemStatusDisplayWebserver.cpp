@@ -28,7 +28,7 @@ void FhemStatusDisplayWebServer::handleClient()
 
 void FhemStatusDisplayWebServer::deliverRootPage()
 {
-  //bool needSave = updateConfig();
+  bool needSave = updateConfig();
   
   String html = ""
   "<!doctype html> <html>"
@@ -41,11 +41,11 @@ void FhemStatusDisplayWebServer::deliverRootPage()
  
   if (WiFi.status() == WL_CONNECTED)
   {
-    html += "ESP8266 is connected to WLAN <b>" + WiFi.SSID() + "</b> and has IP <b>" + ip2String(WiFi.localIP()) + "</b>.<br/><br/>";
+    html += "Device is connected to WLAN <b>" + WiFi.SSID() + "</b> and has IP <b>" + ip2String(WiFi.localIP()) + "</b>.<br/><br/>";
   }
   else
   {
-    html += "ESP8266 ist not connected to local network yet.<br/><br/>";
+    html += "Device is not connected to local network yet.<br/><br/>";
   }
 
   html += ""
@@ -92,6 +92,10 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   " <tr>"
   "  <td>Test topic</td>"
   "  <td><input type='text' id='mqttTestTopic' name='mqttTestTopic' value='" + String(m_config.getMqttTestTopic()) + "' size='30' maxlength='40' placeholder='#'></td>"
+  " </tr>"
+  " <tr>"
+  "  <td>Will topic</td>"
+  "  <td><input type='text' id='mqttWillTopic' name='mqttWillTopic' value='" + String(m_config.getMqttWillTopic()) + "' size='30' maxlength='40' placeholder='#'></td>"
   " </tr>";
 
   html += ""
@@ -101,11 +105,11 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   " </tr>"
   " <tr>"
   "  <td>Number of LEDs</td>"
-  "  <td><input type='text' id='numberOfLeds' name='numberOfLeds' value='" + String(m_config.getNumberOfLeds()) + "' size='30' maxlength='40' placeholder='1'></td>"
+  "  <td><input type='text' id='ledCount' name='ledCount' value='" + String(m_config.getNumberOfLeds()) + "' size='30' maxlength='40' placeholder='0'></td>"
   " </tr>"
   " <tr>"
   "  <td>LED pin</td>"
-  "  <td><input type='text' id='ledPin' name='ledPin' value='" + String(m_config.getLedDataPin()) + "' size='30' maxlength='40' placeholder='#'></td>"
+  "  <td><input type='text' id='ledPin' name='ledPin' value='" + String(m_config.getLedDataPin()) + "' size='30' maxlength='40' placeholder='0'></td>"
   " </tr>";
 
   html += ""
@@ -148,7 +152,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   "</font></body></html>";
 
   m_server.send(200, "text/html", html);
-/*
+
   if(needSave)
   {
     Serial.println("Config has changed, storing it.");
@@ -159,7 +163,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   {
     Serial.println("Rebooting ESP.");
     ESP.restart();
-  }*/
+  }
 }
 
 void FhemStatusDisplayWebServer::deliverNotFoundPage()
@@ -208,6 +212,46 @@ bool FhemStatusDisplayWebServer::updateConfig()
   if (m_server.hasArg("wifiPSK")) 
   {
     needSave |= m_config.setWifiPSK(m_server.arg("wifiPSK").c_str());
+  }
+
+  if (m_server.hasArg("mqttServer"))
+  {
+    needSave |= m_config.setMqttServer(m_server.arg("mqttServer").c_str());
+  }
+  
+  if (m_server.hasArg("mqttStatusTopic"))
+  {
+    needSave |= m_config.setMqttStatusTopic(m_server.arg("mqttStatusTopic").c_str());
+  }
+  
+  if (m_server.hasArg("mqttTestTopic")) 
+  {
+    needSave |= m_config.setMqttTestTopic(m_server.arg("mqttTestTopic").c_str());
+  }
+
+  if (m_server.hasArg("mqttWillTopic")) 
+  {
+    needSave |= m_config.setMqttWillTopic(m_server.arg("mqttWillTopic").c_str());
+  }
+
+  if (m_server.hasArg("ledCount"))
+  {
+    uint32_t ledCount = m_server.arg("ledCount").toInt();
+    
+    if(ledCount > 0)
+    {
+      needSave |= m_config.setNumberOfLeds(ledCount);
+    }
+  }
+  
+  if (m_server.hasArg("ledPin")) 
+  {
+    uint32_t ledPin = m_server.arg("ledPin").toInt();
+    
+    if(ledPin > 0)
+    {
+      needSave |= m_config.setLedDataPin(ledPin);
+    }
   }
 
   return needSave;

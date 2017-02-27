@@ -10,7 +10,9 @@ public:
 
   FhemStatusDisplayConfig();
 
-  void begin(const char* configFileName, const char* version, const char* defaultIdentifier);
+  void begin(const char* version, const char* defaultIdentifier);
+
+  void save();
 
   const char* getVersion() const;
   bool setVersion(const char* version);
@@ -33,11 +35,14 @@ public:
   const char* getMqttTestTopic() const;
   bool setMqttTestTopic(const char* topic);
 
+  const char* getMqttWillTopic() const;
+  bool setMqttWillTopic(const char* topic);
+
   uint32_t getNumberOfLeds() const;
-  void setNumberOfLeds(uint32_t numberOfLeds);
+  bool setNumberOfLeds(uint32_t numberOfLeds);
 
   uint32_t getLedDataPin() const;
-  void setLedDataPin(uint32 dataPin);
+  bool setLedDataPin(uint32 dataPin);
 
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);
@@ -49,6 +54,11 @@ public:
 
 private:
 
+  void resetConfigurableData();
+  bool readConfigFile();
+  void writeConfigFile();
+  void createDefaultConfigFile();
+
   static const uint32_t MAX_VERSION_LEN           = 30;
   static const uint32_t MAX_HOST_LEN              = 30;
   static const uint32_t MAX_WIFI_SSID_LEN         = 40;
@@ -56,6 +66,7 @@ private:
   static const uint32_t MAX_MQTT_SERVER_LEN       = 40;
   static const uint32_t MAX_MQTT_STATUS_TOPIC_LEN = 60;
   static const uint32_t MAX_MQTT_TEST_TOPIC_LEN   = 60;
+  static const uint32_t MAX_MQTT_WILL_TOPIC_LEN   = 60;
 
   static const uint32_t MAX_COLOR_MAP_ENTRIES  = 50;
   static const uint32_t MAX_DEVICE_MAP_ENTRIES = 50;
@@ -73,6 +84,8 @@ private:
   char m_cfgMqttServer[MAX_MQTT_SERVER_LEN + 1];
   char m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN + 1];
   char m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN + 1];
+  char m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN + 1];
+  
   uint32_t m_cfgNumberOfLeds;
   uint32_t m_cfgLedDataPin;
 

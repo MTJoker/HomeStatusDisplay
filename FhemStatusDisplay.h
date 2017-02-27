@@ -11,7 +11,7 @@ class FhemStatusDisplay
 public:
 
   FhemStatusDisplay();
-  void begin(const char* configFileName, const char* version, const char* identifier);
+  void begin(const char* version, const char* identifier);
   void work();
   
 private:
@@ -23,8 +23,7 @@ private:
   void handleStatus(String device, deviceType type, String msg);
   void handleTest(String msg);
 
-  void checkWiFiConnection();
-  void checkMqttConnection();
+  void checkConnections();
 
   char mqttMsgBuffer[MQTT_MSG_MAX_LEN + 1];
   
@@ -33,5 +32,8 @@ private:
   FhemStatusDisplayWebServer m_webServer;
   MQTTHandler m_mqttHandler;
   StatusDisplayLeds m_leds;
+
+  bool m_lastWifiConnectionState;
+  bool m_lastMqttConnectionState;
 };
 

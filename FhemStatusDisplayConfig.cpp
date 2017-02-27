@@ -1,48 +1,41 @@
 #include "FhemStatusDisplayConfig.h"
 #include <FS.h>
+#include <ArduinoJson.h>
+
+static const char* CONFIG_FILE_NAME = "/config.json";
 
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
   // reset all members
+  setVersion("");
   setHost("");
 
-  setWifiSSID("");
-  setWifiPSK("");
-
-  setMqttServer("");
-  setMqttStatusTopic("");
-  setMqttTestTopic("");  
-
-  setNumberOfLeds(0);
-  setLedDataPin(0);
-
-  memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
-  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
-  m_numDeviceMappingEntries = 0;
-  m_numColorMappingEntries = 0;
+  resetConfigurableData();
 }
 
-void FhemStatusDisplayConfig::begin(const char* configFileName, const char* version, const char* defaultIdentifier)
+void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIdentifier)
 {
   Serial.println("");
   Serial.println("Initializing config.");
 
-  // TODO: store config file name
-
   setVersion(version);
-
-  // TODO: read from config file
   setHost(defaultIdentifier);
 
-  setWifiSSID("xxx");
-  setWifiPSK("xxx");
+  if(SPIFFS.begin())
+  {
+    Serial.println("Mounted file system.");
 
-  setMqttServer("xxx");
-  setMqttStatusTopic("fhem/status/#");
-  setMqttTestTopic("fhem/cmd/statusdisplay_01/test");  
+    if(!SPIFFS.exists(CONFIG_FILE_NAME) || !readConfigFile())
+    {
+      createDefaultConfigFile();
+    }
+  }
+  else
+  {
+    Serial.println("Failed to mount file system");
+  }
 
-  setNumberOfLeds(33);
-  setLedDataPin(D2);
+  // TODO: read from config file
 
   // 1st row
   addDeviceMappingEntry("basement",   TYPE_DOOR,    0);
@@ -101,6 +94,136 @@ void FhemStatusDisplayConfig::begin(const char* configFileName, const char* vers
   addColorMappingEntry("today",    TYPE_ALARM,  Led::RED,    Led::ON);       // used by waste
   addColorMappingEntry("tomorrow", TYPE_ALARM,  Led::YELLOW, Led::ON);       // used by waste
   addColorMappingEntry("none",     TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by waste
+}
+
+void FhemStatusDisplayConfig::resetConfigurableData()
+{
+  setWifiSSID("");
+  setWifiPSK("");
+
+  setMqttServer("");
+  setMqttStatusTopic("");
+  setMqttTestTopic("");  
+  setMqttWillTopic(""); 
+
+  setNumberOfLeds(0);
+  setLedDataPin(0);
+
+  memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
+  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
+  m_numDeviceMappingEntries = 0;
+  m_numColorMappingEntries = 0;
+}
+
+void FhemStatusDisplayConfig::createDefaultConfigFile()
+{
+  Serial.println("Creating default config file.");
+
+  resetConfigurableData();
+
+  writeConfigFile();
+}
+
+bool FhemStatusDisplayConfig::readConfigFile()
+{
+  bool success = false;
+  
+  Serial.println("Reading config file.");  
+        
+  File configFile = SPIFFS.open(CONFIG_FILE_NAME, "r");
+
+  if(configFile)
+  {
+    size_t size = configFile.size();
+    Serial.printf("Opened config file, size is %u bytes.\n", size);  
+
+    // allocate buffer for the file contents
+    std::unique_ptr<char[]> buf(new char[size]);
+
+    configFile.readBytes(buf.get(), size);
+
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.parseObject(buf.get());
+
+    if (json.success()) 
+    {
+      Serial.println("Config data successfully parsed.");
+
+      json.prettyPrintTo(Serial);
+      Serial.println("");
+
+      if(json.containsKey("host") && json.containsKey("wifiSSID") && json.containsKey("wifiPSK") && 
+         json.containsKey("mqttServer") && json.containsKey("mqttStatusTopic") && json.containsKey("mqttTestTopic") && json.containsKey("mqttWillTopic") &&
+         json.containsKey("ledCount") && json.containsKey("ledPin"))
+      {
+        Serial.println("All config file keys available.");
+
+        setHost(json["host"]);
+        setWifiSSID(json["wifiSSID"]);
+        setWifiPSK(json["wifiPSK"]);
+        setMqttServer(json["mqttServer"]);
+        setMqttStatusTopic(json["mqttStatusTopic"]);
+        setMqttTestTopic(json["mqttTestTopic"]);
+        setMqttWillTopic(json["mqttWillTopic"]);
+        setNumberOfLeds(json["ledCount"]);
+        setLedDataPin(json["ledPin"]);
+
+        success = true;
+      }
+      else
+      {
+        Serial.println("Missing config file keys!");
+      }
+    } 
+    else 
+    {
+      Serial.println("Could not read config data");
+    }
+  }
+  else
+  {
+    Serial.println("Failed to open config file.");
+  }
+
+  return success;
+}
+
+void FhemStatusDisplayConfig::writeConfigFile()
+{
+  Serial.println("Writing config file.");  
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
+
+  json["host"] = m_cfgHost;
+  json["wifiSSID"] = m_cfgWifiSSID;
+  json["wifiPSK"] = m_cfgWifiPSK;
+  json["mqttServer"] = m_cfgMqttServer;
+  json["mqttStatusTopic"] = m_cfgMqttStatusTopic;
+  json["mqttTestTopic"] = m_cfgMqttTestTopic;
+  json["mqttWillTopic"] = m_cfgMqttWillTopic;
+  json["ledCount"] = m_cfgNumberOfLeds;
+  json["ledPin"] = m_cfgLedDataPin;
+  
+  File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
+  
+  if (!configFile) 
+  {
+    Serial.println("Failed to write config file, formatting file system.");
+    SPIFFS.format();
+    Serial.println("Done.");
+  }
+
+  json.prettyPrintTo(Serial);
+  Serial.println("");
+  
+  json.printTo(configFile);
+  configFile.close();
+}
+
+void FhemStatusDisplayConfig::save()
+{
+  writeConfigFile();
 }
 
 bool FhemStatusDisplayConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
@@ -216,7 +339,7 @@ const char* FhemStatusDisplayConfig::getMqttTestTopic() const
 bool FhemStatusDisplayConfig::setMqttTestTopic(const char* topic)
 {
   strncpy(m_cfgMqttTestTopic, topic, MAX_MQTT_TEST_TOPIC_LEN);
-  m_cfgHost[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
+  m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
   return true;
 }
 
@@ -225,9 +348,22 @@ uint32_t FhemStatusDisplayConfig::getNumberOfLeds() const
   return m_cfgNumberOfLeds;
 }
 
-void FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)
+const char* FhemStatusDisplayConfig::getMqttWillTopic() const
+{
+  return m_cfgMqttWillTopic;
+}
+
+bool FhemStatusDisplayConfig::setMqttWillTopic(const char* topic)
+{
+  strncpy(m_cfgMqttWillTopic, topic, MAX_MQTT_WILL_TOPIC_LEN);
+  m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN] = '\0';
+  return true;
+}
+
+bool FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)
 {
   m_cfgNumberOfLeds = numberOfLeds;
+  return true;
 }
 
 uint32_t FhemStatusDisplayConfig::getLedDataPin() const
@@ -235,9 +371,10 @@ uint32_t FhemStatusDisplayConfig::getLedDataPin() const
   return m_cfgLedDataPin;
 }
 
-void FhemStatusDisplayConfig::setLedDataPin(uint32 dataPin)
+bool FhemStatusDisplayConfig::setLedDataPin(uint32 dataPin)
 {
   m_cfgLedDataPin = dataPin;
+  return true;
 }
 
 int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceType)
