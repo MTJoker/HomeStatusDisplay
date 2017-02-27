@@ -9,7 +9,9 @@ FhemStatusDisplay::FhemStatusDisplay()
 m_webServer(m_config),
 m_wifi(m_config),
 m_mqttHandler(m_config, std::bind(&FhemStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
-m_leds(m_config)
+m_leds(m_config),
+m_lastWifiConnectionState(false),
+m_lastMqttConnectionState(false)
 {
 }
 
@@ -122,7 +124,36 @@ void FhemStatusDisplay::handleStatus(String device, deviceType type, String msg)
 
 void FhemStatusDisplay::checkConnections()
 {
-  // TODO
+  if(!m_lastMqttConnectionState && m_mqttHandler.connected())
+  {
+    m_leds.clear();
+    m_lastMqttConnectionState = true;
+  }
+  else if(m_lastMqttConnectionState && !m_mqttHandler.connected())
+  {
+    m_leds.clear();
+    m_leds.setAll(Led::ON, Led::YELLOW);
+    m_lastMqttConnectionState = false;
+  }
+  
+  if(!m_lastWifiConnectionState && m_wifi.connected())
+  {
+    m_leds.clear();
+
+    if(!m_mqttHandler.connected())
+    {
+      m_leds.setAll(Led::ON, Led::YELLOW);
+    }
+    
+    m_lastWifiConnectionState = true;
+  }
+  else if(m_lastWifiConnectionState && !m_wifi.connected())
+  {
+    m_leds.clear();
+
+    m_leds.setAll(Led::ON, Led::RED);
+    m_lastWifiConnectionState = false;
+  }
 }
 
 

@@ -32,5 +32,8 @@ private:
   FhemStatusDisplayWebServer m_webServer;
   MQTTHandler m_mqttHandler;
   StatusDisplayLeds m_leds;
+
+  bool m_lastWifiConnectionState;
+  bool m_lastMqttConnectionState;
 };
 
