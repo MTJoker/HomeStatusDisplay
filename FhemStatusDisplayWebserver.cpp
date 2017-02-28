@@ -204,37 +204,62 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
 
     if(mapping)
     {
-      html += ""
-        " <tr>"
-        "  <td><input type='text' id='name' name='name' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>"
-        "  <td><input type='text' id='type' name='type' value='" + String(mapping->type) + "' size='30' maxlength='40' placeholder='type'></td>"
-        "  <td><input type='text' id='color' name='color' value='" + String(mapping->color) + "' size='30' maxlength='40' placeholder='color'></td>"
-        "  <td><input type='text' id='behavior' name='behavior' value='" + String(mapping->behavior) + "' size='30' maxlength='40' placeholder='behavior'></td>"
-        " </tr>";
+      const char* window = (mapping->type == TYPE_WINDOW) ? "selected='selected'" : "";
+      const char* door   = (mapping->type == TYPE_DOOR)   ? "selected='selected'" : "";
+      const char* light  = (mapping->type == TYPE_LIGHT)  ? "selected='selected'" : "";
+      const char* alarm  = (mapping->type == TYPE_ALARM)  ? "selected='selected'" : "";
+      
+      const char* none   = (mapping->color == Led::NONE)   ? "selected='selected'" : "";
+      const char* red    = (mapping->color == Led::RED)    ? "selected='selected'" : "";
+      const char* green  = (mapping->color == Led::GREEN)  ? "selected='selected'" : "";
+      const char* blue   = (mapping->color == Led::BLUE)   ? "selected='selected'" : "";
+      const char* yellow = (mapping->color == Led::YELLOW) ? "selected='selected'" : "";
+      const char* white  = (mapping->color == Led::WHITE)  ? "selected='selected'" : "";
+
+      const char* on       = (mapping->behavior == Led::ON)       ? "selected='selected'" : "";
+      const char* off      = (mapping->behavior == Led::OFF)      ? "selected='selected'" : "";
+      const char* blinking = (mapping->behavior == Led::BLINKING) ? "selected='selected'" : "";
+      const char* flashing = (mapping->behavior == Led::FLASHING) ? "selected='selected'" : "";
+      
+      html += "<tr>";
+      html += "<td><input type='text' id='name' name='name' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>";
+      html += "<td><select name='type'>";
+      html += "<option " + String(window) + ">Window</option>";
+      html += "<option " + String(door)   + ">Door</option>";
+      html += "<option " + String(light)  + ">Light</option>"; 
+      html += "<option " + String(alarm)  + ">Alarm</option>";
+      html += "</select></td>";
+      html += "<td><select name='color'>";
+      html += "<option " + String(none)   + ">None</option>";
+      html += "<option " + String(red)    + ">Red</option>";
+      html += "<option " + String(green)  + ">Green</option>";
+      html += "<option " + String(blue)   + ">Blue</option>"; 
+      html += "<option " + String(yellow) + ">Yellow</option>";
+      html += "<option " + String(white)  + ">White</option>"; 
+      html += "</select></td>";
+      html += "<td><select name='behavior'>";
+      html += "<option " + String(on)       + ">On</option>";
+      html += "<option " + String(off)      + ">Off</option>";
+      html += "<option " + String(blinking) + ">Blinking</option>";
+      html += "<option " + String(flashing) + ">Flashing</option>";
+      html += "</select></td>";            
+      html += " </tr>";
     }
   }
 
   // one additional for adding an entry
-  html += ""
-  " <tr>"
-  "  <td><input type='text' id='name' name='name' value='' size='30' maxlength='40' placeholder='name'></td>"
-  "  <td><input type='text' id='type' name='type' value='' size='30' maxlength='40' placeholder='type'></td>"
-  "  <td><input type='text' id='color' name='color' value='' size='30' maxlength='40' placeholder='color'></td>"
-  "  <td><input type='text' id='behavior' name='behavior' value='' size='30' maxlength='40' placeholder='behavior'></td>"
-  " </tr>";
+  html += "<tr>";
+  html += "<td><input type='text' id='name' name='name' value='' size='30' maxlength='40' placeholder='name'></td>";
+  html += "<td><select name='type'><option>Window</option><option>Door</option><option>Light</option><option>Alarm</option></select>";
+  html += "<td><select name='color'><option>None</option><option>Red</option><option>Green</option><option>Blue</option><option>Yellow</option><option>White</option></select>";
+  html += "<td><select name='behavior'><option>On</option><option>Off</option><option>Blinking</option><option>Flashing</option></select>";
+  html += " </tr>";
   
   html += ""
   " <tr>"
   "  <td></td>"
   "  <td></td>"
-  "  <td></td>"
-  "  <td></td>"
-  " </tr>"
-  " <tr>"
-  "  <td></td>"
-  "  <td></td>"
-  "  <td></td>"
-  "  <td><input type='submit' value='Save' style='height:30px; width:200px' ></td>"
+  "  <td colspan='2'><input type='submit' value='Save' style='height:30px;'></td>"
   " </tr>";
 
   html += ""
