@@ -65,7 +65,7 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   addDeviceMappingEntry("unused_3",           TYPE_ALARM, 30);
   addDeviceMappingEntry("unused_2",           TYPE_ALARM, 31);
   addDeviceMappingEntry("unused_1",           TYPE_ALARM, 32);
-
+/*
   addColorMappingEntry("open",     TYPE_WINDOW, Led::BLUE,   Led::ON); 
   addColorMappingEntry("closed",   TYPE_WINDOW, Led::NONE,   Led::OFF); 
   addColorMappingEntry("tilted",   TYPE_WINDOW, Led::YELLOW, Led::ON); 
@@ -84,7 +84,7 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   addColorMappingEntry("today",    TYPE_ALARM,  Led::RED,    Led::ON);       // used by waste
   addColorMappingEntry("tomorrow", TYPE_ALARM,  Led::YELLOW, Led::ON);       // used by waste
   addColorMappingEntry("none",     TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by waste
-
+*/
   if(SPIFFS.begin())
   {
     Serial.println("Mounted file system.");
@@ -233,18 +233,27 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
       json.prettyPrintTo(Serial);
       Serial.println("");
 
-      // TODO: get it
-
-        //if(json["colorMapping"].is<JsonObject&>())
- //         JsonObject& colorMapping = json["colorMapping"].asObject();
-
- //       for(JsonObject::iterator it = colorMapping.begin(); it != colorMapping.end(); ++it)
- //       {
- //         Serial.println(it->key);
- //         Serial.println(it->value.asString());
- //       }
-
       success = true;
+            
+      for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
+      {
+        JsonObject& entry = json[it->key]; 
+
+        if(entry.containsKey("msg") && entry.containsKey("type") &&
+           entry.containsKey("color") && entry.containsKey("behavior") )
+        {
+          addColorMappingEntry(entry["msg"].asString(), 
+                               (deviceType)(entry["type"].as<int>()), 
+                               (Led::Color)(entry["color"].as<int>()), 
+                               (Led::Behavior)(entry["behavior"].as<int>())); 
+        }
+        else
+        {
+          Serial.println("Missing config file keys!");
+          success = false;
+          break;
+        }
+      }
     } 
     else 
     {
