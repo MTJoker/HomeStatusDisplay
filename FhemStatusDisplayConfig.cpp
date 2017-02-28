@@ -494,6 +494,23 @@ bool FhemStatusDisplayConfig::setLedDataPin(uint32 dataPin)
   return true;
 }
 
+uint32_t FhemStatusDisplayConfig::getNumberOfColorMappingEntries() const
+{
+  return m_numColorMappingEntries;
+}
+
+const colorMapping* FhemStatusDisplayConfig::getColorMapping(uint32_t index) const
+{
+  const colorMapping* mapping = NULL;
+
+  if(index < m_numColorMappingEntries)
+  {
+    mapping = &m_cfgColorMapping[index];
+  }
+
+  return mapping;
+}
+
 int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceType)
 {
   int number = -1;

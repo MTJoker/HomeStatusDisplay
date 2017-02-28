@@ -45,6 +45,9 @@ public:
   uint32_t getLedDataPin() const;
   bool setLedDataPin(uint32 dataPin);
 
+  uint32_t getNumberOfColorMappingEntries() const;
+  const colorMapping* getColorMapping(uint32_t index) const;
+
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);
 

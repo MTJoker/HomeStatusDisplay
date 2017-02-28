@@ -196,12 +196,31 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   "  <td><b><font size='+1'>Type</font></b></td>"
   "  <td><b><font size='+1'>Color</font></b></td>"
   "  <td><b><font size='+1'>Behavior</font></b></td>"
-  " </tr>"
+  " </tr>";
+  
+  for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
+  {
+    const colorMapping* mapping = m_config.getColorMapping(i);
+
+    if(mapping)
+    {
+      html += ""
+        " <tr>"
+        "  <td><input type='text' id='name' name='name' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>"
+        "  <td><input type='text' id='type' name='type' value='" + String(mapping->type) + "' size='30' maxlength='40' placeholder='type'></td>"
+        "  <td><input type='text' id='color' name='color' value='" + String(mapping->color) + "' size='30' maxlength='40' placeholder='color'></td>"
+        "  <td><input type='text' id='behavior' name='behavior' value='" + String(mapping->behavior) + "' size='30' maxlength='40' placeholder='behavior'></td>"
+        " </tr>";
+    }
+  }
+
+  // one additional for adding an entry
+  html += ""
   " <tr>"
-  "  <td><input type='text' id='name' name='name' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='name'></td>"
-  "  <td><input type='text' id='type' name='type' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='type'></td>"
-  "  <td><input type='text' id='color' name='color' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='color'></td>"
-  "  <td><input type='text' id='behavior' name='behavior' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='behavior'></td>"
+  "  <td><input type='text' id='name' name='name' value='' size='30' maxlength='40' placeholder='name'></td>"
+  "  <td><input type='text' id='type' name='type' value='' size='30' maxlength='40' placeholder='type'></td>"
+  "  <td><input type='text' id='color' name='color' value='' size='30' maxlength='40' placeholder='color'></td>"
+  "  <td><input type='text' id='behavior' name='behavior' value='' size='30' maxlength='40' placeholder='behavior'></td>"
   " </tr>";
   
   html += ""
