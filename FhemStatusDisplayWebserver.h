@@ -17,10 +17,12 @@ public:
 private:
 
   void deliverRootPage();
+  void deliverColorMappingPage();
   void deliverNotFoundPage();
 
   String ip2String(IPAddress ip);
-  bool updateConfig();
+  bool updateMainConfig();
+  bool updateColorMappingConfig();
 
   ESP8266WebServer m_server;
   ESP8266HTTPUpdateServer m_updateServer;

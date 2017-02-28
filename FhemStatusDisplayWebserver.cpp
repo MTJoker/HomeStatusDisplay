@@ -18,6 +18,7 @@ void FhemStatusDisplayWebServer::begin()
   m_server.begin();
   MDNS.addService("http", "tcp", 80);
   m_server.on("/", std::bind(&FhemStatusDisplayWebServer::deliverRootPage, this));
+  m_server.on("/colormapping", std::bind(&FhemStatusDisplayWebServer::deliverColorMappingPage, this));
   m_server.onNotFound(std::bind(&FhemStatusDisplayWebServer::deliverNotFoundPage, this));
 }
 
@@ -28,15 +29,15 @@ void FhemStatusDisplayWebServer::handleClient()
 
 void FhemStatusDisplayWebServer::deliverRootPage()
 {
-  bool needSave = updateConfig();
+  bool needSave = updateMainConfig();
   
   String html = ""
   "<!doctype html> <html>"
   "<head> <meta charset='utf-8'>"
-  "<title>" + String(m_config.getHost()) + " Configuration</title>"
+  "<title>" + String(m_config.getHost()) + " main configuration</title>"
   "</head>"
   "<body bgcolor='#F0F0F0'><font face='Verdana,Arial,Helvetica'>"
-  "<b><h1>" + m_config.getHost() + " Configuration</h1></b>"
+  "<b><h1>" + m_config.getHost() + " main configuration</h1></b>"
   "<h4>Software version: " + m_config.getVersion() + "</h4>";
  
   if (WiFi.status() == WL_CONNECTED)
@@ -47,6 +48,9 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   {
     html += "Device is not connected to local network yet.<br/><br/>";
   }
+
+  html += ""
+  "<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>";
 
   html += ""
   "<form><font face='Verdana,Arial,Helvetica'>";
@@ -155,7 +159,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
 
   if(needSave)
   {
-    Serial.println("Config has changed, storing it.");
+    Serial.println("Main config has changed, storing it.");
     m_config.saveMain();
   }
 
@@ -163,6 +167,72 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   {
     Serial.println("Rebooting ESP.");
     ESP.restart();
+  }
+}
+
+void FhemStatusDisplayWebServer::deliverColorMappingPage()
+{
+  bool needSave = updateColorMappingConfig();
+  
+  String html = ""
+  "<!doctype html> <html>"
+  "<head> <meta charset='utf-8'>"
+  "<title>" + String(m_config.getHost()) + " color mapping configuration</title>"
+  "</head>"
+  "<body bgcolor='#F0F0F0'><font face='Verdana,Arial,Helvetica'>"
+  "<b><h1>" + m_config.getHost() + " color mapping configuration</h1></b>"
+  "<h4>Software version: " + m_config.getVersion() + "</h4>";
+
+  html += ""
+  "<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>";
+  
+  html += ""
+  "<form><font face='Verdana,Arial,Helvetica'>";
+
+  html += ""
+  "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
+  " <tr>"
+  "  <td><b><font size='+1'>Message</font></b></td>"
+  "  <td><b><font size='+1'>Type</font></b></td>"
+  "  <td><b><font size='+1'>Color</font></b></td>"
+  "  <td><b><font size='+1'>Behavior</font></b></td>"
+  " </tr>"
+  " <tr>"
+  "  <td><input type='text' id='name' name='name' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='name'></td>"
+  "  <td><input type='text' id='type' name='type' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='type'></td>"
+  "  <td><input type='text' id='color' name='color' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='color'></td>"
+  "  <td><input type='text' id='behavior' name='behavior' value='" + String(m_config.getHost()) + "' size='30' maxlength='40' placeholder='behavior'></td>"
+  " </tr>";
+  
+  html += ""
+  " <tr>"
+  "  <td></td>"
+  "  <td></td>"
+  "  <td></td>"
+  "  <td></td>"
+  " </tr>"
+  " <tr>"
+  "  <td></td>"
+  "  <td></td>"
+  "  <td></td>"
+  "  <td><input type='submit' value='Save' style='height:30px; width:200px' ></td>"
+  " </tr>";
+
+  html += ""
+  "</table>";
+
+  html += ""
+  "</form>";
+  
+  html += ""
+  "</font></body></html>";
+
+  m_server.send(200, "text/html", html);
+
+  if(needSave)
+  {
+    Serial.println("Config has changed, storing it.");
+    m_config.saveColorMapping();
   }
 }
 
@@ -195,7 +265,7 @@ String FhemStatusDisplayWebServer::ip2String(IPAddress ip)
   return String(buffer);
 }
 
-bool FhemStatusDisplayWebServer::updateConfig()
+bool FhemStatusDisplayWebServer::updateMainConfig()
 {
   bool needSave = false;
 
@@ -255,5 +325,10 @@ bool FhemStatusDisplayWebServer::updateConfig()
   }
 
   return needSave;
+}
+
+bool FhemStatusDisplayWebServer::updateColorMappingConfig()
+{
+  return true;
 }
 
