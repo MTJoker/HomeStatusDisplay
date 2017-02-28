@@ -18,8 +18,10 @@ private:
 
   void deliverRootPage();
   void deliverColorMappingPage();
+  void deliverDeviceMappingPage();
   void deliverNotFoundPage();
 
+  String getHeader();
   String ip2String(IPAddress ip);
   bool updateMainConfig();
   bool updateColorMappingConfig();

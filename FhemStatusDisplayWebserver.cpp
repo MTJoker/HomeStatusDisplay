@@ -1,6 +1,9 @@
 #include "FhemStatusDisplayWebServer.h"
 #include <ESP8266mDNS.h>
 
+static const char* SELECTED_STRING = "selected='selected'";
+static const char* EMPTY_STRING = "";
+
 FhemStatusDisplayWebServer::FhemStatusDisplayWebServer(FhemStatusDisplayConfig& config)
 :
 m_server(80),
@@ -19,6 +22,7 @@ void FhemStatusDisplayWebServer::begin()
   MDNS.addService("http", "tcp", 80);
   m_server.on("/", std::bind(&FhemStatusDisplayWebServer::deliverRootPage, this));
   m_server.on("/colormapping", std::bind(&FhemStatusDisplayWebServer::deliverColorMappingPage, this));
+  m_server.on("/devicemapping", std::bind(&FhemStatusDisplayWebServer::deliverDeviceMappingPage, this));
   m_server.onNotFound(std::bind(&FhemStatusDisplayWebServer::deliverNotFoundPage, this));
 }
 
@@ -27,19 +31,27 @@ void FhemStatusDisplayWebServer::handleClient()
   m_server.handleClient();
 }
 
-void FhemStatusDisplayWebServer::deliverRootPage()
+String FhemStatusDisplayWebServer::getHeader()
 {
-  bool needSave = updateMainConfig();
-  
-  String html = ""
+   String header = ""
   "<!doctype html> <html>"
   "<head> <meta charset='utf-8'>"
   "<title>" + String(m_config.getHost()) + " main configuration</title>"
   "</head>"
   "<body bgcolor='#F0F0F0'><font face='Verdana,Arial,Helvetica'>"
   "<b><h1>" + m_config.getHost() + " main configuration</h1></b>"
-  "<h4>Software version: " + m_config.getVersion() + "</h4>";
- 
+  "<h4>Software version: " + m_config.getVersion() + "</h4>"
+  "<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>"; 
+
+  return header;
+}
+
+void FhemStatusDisplayWebServer::deliverRootPage()
+{
+  bool needSave = updateMainConfig();
+  
+  String html = getHeader();
+
   if (WiFi.status() == WL_CONNECTED)
   {
     html += "Device is connected to WLAN <b>" + WiFi.SSID() + "</b> and has IP <b>" + ip2String(WiFi.localIP()) + "</b>.<br/><br/>";
@@ -48,9 +60,6 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   {
     html += "Device is not connected to local network yet.<br/><br/>";
   }
-
-  html += ""
-  "<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>";
 
   html += ""
   "<form><font face='Verdana,Arial,Helvetica'>";
@@ -174,17 +183,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
 {
   bool needSave = updateColorMappingConfig();
   
-  String html = ""
-  "<!doctype html> <html>"
-  "<head> <meta charset='utf-8'>"
-  "<title>" + String(m_config.getHost()) + " color mapping configuration</title>"
-  "</head>"
-  "<body bgcolor='#F0F0F0'><font face='Verdana,Arial,Helvetica'>"
-  "<b><h1>" + m_config.getHost() + " color mapping configuration</h1></b>"
-  "<h4>Software version: " + m_config.getVersion() + "</h4>";
-
-  html += ""
-  "<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>";
+  String html = getHeader();
   
   html += ""
   "<form><font face='Verdana,Arial,Helvetica'>";
@@ -198,6 +197,106 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   "  <td><b><font size='+1'>Behavior</font></b></td>"
   " </tr>";
   
+  for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
+  {
+    const colorMapping* mapping = m_config.getColorMapping(i);
+
+    if(mapping)
+    {
+      const char* window = (mapping->type == TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
+      const char* door   = (mapping->type == TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
+      const char* light  = (mapping->type == TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
+      const char* alarm  = (mapping->type == TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;
+      
+      const char* none   = (mapping->color == Led::NONE)   ? SELECTED_STRING : EMPTY_STRING;
+      const char* red    = (mapping->color == Led::RED)    ? SELECTED_STRING : EMPTY_STRING;
+      const char* green  = (mapping->color == Led::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
+      const char* blue   = (mapping->color == Led::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
+      const char* yellow = (mapping->color == Led::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
+      const char* white  = (mapping->color == Led::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
+
+      const char* on       = (mapping->behavior == Led::ON)       ? SELECTED_STRING : EMPTY_STRING;
+      const char* off      = (mapping->behavior == Led::OFF)      ? SELECTED_STRING : EMPTY_STRING;
+      const char* blinking = (mapping->behavior == Led::BLINKING) ? SELECTED_STRING : EMPTY_STRING;
+      const char* flashing = (mapping->behavior == Led::FLASHING) ? SELECTED_STRING : EMPTY_STRING;
+      
+      html += "<tr>";
+      html += "<td><input type='text' id='name' name='name' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>";
+      html += "<td><select name='type'>";
+      html += "<option " + String(window) + ">Window</option>";
+      html += "<option " + String(door)   + ">Door</option>";
+      html += "<option " + String(light)  + ">Light</option>"; 
+      html += "<option " + String(alarm)  + ">Alarm</option>";
+      html += "</select></td>";
+      html += "<td><select name='color'>";
+      html += "<option " + String(none)   + ">None</option>";
+      html += "<option " + String(red)    + ">Red</option>";
+      html += "<option " + String(green)  + ">Green</option>";
+      html += "<option " + String(blue)   + ">Blue</option>"; 
+      html += "<option " + String(yellow) + ">Yellow</option>";
+      html += "<option " + String(white)  + ">White</option>"; 
+      html += "</select></td>";
+      html += "<td><select name='behavior'>";
+      html += "<option " + String(on)       + ">On</option>";
+      html += "<option " + String(off)      + ">Off</option>";
+      html += "<option " + String(blinking) + ">Blinking</option>";
+      html += "<option " + String(flashing) + ">Flashing</option>";
+      html += "</select></td>";            
+      html += " </tr>";
+    }
+  }
+
+  // one additional for adding an entry
+  html += "<tr>";
+  html += "<td><input type='text' id='name' name='name' value='' size='30' maxlength='40' placeholder='name'></td>";
+  html += "<td><select name='type'><option>Window</option><option>Door</option><option>Light</option><option>Alarm</option></select>";
+  html += "<td><select name='color'><option>None</option><option>Red</option><option>Green</option><option>Blue</option><option>Yellow</option><option>White</option></select>";
+  html += "<td><select name='behavior'><option>On</option><option>Off</option><option>Blinking</option><option>Flashing</option></select>";
+  html += " </tr>";
+  
+  html += ""
+  " <tr>"
+  "  <td></td>"
+  "  <td></td>"
+  "  <td></td>"
+  "  <td><input type='submit' value='Save' style='height:30px;'></td>"
+  " </tr>";
+
+  html += ""
+  "</table>";
+
+  html += ""
+  "</form>";
+  
+  html += ""
+  "</font></body></html>";
+
+  m_server.send(200, "text/html", html);
+
+  if(needSave)
+  {
+    Serial.println("Color mapping config has changed, storing it.");
+    m_config.saveColorMapping();
+  }
+}
+
+void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
+{
+  bool needSave = updateColorMappingConfig();
+  
+  String html = getHeader();
+  
+  html += ""
+  "<form><font face='Verdana,Arial,Helvetica'>";
+
+  html += ""
+  "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
+  " <tr>"
+  "  <td><b><font size='+1'>Device</font></b></td>"
+  "  <td><b><font size='+1'>Type</font></b></td>"
+  "  <td><b><font size='+1'>LedNumber</font></b></td>"
+  " </tr>";
+  /*
   for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
   {
     const colorMapping* mapping = m_config.getColorMapping(i);
@@ -254,12 +353,13 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   html += "<td><select name='color'><option>None</option><option>Red</option><option>Green</option><option>Blue</option><option>Yellow</option><option>White</option></select>";
   html += "<td><select name='behavior'><option>On</option><option>Off</option><option>Blinking</option><option>Flashing</option></select>";
   html += " </tr>";
-  
+  */
   html += ""
   " <tr>"
   "  <td></td>"
   "  <td></td>"
-  "  <td colspan='2'><input type='submit' value='Save' style='height:30px;'></td>"
+  "  <td></td>"
+  "  <td><input type='submit' value='Save' style='height:30px;'></td>"
   " </tr>";
 
   html += ""
@@ -275,8 +375,8 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
 
   if(needSave)
   {
-    Serial.println("Config has changed, storing it.");
-    m_config.saveColorMapping();
+    Serial.println("Device mapping config has changed, storing it.");
+    //m_config.saveColorMapping();
   }
 }
 
