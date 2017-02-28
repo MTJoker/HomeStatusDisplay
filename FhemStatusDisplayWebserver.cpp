@@ -156,7 +156,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   if(needSave)
   {
     Serial.println("Config has changed, storing it.");
-    m_config.save();
+    m_config.saveMain();
   }
 
   if(m_server.hasArg("reset")) 

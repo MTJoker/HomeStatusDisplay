@@ -12,7 +12,8 @@ public:
 
   void begin(const char* version, const char* defaultIdentifier);
 
-  void save();
+  void saveMain();
+  void saveColorMapping();
 
   const char* getVersion() const;
   bool setVersion(const char* version);
@@ -54,10 +55,15 @@ public:
 
 private:
 
-  void resetConfigurableData();
-  bool readConfigFile();
-  void writeConfigFile();
-  void createDefaultConfigFile();
+  void resetMainConfigData();
+  bool readMainConfigFile();
+  void writeMainConfigFile();
+  void createDefaultMainConfigFile();
+
+  void resetColorMappingConfigData();
+  bool readColorMappingConfigFile();
+  void writeColorMappingConfigFile();
+  void createDefaultColorMappingConfigFile();
 
   static const uint32_t MAX_VERSION_LEN           = 30;
   static const uint32_t MAX_HOST_LEN              = 30;

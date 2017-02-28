@@ -2,15 +2,19 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 
-static const char* CONFIG_FILE_NAME = "/config.json";
+static const char* CONFIG_FILE_NAME_MAIN = "/config.json";
+static const char* CONFIG_FILE_NAME_DEVICEMAPPING = "/devicemapping.json";
+static const char* CONFIG_FILE_NAME_COLORMAPPING = "/colormapping.json";
 
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
-  // reset all members
+  // reset non-configuraable members
   setVersion("");
   setHost("");
 
-  resetConfigurableData();
+  // reset configurable members
+  resetMainConfigData();
+  resetColorMappingConfigData();
 }
 
 void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIdentifier)
@@ -20,20 +24,6 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
 
   setVersion(version);
   setHost(defaultIdentifier);
-
-  if(SPIFFS.begin())
-  {
-    Serial.println("Mounted file system.");
-
-    if(!SPIFFS.exists(CONFIG_FILE_NAME) || !readConfigFile())
-    {
-      createDefaultConfigFile();
-    }
-  }
-  else
-  {
-    Serial.println("Failed to mount file system");
-  }
 
   // TODO: read from config file
 
@@ -94,9 +84,28 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   addColorMappingEntry("today",    TYPE_ALARM,  Led::RED,    Led::ON);       // used by waste
   addColorMappingEntry("tomorrow", TYPE_ALARM,  Led::YELLOW, Led::ON);       // used by waste
   addColorMappingEntry("none",     TYPE_ALARM,  Led::NONE,   Led::OFF);      // used by waste
+
+  if(SPIFFS.begin())
+  {
+    Serial.println("Mounted file system.");
+
+    if(!SPIFFS.exists(CONFIG_FILE_NAME_MAIN) || !readMainConfigFile())
+    {
+      createDefaultMainConfigFile();
+    }
+
+    if(!SPIFFS.exists(CONFIG_FILE_NAME_COLORMAPPING) || !readColorMappingConfigFile())
+    {
+      createDefaultColorMappingConfigFile();
+    }
+  }
+  else
+  {
+    Serial.println("Failed to mount file system");
+  }
 }
 
-void FhemStatusDisplayConfig::resetConfigurableData()
+void FhemStatusDisplayConfig::resetMainConfigData()
 {
   setWifiSSID("");
   setWifiPSK("");
@@ -108,34 +117,42 @@ void FhemStatusDisplayConfig::resetConfigurableData()
 
   setNumberOfLeds(0);
   setLedDataPin(0);
+}
 
+void FhemStatusDisplayConfig::resetColorMappingConfigData()
+{
   memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
   memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
   m_numDeviceMappingEntries = 0;
   m_numColorMappingEntries = 0;
 }
 
-void FhemStatusDisplayConfig::createDefaultConfigFile()
+void FhemStatusDisplayConfig::createDefaultMainConfigFile()
 {
-  Serial.println("Creating default config file.");
-
-  resetConfigurableData();
-
-  writeConfigFile();
+  Serial.println("Creating default main config file.");
+  resetMainConfigData();
+  writeMainConfigFile();
 }
 
-bool FhemStatusDisplayConfig::readConfigFile()
+void FhemStatusDisplayConfig::createDefaultColorMappingConfigFile()
+{
+  Serial.println("Creating default color mapping config file.");
+  resetColorMappingConfigData();
+  writeColorMappingConfigFile();
+}
+
+bool FhemStatusDisplayConfig::readMainConfigFile()
 {
   bool success = false;
   
-  Serial.println("Reading config file.");  
+  Serial.println("Reading main config file.");  
         
-  File configFile = SPIFFS.open(CONFIG_FILE_NAME, "r");
+  File configFile = SPIFFS.open(CONFIG_FILE_NAME_MAIN, "r");
 
   if(configFile)
   {
     size_t size = configFile.size();
-    Serial.printf("Opened config file, size is %u bytes.\n", size);  
+    Serial.printf("Opened main config file, size is %u bytes.\n", size);  
 
     // allocate buffer for the file contents
     std::unique_ptr<char[]> buf(new char[size]);
@@ -147,7 +164,7 @@ bool FhemStatusDisplayConfig::readConfigFile()
 
     if (json.success()) 
     {
-      Serial.println("Config data successfully parsed.");
+      Serial.println("Main config data successfully parsed.");
 
       json.prettyPrintTo(Serial);
       Serial.println("");
@@ -188,9 +205,63 @@ bool FhemStatusDisplayConfig::readConfigFile()
   return success;
 }
 
-void FhemStatusDisplayConfig::writeConfigFile()
+bool FhemStatusDisplayConfig::readColorMappingConfigFile()
 {
-  Serial.println("Writing config file.");  
+  bool success = false;
+  
+  Serial.println("Reading color mapping config file.");  
+        
+  File configFile = SPIFFS.open(CONFIG_FILE_NAME_COLORMAPPING, "r");
+
+  if(configFile)
+  {
+    size_t size = configFile.size();
+    Serial.printf("Opened color mapping config file, size is %u bytes.\n", size);  
+
+    // allocate buffer for the file contents
+    std::unique_ptr<char[]> buf(new char[size]);
+
+    configFile.readBytes(buf.get(), size);
+
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.parseObject(buf.get());
+
+    if (json.success()) 
+    {
+      Serial.println("Color mapping config data successfully parsed.");
+
+      json.prettyPrintTo(Serial);
+      Serial.println("");
+
+      // TODO: get it
+
+        //if(json["colorMapping"].is<JsonObject&>())
+ //         JsonObject& colorMapping = json["colorMapping"].asObject();
+
+ //       for(JsonObject::iterator it = colorMapping.begin(); it != colorMapping.end(); ++it)
+ //       {
+ //         Serial.println(it->key);
+ //         Serial.println(it->value.asString());
+ //       }
+
+      success = true;
+    } 
+    else 
+    {
+      Serial.println("Could not read config data");
+    }
+  }
+  else
+  {
+    Serial.println("Failed to open config file.");
+  }
+
+  return success;
+}
+
+void FhemStatusDisplayConfig::writeMainConfigFile()
+{
+  Serial.println("Writing main config file.");  
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
@@ -205,11 +276,11 @@ void FhemStatusDisplayConfig::writeConfigFile()
   json["ledCount"] = m_cfgNumberOfLeds;
   json["ledPin"] = m_cfgLedDataPin;
   
-  File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
+  File configFile = SPIFFS.open(CONFIG_FILE_NAME_MAIN, "w");
   
   if (!configFile) 
   {
-    Serial.println("Failed to write config file, formatting file system.");
+    Serial.println("Failed to write main config file, formatting file system.");
     SPIFFS.format();
     Serial.println("Done.");
   }
@@ -221,9 +292,46 @@ void FhemStatusDisplayConfig::writeConfigFile()
   configFile.close();
 }
 
-void FhemStatusDisplayConfig::save()
+void FhemStatusDisplayConfig::writeColorMappingConfigFile()
 {
-  writeConfigFile();
+  Serial.println("Writing color mapping config file.");  
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
+
+  for(uint32_t index = 0; index < m_numColorMappingEntries; index++)
+  {
+    JsonObject& colorMappingEntry = json.createNestedObject(String(index));
+    colorMappingEntry["msg"] = m_cfgColorMapping[index].msg ;
+    colorMappingEntry["type"] = (int)m_cfgColorMapping[index].type;
+    colorMappingEntry["color"] = (int)m_cfgColorMapping[index].color;
+    colorMappingEntry["behavior"] = (int)m_cfgColorMapping[index].behavior;
+  }
+  
+  File configFile = SPIFFS.open(CONFIG_FILE_NAME_COLORMAPPING, "w");
+  
+  if (!configFile) 
+  {
+    Serial.println("Failed to write color mapping config file, formatting file system.");
+    SPIFFS.format();
+    Serial.println("Done.");
+  }
+
+  json.prettyPrintTo(Serial);
+  Serial.println("");
+  
+  json.printTo(configFile);
+  configFile.close();  
+}
+
+void FhemStatusDisplayConfig::saveMain()
+{
+  writeMainConfigFile();
+}
+
+void FhemStatusDisplayConfig::saveColorMapping()
+{
+  writeColorMappingConfigFile();
 }
 
 bool FhemStatusDisplayConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
