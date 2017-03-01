@@ -363,6 +363,8 @@ bool FhemStatusDisplayConfig::addColorMappingEntry(String msg, deviceType type, 
 {
   bool success = false;
 
+  Serial.println("Adding color mapping entry with name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
+
   if(m_numColorMappingEntries < (MAX_COLOR_MAP_ENTRIES - 1))
   {
     m_cfgColorMapping[m_numColorMappingEntries].msg = msg;

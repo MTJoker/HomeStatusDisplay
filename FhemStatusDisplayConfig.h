@@ -49,8 +49,10 @@ public:
   const colorMapping* getColorMapping(uint32_t index) const;
 
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
+  
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);
-
+  void resetColorMappingConfigData();
+    
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
   Led::Behavior getLedBehavior(int colorMapIndex);
@@ -63,7 +65,6 @@ private:
   void writeMainConfigFile();
   void createDefaultMainConfigFile();
 
-  void resetColorMappingConfigData();
   bool readColorMappingConfigFile();
   void writeColorMappingConfigFile();
   void createDefaultColorMappingConfigFile();

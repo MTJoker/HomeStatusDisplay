@@ -220,39 +220,56 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
       const char* blinking = (mapping->behavior == Led::BLINKING) ? SELECTED_STRING : EMPTY_STRING;
       const char* flashing = (mapping->behavior == Led::FLASHING) ? SELECTED_STRING : EMPTY_STRING;
       
-      html += "<tr>";
-      html += "<td><input type='text' id='name' name='name" + String(i) + "' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>";
-      html += "<td><select name='type" + String(i) + "'>";
-      html += "<option " + String(window) + " value='" + TYPE_WINDOW + "'>Window</option>";
-      html += "<option " + String(door)   + " value='" + TYPE_DOOR   + "'>Door</option>";
-      html += "<option " + String(light)  + " value='" + TYPE_LIGHT  + "'>Light</option>"; 
-      html += "<option " + String(alarm)  + " value='" + TYPE_ALARM  + "'>Alarm</option>";
-      html += "</select></td>";
-      html += "<td><select name='color" + String(i) + "'>";
-      html += "<option " + String(none)   + " value='" + Led::NONE   + "'>None</option>";
-      html += "<option " + String(red)    + " value='" + Led::RED    + "'>Red</option>";
-      html += "<option " + String(green)  + " value='" + Led::GREEN  + "'>Green</option>";
-      html += "<option " + String(blue)   + " value='" + Led::BLUE   + "'>Blue</option>"; 
-      html += "<option " + String(yellow) + " value='" + Led::YELLOW + "'>Yellow</option>";
-      html += "<option " + String(white)  + " value='" + Led::WHITE  + "'>White</option>"; 
-      html += "</select></td>";
-      html += "<td><select name='behavior" + String(i) + "'>";
-      html += "<option " + String(on)       + " value='" + Led::ON       + "'>On</option>";
-      html += "<option " + String(off)      + " value='" + Led::OFF      + "'>Off</option>";
-      html += "<option " + String(blinking) + " value='" + Led::BLINKING + "'>Blinking</option>";
-      html += "<option " + String(flashing) + " value='" + Led::FLASHING + "'>Flashing</option>";
-      html += "</select></td>";            
-      html += " </tr>";
+      html += "<tr>"
+      "<td><input type='text' id='name' name='name" + String(i) + "' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>"
+      "<td><select name='type" + String(i) + "'>"
+      "<option " + String(window) + " value='" + TYPE_WINDOW + "'>Window</option>"
+      "<option " + String(door)   + " value='" + TYPE_DOOR   + "'>Door</option>"
+      "<option " + String(light)  + " value='" + TYPE_LIGHT  + "'>Light</option>"
+      "<option " + String(alarm)  + " value='" + TYPE_ALARM  + "'>Alarm</option>"
+      "</select></td>"
+      "<td><select name='color" + String(i) + "'>"
+      "<option " + String(none)   + " value='" + Led::NONE   + "'>None</option>"
+      "<option " + String(red)    + " value='" + Led::RED    + "'>Red</option>"
+      "<option " + String(green)  + " value='" + Led::GREEN  + "'>Green</option>"
+      "<option " + String(blue)   + " value='" + Led::BLUE   + "'>Blue</option>"
+      "<option " + String(yellow) + " value='" + Led::YELLOW + "'>Yellow</option>"
+      "<option " + String(white)  + " value='" + Led::WHITE  + "'>White</option>"
+      "</select></td>"
+      "<td><select name='behavior" + String(i) + "'>"
+      "<option " + String(on)       + " value='" + Led::ON       + "'>On</option>"
+      "<option " + String(off)      + " value='" + Led::OFF      + "'>Off</option>"
+      "<option " + String(blinking) + " value='" + Led::BLINKING + "'>Blinking</option>"
+      "<option " + String(flashing) + " value='" + Led::FLASHING + "'>Flashing</option>"
+      "</select></td>"
+      " </tr>";
     }
   }
 
   // one additional for adding an entry
-  html += "<tr>";
-  html += "<td><input type='text' id='name' name='name' value='' size='30' maxlength='40' placeholder='name'></td>";
-  html += "<td><select name='type'><option>Window</option><option>Door</option><option>Light</option><option>Alarm</option></select>";
-  html += "<td><select name='color'><option>None</option><option>Red</option><option>Green</option><option>Blue</option><option>Yellow</option><option>White</option></select>";
-  html += "<td><select name='behavior'><option>On</option><option>Off</option><option>Blinking</option><option>Flashing</option></select>";
-  html += " </tr>";
+  html += "<tr>"
+  "<td><input type='text' id='name' name='name" + String(m_config.getNumberOfColorMappingEntries()) + "' value='' size='30' maxlength='40' placeholder='name'></td>"
+  "<td><select name='type" + String(m_config.getNumberOfColorMappingEntries()) + "'>"
+  "<option value='" + TYPE_WINDOW + "'>Window</option>"
+  "<option value='" + TYPE_DOOR   + "'>Door</option>"
+  "<option value='" + TYPE_LIGHT  + "'>Light</option>"
+  "<option value='" + TYPE_ALARM  + "'>Alarm</option>"
+  "</select></td>"
+  "<td><select name='color" + String(m_config.getNumberOfColorMappingEntries()) + "'>"
+  "<option value='" + Led::NONE   + "'>None</option>"
+  "<option value='" + Led::RED    + "'>Red</option>"
+  "<option value='" + Led::GREEN  + "'>Green</option>"
+  "<option value='" + Led::BLUE   + "'>Blue</option>"
+  "<option value='" + Led::YELLOW + "'>Yellow</option>"
+  "<option value='" + Led::WHITE  + "'>White</option>"
+  "</select></td>"
+  "<td><select name='behavior" + String(m_config.getNumberOfColorMappingEntries()) + "'>"
+  "<option value='" + Led::ON       + "'>On</option>"
+  "<option value='" + Led::OFF      + "'>Off</option>"
+  "<option value='" + Led::BLINKING + "'>Blinking</option>"
+  "<option value='" + Led::FLASHING + "'>Flashing</option>"
+  "</select></td>"
+  " </tr>";
   
   html += ""
   " <tr>"
@@ -376,7 +393,7 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   if(needSave)
   {
     Serial.println("Device mapping config has changed, storing it.");
-    //m_config.saveColorMapping();
+    m_config.saveColorMapping();
   }
 }
 
@@ -473,6 +490,48 @@ bool FhemStatusDisplayWebServer::updateMainConfig()
 
 bool FhemStatusDisplayWebServer::updateColorMappingConfig()
 {
-  return true;
+  bool needSave = false;
+
+  int numArgs = m_server.args();
+
+  Serial.println("Got " + String(numArgs)  + " args");
+
+  if(numArgs != 0)    // when page is initially loaded, do nothing because no args
+  {
+    if((numArgs % 4) == 0)
+    {
+      Serial.println("Number of arguments seems reasonable");
+  
+      m_config.resetColorMappingConfigData();
+  
+      for(uint32_t i = 0; i < (numArgs/4); i++)
+      {
+        String name     = "name"     + String(i);
+        String type     = "type"     + String(i);
+        String color    = "color"    + String(i);
+        String behavior = "behavior" + String(i);
+        
+        if(m_server.arg(name) != "")
+        {
+          m_config.addColorMappingEntry(m_server.arg(name), 
+                                        (deviceType)(m_server.arg(type).toInt()), 
+                                        (Led::Color)(m_server.arg(color).toInt()), 
+                                        (Led::Behavior)(m_server.arg(behavior).toInt())); 
+        }
+        else
+        {
+          Serial.println("Skipping entry number " + String(i));
+        }
+      }
+  
+      needSave = true;
+    }
+    else
+    {
+      Serial.println("Number of Arguments seems wrong!");
+    }
+  }
+
+  return needSave;
 }
 
