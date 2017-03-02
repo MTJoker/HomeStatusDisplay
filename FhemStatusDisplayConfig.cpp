@@ -6,6 +6,9 @@
 #define CONFIG_FILE_NAME_DEVICEMAPPING (F( "/devicemapping.json"))
 #define CONFIG_FILE_NAME_COLORMAPPING (F("/colormapping.json"))
 
+#define JSON_BUFFER_SIZE_MAIN_CONFIG  400
+#define JSON_BUFFER_SIZE_COLOR_MAPPING_CONFIG  2000
+
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
   // reset non-configuraable members
@@ -156,17 +159,18 @@ bool FhemStatusDisplayConfig::readMainConfigFile()
     Serial.print(F("Opened main config file, size is ")); Serial.println(String(size) + " bytes");  
 
     // allocate buffer for the file contents
-    std::unique_ptr<char[]> buf(new char[size]);
+    char* buffer = (char*)malloc(size);
 
-    configFile.readBytes(buf.get(), size);
+    configFile.readBytes(buffer, size);
 
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject& json = jsonBuffer.parseObject(buf.get());
+    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_MAIN_CONFIG);
+    JsonObject& json = jsonBuffer.parseObject(buffer);
 
     if (json.success()) 
     {
       Serial.println(F("Main config data successfully parsed."));
-
+      Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
+      
       json.prettyPrintTo(Serial);
       Serial.println("");
 
@@ -192,6 +196,8 @@ bool FhemStatusDisplayConfig::readMainConfigFile()
       {
         Serial.println(F("Missing config file keys!"));
       }
+
+      free(buffer);
     } 
     else 
     {
@@ -220,16 +226,17 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
     Serial.print(F("Opened color mapping config file, size is ")); Serial.println(String(size) + " bytes");  
 
     // allocate buffer for the file contents
-    std::unique_ptr<char[]> buf(new char[size]);
+    char* buffer = (char*)malloc(size);
 
-    configFile.readBytes(buf.get(), size);
+    configFile.readBytes(buffer, size);
 
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject& json = jsonBuffer.parseObject(buf.get());
+    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_COLOR_MAPPING_CONFIG);
+    JsonObject& json = jsonBuffer.parseObject(buffer);
 
     if (json.success()) 
     {
       Serial.println(F("Color mapping config data successfully parsed."));
+      Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
 
       json.prettyPrintTo(Serial);
       Serial.println("");
@@ -255,6 +262,8 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
           break;
         }
       }
+      
+      free(buffer);
     } 
     else 
     {
@@ -273,7 +282,7 @@ void FhemStatusDisplayConfig::writeMainConfigFile()
 {
   Serial.println(F("Writing main config file."));  
 
-  DynamicJsonBuffer jsonBuffer;
+  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_MAIN_CONFIG);
   JsonObject& json = jsonBuffer.createObject();
 
   json[JSON_KEY_HOST] = m_cfgHost;
@@ -306,7 +315,7 @@ void FhemStatusDisplayConfig::writeColorMappingConfigFile()
 {
   Serial.println(F("Writing color mapping config file."));  
 
-  DynamicJsonBuffer jsonBuffer;
+  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_COLOR_MAPPING_CONFIG);
   JsonObject& json = jsonBuffer.createObject();
 
   for(int index = 0; index < m_numColorMappingEntries; index++)
@@ -370,7 +379,9 @@ bool FhemStatusDisplayConfig::addColorMappingEntry(String msg, deviceType type, 
 
   if(m_numColorMappingEntries < (MAX_COLOR_MAP_ENTRIES - 1))
   {
-    m_cfgColorMapping[m_numColorMappingEntries].msg = msg;
+    strncpy(m_cfgColorMapping[m_numColorMappingEntries].msg, msg.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
+    m_cfgColorMapping[m_numColorMappingEntries].msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
+
     m_cfgColorMapping[m_numColorMappingEntries].type = type;
     m_cfgColorMapping[m_numColorMappingEntries].color = color;
     m_cfgColorMapping[m_numColorMappingEntries].behavior = behavior;

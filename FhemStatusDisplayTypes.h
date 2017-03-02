@@ -5,6 +5,8 @@
 // Helper macro for getting the number of elements in an array
 #define NUMBER_OF_ELEMENTS(array)  (sizeof(array)/sizeof(array[0]))
 
+#define MAX_COLOR_MAPPING_MSG_LEN 20
+
 /*
  * Enum which defines the types of devices which can send messages.
  * If the same message (e.g. "on") can be received from different types
@@ -35,7 +37,7 @@ struct deviceMapping
  */
 struct colorMapping
 {
-  String msg;              // message 
+  char msg[MAX_COLOR_MAPPING_MSG_LEN+1];            // message 
   deviceType type;         // type of the device
   Led::Color color;        // led color for message from device type
   Led::Behavior behavior;  // led behavior for message from device type

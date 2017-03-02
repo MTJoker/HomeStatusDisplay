@@ -8,6 +8,8 @@ void handleMqttMessage(String topic, String msg);
 #define LIGHT_STRING (F("light"))
 #define ALARM_STRING (F("alarm"))
 
+int getFreeRamSize();
+
 FhemStatusDisplay::FhemStatusDisplay()
 :
 m_webServer(m_config),
@@ -30,6 +32,8 @@ void FhemStatusDisplay::begin(const char* version, const char* identifier)
   m_leds.begin();
   m_wifi.begin();
   m_mqttHandler.begin(); 
+
+  Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
 void FhemStatusDisplay::work()

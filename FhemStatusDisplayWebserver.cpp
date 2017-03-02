@@ -33,8 +33,10 @@ void FhemStatusDisplayWebServer::handleClient()
 
 String FhemStatusDisplayWebServer::getHeader()
 {
-  String header = 
-            F("<!doctype html> <html>");
+  String header;
+  header.reserve(400);
+
+  header  = F("<!doctype html> <html>");
   header += F("<head> <meta charset='utf-8'>");
   header += F("<title>");
   header += String(m_config.getHost());
@@ -48,6 +50,9 @@ String FhemStatusDisplayWebServer::getHeader()
   header += String(m_config.getVersion());
   header += F("</h4>");
   header += F("<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>"); 
+
+  Serial.print(F("Header size: "));
+  Serial.println(header.length());
   
   return header;
 }
@@ -56,7 +61,10 @@ void FhemStatusDisplayWebServer::deliverRootPage()
 {
   bool needSave = updateMainConfig();
   
-  String html = getHeader();
+  String html;
+  html.reserve(3000);
+  
+  html = getHeader();
 
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -192,14 +200,19 @@ void FhemStatusDisplayWebServer::deliverRootPage()
     Serial.println(F("Rebooting ESP."));
     ESP.restart();
   }
+
+  Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
 void FhemStatusDisplayWebServer::deliverColorMappingPage()
 {
   bool needSave = updateColorMappingConfig();
   
-  String html = getHeader();
+  String html;
+  html.reserve(17000);
   
+  html = getHeader();
+
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
   html += F(""
@@ -244,7 +257,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
       html += name;
       html += F("' value='");
       html += mapping->msg;
-      html += F("' size='30' maxlength='40' placeholder='name'></td>");
+      html += F("' size='20' maxlength='20' placeholder='name'></td>");
       html += F("<td><select name='");
       html += type;
       html += F("'>");
@@ -283,7 +296,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   html += F("<tr>");
   html += F("<td><input type='text' id='name' name='");
   html += name;
-  html += F("' value='' size='30' maxlength='40' placeholder='name'></td>");
+  html += F("' value='' size='20' maxlength='20' placeholder='name'></td>");
   html += F("<td><select name='");
   html += type;
   html += F("'>");
@@ -331,6 +344,8 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
     Serial.println(F("Color mapping config has changed, storing it."));
     m_config.saveColorMapping();
   }
+
+  Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
 void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
@@ -544,7 +559,7 @@ bool FhemStatusDisplayWebServer::updateColorMappingConfig()
           m_config.addColorMappingEntry(m_server.arg(name), 
                                         (deviceType)(m_server.arg(type).toInt()), 
                                         (Led::Color)(m_server.arg(color).toInt()), 
-                                        (Led::Behavior)(m_server.arg(behavior).toInt())); 
+                                        (Led::Behavior)(m_server.arg(behavior).toInt()));
         }
         else
         {
