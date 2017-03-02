@@ -1,14 +1,13 @@
 #include "FhemStatusDisplayWifi.h"
 #include <ESP8266WiFi.h>
 
-const char* softApSsid = "StatusDisplay";
-const char* softApPw = "statusdisplay";
+#define SOFT_AP_SSID  (F("StatusDisplay"))
+#define SOFT_AP_PSK   (F("statusdisplay"))
 
 FhemStatusDisplayWifi::FhemStatusDisplayWifi(const FhemStatusDisplayConfig& config)
 :
 m_config(config)
 {
-  
 }
 
 void FhemStatusDisplayWifi::begin()
@@ -29,7 +28,7 @@ bool FhemStatusDisplayWifi::startWifi()
   bool success = false;
  
   Serial.println("");
-  Serial.print("Starting Wifi connection to ");
+  Serial.print(F("Starting Wifi connection to "));
   Serial.print(m_config.getWifiSSID());
 
   WiFi.mode(WIFI_STA);
@@ -39,21 +38,21 @@ bool FhemStatusDisplayWifi::startWifi()
   while( (WiFi.status() != WL_CONNECTED) && (timeout < 20) ) 
   {
     delay(500);
-    Serial.print(".");
+    Serial.print(F("."));
     timeout++;
   }
-  Serial.println("");
+  Serial.println(F(""));
   
   if(WiFi.status() == WL_CONNECTED)
   {
     success = true; 
-    Serial.print("WiFi connected with IP ");
+    Serial.print(F("WiFi connected with IP "));
     Serial.print(WiFi.localIP());
-    Serial.println(".");
+    Serial.println(F("."));
   }  
   else
   {
-    Serial.println("Failed to connect WiFi.");
+    Serial.println(F("Failed to connect WiFi."));
   }
 
   return success;
@@ -61,19 +60,19 @@ bool FhemStatusDisplayWifi::startWifi()
 
 void FhemStatusDisplayWifi::startAccessPoint()
 {
-  Serial.println("");
-  Serial.println("Starting access point.");
+  Serial.println(F(""));
+  Serial.println(F("Starting access point."));
 
   WiFi.mode(WIFI_AP);
-  if(WiFi.softAP(softApSsid, softApPw))
+  if(WiFi.softAP(String(SOFT_AP_SSID).c_str(), String(SOFT_AP_PSK).c_str()))
   {
     IPAddress ip = WiFi.softAPIP();
   
-    Serial.printf("AccessPoint SSID is %s and IP is ", softApSsid);
-    Serial.println(ip);
+    Serial.print(F("AccessPoint SSID is ")); Serial.print(SOFT_AP_SSID); Serial.println(ip);
   }
   else
   {
-    Serial.println("Error starting access point.");
+    Serial.println(F("Error starting access point."));
   }
 }
+

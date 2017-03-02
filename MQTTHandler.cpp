@@ -12,7 +12,7 @@ m_lastReconnectAttempt(0)
 void MQTTHandler::begin()
 {
   Serial.println("");
-  Serial.print("Initializing MQTT connection to ");
+  Serial.print(F("Initializing MQTT connection to "));
   Serial.println(m_config.getMqttServer());
   
   initTopics();
@@ -64,12 +64,12 @@ bool MQTTHandler::reconnect()
   String clientId = "ESP8266Client-";
   clientId += String(random(0xffff), HEX);
 
-  Serial.print("Connecting to MQTT broker ");
+  Serial.print(F("Connecting to MQTT broker "));
   Serial.print(" with client id " + clientId + "... ");
   
   if(m_pubSubClient.connect(clientId.c_str(), m_config.getMqttWillTopic(), 0, false, "off")) 
   {
-    Serial.println("connected");
+    Serial.println(F("connected"));
 
     publish(m_config.getMqttWillTopic(), "on");
 
@@ -80,7 +80,7 @@ bool MQTTHandler::reconnect()
   } 
   else 
   {
-    Serial.print("failed, rc=");
+    Serial.print(F("failed, rc="));
     Serial.println(m_pubSubClient.state());
   }
 
@@ -91,7 +91,7 @@ void MQTTHandler::subscribe(const char* topic)
 {
   if(topic)
   {
-    Serial.print("Subscribing to topic ");
+    Serial.print(F("Subscribing to topic "));
     Serial.println(topic);
     
     if(!m_pubSubClient.subscribe(topic))

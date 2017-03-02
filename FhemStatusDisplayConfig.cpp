@@ -2,9 +2,9 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 
-static const char* CONFIG_FILE_NAME_MAIN = "/config.json";
-static const char* CONFIG_FILE_NAME_DEVICEMAPPING = "/devicemapping.json";
-static const char* CONFIG_FILE_NAME_COLORMAPPING = "/colormapping.json";
+#define CONFIG_FILE_NAME_MAIN (F("/config.json"))
+#define CONFIG_FILE_NAME_DEVICEMAPPING (F( "/devicemapping.json"))
+#define CONFIG_FILE_NAME_COLORMAPPING (F("/colormapping.json"))
 
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
@@ -19,8 +19,8 @@ FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 
 void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIdentifier)
 {
-  Serial.println("");
-  Serial.println("Initializing config.");
+  Serial.println(F(""));
+  Serial.println(F("Initializing config."));
 
   setVersion(version);
   setHost(defaultIdentifier);
@@ -28,43 +28,43 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   // TODO: read from config file
 
   // 1st row
-  addDeviceMappingEntry("basement",   TYPE_DOOR,    0);
-  addDeviceMappingEntry("main",       TYPE_DOOR,    1);
-  addDeviceMappingEntry("kitchen",    TYPE_WINDOW,  2);
-  addDeviceMappingEntry("eating",     TYPE_WINDOW,  3);
-  addDeviceMappingEntry("terrace",    TYPE_DOOR,    4);
-  addDeviceMappingEntry("bath_left",  TYPE_WINDOW,  5);
-  addDeviceMappingEntry("bath_right", TYPE_WINDOW,  6);
-  addDeviceMappingEntry("child",      TYPE_WINDOW,  7);
-  addDeviceMappingEntry("sleep",      TYPE_WINDOW,  8);
-  addDeviceMappingEntry("work",       TYPE_WINDOW,  9);
-  addDeviceMappingEntry("garage",     TYPE_DOOR,   10);
+  addDeviceMappingEntry(F("basement"),   TYPE_DOOR,    0);
+  addDeviceMappingEntry(F("main"),       TYPE_DOOR,    1);
+  addDeviceMappingEntry(F("kitchen"),    TYPE_WINDOW,  2);
+  addDeviceMappingEntry(F("eating"),     TYPE_WINDOW,  3);
+  addDeviceMappingEntry(F("terrace"),    TYPE_DOOR,    4);
+  addDeviceMappingEntry(F("bath_left"),  TYPE_WINDOW,  5);
+  addDeviceMappingEntry(F("bath_right"), TYPE_WINDOW,  6);
+  addDeviceMappingEntry(F("child"),      TYPE_WINDOW,  7);
+  addDeviceMappingEntry(F("sleep"),      TYPE_WINDOW,  8);
+  addDeviceMappingEntry(F("work"),       TYPE_WINDOW,  9);
+  addDeviceMappingEntry(F("garage"),     TYPE_DOOR,   10);
 
   //2nd row
-  addDeviceMappingEntry("kitchen_ceiling_right", TYPE_LIGHT, 11);
-  addDeviceMappingEntry("kitchen_ceiling_left",  TYPE_LIGHT, 12);
-  addDeviceMappingEntry("eating_ceiling",        TYPE_LIGHT, 13);
-  addDeviceMappingEntry("living_ceiling",        TYPE_LIGHT, 14);
-  addDeviceMappingEntry("living_stonewall",      TYPE_LIGHT, 15);
-  addDeviceMappingEntry("living_lowboard",       TYPE_LIGHT, 16);
-  addDeviceMappingEntry("living_shelf",          TYPE_LIGHT, 17);
-  addDeviceMappingEntry("bath_ceiling",          TYPE_LIGHT, 18);
-  addDeviceMappingEntry("child_ceiling",         TYPE_LIGHT, 19);
-  addDeviceMappingEntry("sleep_ceiling",         TYPE_LIGHT, 20);
-  addDeviceMappingEntry("work_ceiling",          TYPE_LIGHT, 21);
+  addDeviceMappingEntry(F("kitchen_ceiling_right"), TYPE_LIGHT, 11);
+  addDeviceMappingEntry(F("kitchen_ceiling_left"),  TYPE_LIGHT, 12);
+  addDeviceMappingEntry(F("eating_ceiling"),        TYPE_LIGHT, 13);
+  addDeviceMappingEntry(F("living_ceiling"),        TYPE_LIGHT, 14);
+  addDeviceMappingEntry(F("living_stonewall"),      TYPE_LIGHT, 15);
+  addDeviceMappingEntry(F("living_lowboard"),       TYPE_LIGHT, 16);
+  addDeviceMappingEntry(F("living_shelf"),          TYPE_LIGHT, 17);
+  addDeviceMappingEntry(F("bath_ceiling"),          TYPE_LIGHT, 18);
+  addDeviceMappingEntry(F("child_ceiling"),         TYPE_LIGHT, 19);
+  addDeviceMappingEntry(F("sleep_ceiling"),         TYPE_LIGHT, 20);
+  addDeviceMappingEntry(F("work_ceiling"),          TYPE_LIGHT, 21);
 
   //3rd row
-  addDeviceMappingEntry("washing_machine",    TYPE_ALARM, 22);
-  addDeviceMappingEntry("waterdetector_1",    TYPE_ALARM, 23);
-  addDeviceMappingEntry("waterdetector_2",    TYPE_ALARM, 24);
-  addDeviceMappingEntry("oven",               TYPE_ALARM, 25);
-  addDeviceMappingEntry("waste_residual_bio", TYPE_ALARM, 26);
-  addDeviceMappingEntry("waste_paper_yellow", TYPE_ALARM, 27);
-  addDeviceMappingEntry("device_error",       TYPE_ALARM, 28);
-  addDeviceMappingEntry("battery_error",      TYPE_ALARM, 29);
-  addDeviceMappingEntry("unused_3",           TYPE_ALARM, 30);
-  addDeviceMappingEntry("unused_2",           TYPE_ALARM, 31);
-  addDeviceMappingEntry("unused_1",           TYPE_ALARM, 32);
+  addDeviceMappingEntry(F("washing_machine"),    TYPE_ALARM, 22);
+  addDeviceMappingEntry(F("waterdetector_1"),    TYPE_ALARM, 23);
+  addDeviceMappingEntry(F("waterdetector_2"),    TYPE_ALARM, 24);
+  addDeviceMappingEntry(F("oven"),               TYPE_ALARM, 25);
+  addDeviceMappingEntry(F("waste_residual_bio"), TYPE_ALARM, 26);
+  addDeviceMappingEntry(F("waste_paper_yellow"), TYPE_ALARM, 27);
+  addDeviceMappingEntry(F("device_error"),       TYPE_ALARM, 28);
+  addDeviceMappingEntry(F("battery_error"),      TYPE_ALARM, 29);
+  addDeviceMappingEntry(F("unused_3"),           TYPE_ALARM, 30);
+  addDeviceMappingEntry(F("unused_2"),           TYPE_ALARM, 31);
+  addDeviceMappingEntry(F("unused_1"),           TYPE_ALARM, 32);
 /*
   addColorMappingEntry("open",     TYPE_WINDOW, Led::BLUE,   Led::ON); 
   addColorMappingEntry("closed",   TYPE_WINDOW, Led::NONE,   Led::OFF); 
@@ -87,7 +87,7 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
 */
   if(SPIFFS.begin())
   {
-    Serial.println("Mounted file system.");
+    Serial.println(F("Mounted file system."));
 
     if(!SPIFFS.exists(CONFIG_FILE_NAME_MAIN) || !readMainConfigFile())
     {
@@ -101,7 +101,7 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   }
   else
   {
-    Serial.println("Failed to mount file system");
+    Serial.println(F("Failed to mount file system"));
   }
 }
 
@@ -121,22 +121,23 @@ void FhemStatusDisplayConfig::resetMainConfigData()
 
 void FhemStatusDisplayConfig::resetColorMappingConfigData()
 {
+  Serial.println(F("Deleting color mapping config data."));
+  
   memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
   memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
-  m_numDeviceMappingEntries = 0;
   m_numColorMappingEntries = 0;
 }
 
 void FhemStatusDisplayConfig::createDefaultMainConfigFile()
 {
-  Serial.println("Creating default main config file.");
+  Serial.println(F("Creating default main config file."));
   resetMainConfigData();
   writeMainConfigFile();
 }
 
 void FhemStatusDisplayConfig::createDefaultColorMappingConfigFile()
 {
-  Serial.println("Creating default color mapping config file.");
+  Serial.println(F("Creating default color mapping config file."));
   resetColorMappingConfigData();
   writeColorMappingConfigFile();
 }
@@ -145,14 +146,14 @@ bool FhemStatusDisplayConfig::readMainConfigFile()
 {
   bool success = false;
   
-  Serial.println("Reading main config file.");  
+  Serial.println(F("Reading main config file."));  
         
   File configFile = SPIFFS.open(CONFIG_FILE_NAME_MAIN, "r");
 
   if(configFile)
   {
     size_t size = configFile.size();
-    Serial.printf("Opened main config file, size is %u bytes.\n", size);  
+    Serial.print(F("Opened main config file, size is ")); Serial.println(String(size) + " bytes");  
 
     // allocate buffer for the file contents
     std::unique_ptr<char[]> buf(new char[size]);
@@ -164,42 +165,42 @@ bool FhemStatusDisplayConfig::readMainConfigFile()
 
     if (json.success()) 
     {
-      Serial.println("Main config data successfully parsed.");
+      Serial.println(F("Main config data successfully parsed."));
 
       json.prettyPrintTo(Serial);
       Serial.println("");
 
-      if(json.containsKey("host") && json.containsKey("wifiSSID") && json.containsKey("wifiPSK") && 
-         json.containsKey("mqttServer") && json.containsKey("mqttStatusTopic") && json.containsKey("mqttTestTopic") && json.containsKey("mqttWillTopic") &&
-         json.containsKey("ledCount") && json.containsKey("ledPin"))
+      if(json.containsKey(JSON_KEY_HOST) && json.containsKey(JSON_KEY_WIFI_SSID) && json.containsKey(JSON_KEY_WIFI_PSK) && 
+         json.containsKey(JSON_KEY_MQTT_SERVER) && json.containsKey(JSON_KEY_MQTT_STATUS_TOPIC) && json.containsKey(JSON_KEY_MQTT_TEST_TOPIC) && json.containsKey(JSON_KEY_MQTT_WILL_TOPIC) &&
+         json.containsKey(JSON_KEY_LED_COUNT) && json.containsKey(JSON_KEY_LED_PIN))
       {
-        Serial.println("All config file keys available.");
+        Serial.println(F("All config file keys available."));
 
-        setHost(json["host"]);
-        setWifiSSID(json["wifiSSID"]);
-        setWifiPSK(json["wifiPSK"]);
-        setMqttServer(json["mqttServer"]);
-        setMqttStatusTopic(json["mqttStatusTopic"]);
-        setMqttTestTopic(json["mqttTestTopic"]);
-        setMqttWillTopic(json["mqttWillTopic"]);
-        setNumberOfLeds(json["ledCount"]);
-        setLedDataPin(json["ledPin"]);
+        setHost(json[JSON_KEY_HOST]);
+        setWifiSSID(json[JSON_KEY_WIFI_SSID]);
+        setWifiPSK(json[JSON_KEY_WIFI_PSK]);
+        setMqttServer(json[JSON_KEY_MQTT_SERVER]);
+        setMqttStatusTopic(json[JSON_KEY_MQTT_STATUS_TOPIC]);
+        setMqttTestTopic(json[JSON_KEY_MQTT_TEST_TOPIC]);
+        setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC]);
+        setNumberOfLeds(json[JSON_KEY_LED_COUNT]);
+        setLedDataPin(json[JSON_KEY_LED_PIN]);
 
         success = true;
       }
       else
       {
-        Serial.println("Missing config file keys!");
+        Serial.println(F("Missing config file keys!"));
       }
     } 
     else 
     {
-      Serial.println("Could not read config data");
+      Serial.println(F("Could not read config data"));
     }
   }
   else
   {
-    Serial.println("Failed to open config file.");
+    Serial.println(F("Failed to open config file."));
   }
 
   return success;
@@ -209,14 +210,14 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
 {
   bool success = false;
   
-  Serial.println("Reading color mapping config file.");  
+  Serial.println(F("Reading color mapping config file."));  
         
   File configFile = SPIFFS.open(CONFIG_FILE_NAME_COLORMAPPING, "r");
 
   if(configFile)
   {
     size_t size = configFile.size();
-    Serial.printf("Opened color mapping config file, size is %u bytes.\n", size);  
+    Serial.print(F("Opened color mapping config file, size is ")); Serial.println(String(size) + " bytes");  
 
     // allocate buffer for the file contents
     std::unique_ptr<char[]> buf(new char[size]);
@@ -228,28 +229,28 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
 
     if (json.success()) 
     {
-      Serial.println("Color mapping config data successfully parsed.");
+      Serial.println(F("Color mapping config data successfully parsed."));
 
       json.prettyPrintTo(Serial);
       Serial.println("");
 
       success = true;
-            
+      
       for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
       {
         JsonObject& entry = json[it->key]; 
 
-        if(entry.containsKey("msg") && entry.containsKey("type") &&
-           entry.containsKey("color") && entry.containsKey("behavior") )
+        if(entry.containsKey(JSON_KEY_COLORMAPPING_MSG) && entry.containsKey(JSON_KEY_COLORMAPPING_TYPE) &&
+           entry.containsKey(JSON_KEY_COLORMAPPING_COLOR) && entry.containsKey(JSON_KEY_COLORMAPPING_BEHAVIOR) )
         {
-          addColorMappingEntry(entry["msg"].asString(), 
-                               (deviceType)(entry["type"].as<int>()), 
-                               (Led::Color)(entry["color"].as<int>()), 
-                               (Led::Behavior)(entry["behavior"].as<int>())); 
+          addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].asString(), 
+                               (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
+                               (Led::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
+                               (Led::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
         }
         else
         {
-          Serial.println("Missing config file keys!");
+          Serial.println(F("Missing config file keys!"));
           success = false;
           break;
         }
@@ -257,12 +258,12 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
     } 
     else 
     {
-      Serial.println("Could not read config data");
+      Serial.println(F("Could not read config data"));
     }
   }
   else
   {
-    Serial.println("Failed to open config file.");
+    Serial.println(F("Failed to open config file."));
   }
 
   return success;
@@ -270,32 +271,32 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
 
 void FhemStatusDisplayConfig::writeMainConfigFile()
 {
-  Serial.println("Writing main config file.");  
+  Serial.println(F("Writing main config file."));  
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
 
-  json["host"] = m_cfgHost;
-  json["wifiSSID"] = m_cfgWifiSSID;
-  json["wifiPSK"] = m_cfgWifiPSK;
-  json["mqttServer"] = m_cfgMqttServer;
-  json["mqttStatusTopic"] = m_cfgMqttStatusTopic;
-  json["mqttTestTopic"] = m_cfgMqttTestTopic;
-  json["mqttWillTopic"] = m_cfgMqttWillTopic;
-  json["ledCount"] = m_cfgNumberOfLeds;
-  json["ledPin"] = m_cfgLedDataPin;
+  json[JSON_KEY_HOST] = m_cfgHost;
+  json[JSON_KEY_WIFI_SSID] = m_cfgWifiSSID;
+  json[JSON_KEY_WIFI_PSK] = m_cfgWifiPSK;
+  json[JSON_KEY_MQTT_SERVER] = m_cfgMqttServer;
+  json[JSON_KEY_MQTT_STATUS_TOPIC] = m_cfgMqttStatusTopic;
+  json[JSON_KEY_MQTT_TEST_TOPIC] = m_cfgMqttTestTopic;
+  json[JSON_KEY_MQTT_WILL_TOPIC] = m_cfgMqttWillTopic;
+  json[JSON_KEY_LED_COUNT] = m_cfgNumberOfLeds;
+  json[JSON_KEY_LED_PIN] = m_cfgLedDataPin;
   
   File configFile = SPIFFS.open(CONFIG_FILE_NAME_MAIN, "w");
   
   if (!configFile) 
   {
-    Serial.println("Failed to write main config file, formatting file system.");
+    Serial.println(F("Failed to write main config file, formatting file system."));
     SPIFFS.format();
-    Serial.println("Done.");
+    Serial.println(F("Done."));
   }
 
   json.prettyPrintTo(Serial);
-  Serial.println("");
+  Serial.println(F(""));
   
   json.printTo(configFile);
   configFile.close();
@@ -303,27 +304,28 @@ void FhemStatusDisplayConfig::writeMainConfigFile()
 
 void FhemStatusDisplayConfig::writeColorMappingConfigFile()
 {
-  Serial.println("Writing color mapping config file.");  
+  Serial.println(F("Writing color mapping config file."));  
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
 
-  for(uint32_t index = 0; index < m_numColorMappingEntries; index++)
+  for(int index = 0; index < m_numColorMappingEntries; index++)
   {
     JsonObject& colorMappingEntry = json.createNestedObject(String(index));
-    colorMappingEntry["msg"] = m_cfgColorMapping[index].msg ;
-    colorMappingEntry["type"] = (int)m_cfgColorMapping[index].type;
-    colorMappingEntry["color"] = (int)m_cfgColorMapping[index].color;
-    colorMappingEntry["behavior"] = (int)m_cfgColorMapping[index].behavior;
+
+    colorMappingEntry[JSON_KEY_COLORMAPPING_MSG] = m_cfgColorMapping[index].msg ;
+    colorMappingEntry[JSON_KEY_COLORMAPPING_TYPE] = (int)m_cfgColorMapping[index].type;
+    colorMappingEntry[JSON_KEY_COLORMAPPING_COLOR] = (int)m_cfgColorMapping[index].color;
+    colorMappingEntry[JSON_KEY_COLORMAPPING_BEHAVIOR] = (int)m_cfgColorMapping[index].behavior;
   }
   
   File configFile = SPIFFS.open(CONFIG_FILE_NAME_COLORMAPPING, "w");
   
   if (!configFile) 
   {
-    Serial.println("Failed to write color mapping config file, formatting file system.");
+    Serial.println(F("Failed to write color mapping config file, formatting file system."));
     SPIFFS.format();
-    Serial.println("Done.");
+    Serial.println(F("Done."));
   }
 
   json.prettyPrintTo(Serial);
@@ -363,7 +365,8 @@ bool FhemStatusDisplayConfig::addColorMappingEntry(String msg, deviceType type, 
 {
   bool success = false;
 
-  Serial.println("Adding color mapping entry with name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
+  Serial.print(F("Adding color mapping entry at index ")); 
+  Serial.println(String(m_numColorMappingEntries) + " with name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
 
   if(m_numColorMappingEntries < (MAX_COLOR_MAP_ENTRIES - 1))
   {
@@ -462,7 +465,7 @@ bool FhemStatusDisplayConfig::setMqttTestTopic(const char* topic)
   return true;
 }
 
-uint32_t FhemStatusDisplayConfig::getNumberOfLeds() const
+int FhemStatusDisplayConfig::getNumberOfLeds() const
 {
   return m_cfgNumberOfLeds;
 }
@@ -485,23 +488,23 @@ bool FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)
   return true;
 }
 
-uint32_t FhemStatusDisplayConfig::getLedDataPin() const
+int FhemStatusDisplayConfig::getLedDataPin() const
 {
   return m_cfgLedDataPin;
 }
 
-bool FhemStatusDisplayConfig::setLedDataPin(uint32 dataPin)
+bool FhemStatusDisplayConfig::setLedDataPin(int dataPin)
 {
   m_cfgLedDataPin = dataPin;
   return true;
 }
 
-uint32_t FhemStatusDisplayConfig::getNumberOfColorMappingEntries() const
+int FhemStatusDisplayConfig::getNumberOfColorMappingEntries() const
 {
   return m_numColorMappingEntries;
 }
 
-const colorMapping* FhemStatusDisplayConfig::getColorMapping(uint32_t index) const
+const colorMapping* FhemStatusDisplayConfig::getColorMapping(int index) const
 {
   const colorMapping* mapping = NULL;
 
@@ -517,7 +520,7 @@ int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceTy
 {
   int number = -1;
 
-  for(uint32_t i = 0; i < m_numDeviceMappingEntries; i++)
+  for(int i = 0; i < m_numDeviceMappingEntries; i++)
   {
     if(deviceName.equals(m_cfgDeviceMapping[i].name) && (deviceType == m_cfgDeviceMapping[i].type))
     {
@@ -533,7 +536,7 @@ int FhemStatusDisplayConfig::getColorMapIndex(deviceType deviceType, String msg)
 {
   int index = -1;
 
-  for(uint32_t i = 0; i < m_numColorMappingEntries; i++)
+  for(int i = 0; i < m_numColorMappingEntries; i++)
   {
     if(msg.equals(m_cfgColorMapping[i].msg) && (deviceType == m_cfgColorMapping[i].type))
     {
