@@ -62,6 +62,9 @@ public:
   int getNumberOfColorMappingEntries() const;
   const colorMapping* getColorMapping(int index) const;
 
+  int getNumberOfDeviceMappingEntries() const;
+  const deviceMapping* getDeviceMapping(int index) const;
+
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);

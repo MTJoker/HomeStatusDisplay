@@ -532,6 +532,23 @@ const colorMapping* FhemStatusDisplayConfig::getColorMapping(int index) const
   return mapping;
 }
 
+int FhemStatusDisplayConfig::getNumberOfDeviceMappingEntries() const
+{
+  return m_numDeviceMappingEntries;
+}
+
+const deviceMapping* FhemStatusDisplayConfig::getDeviceMapping(int index) const
+{
+  const deviceMapping* mapping = NULL;
+
+  if(index < m_numDeviceMappingEntries)
+  {
+    mapping = &m_cfgDeviceMapping[index];
+  }
+
+  return mapping;
+}
+
 int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceType)
 {
   int number = -1;

@@ -363,67 +363,67 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   "  <td><b><font size='+1'>Type</font></b></td>"
   "  <td><b><font size='+1'>LedNumber</font></b></td>"
   " </tr>");
-  /*
-  for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
+  
+  for(uint32_t i = 0; i < m_config.getNumberOfDeviceMappingEntries(); i++)
   {
-    const colorMapping* mapping = m_config.getColorMapping(i);
+    const deviceMapping* mapping = m_config.getDeviceMapping(i);
 
     if(mapping)
     {
-      const char* window = (mapping->type == TYPE_WINDOW) ? "selected='selected'" : "";
-      const char* door   = (mapping->type == TYPE_DOOR)   ? "selected='selected'" : "";
-      const char* light  = (mapping->type == TYPE_LIGHT)  ? "selected='selected'" : "";
-      const char* alarm  = (mapping->type == TYPE_ALARM)  ? "selected='selected'" : "";
-      
-      const char* none   = (mapping->color == Led::NONE)   ? "selected='selected'" : "";
-      const char* red    = (mapping->color == Led::RED)    ? "selected='selected'" : "";
-      const char* green  = (mapping->color == Led::GREEN)  ? "selected='selected'" : "";
-      const char* blue   = (mapping->color == Led::BLUE)   ? "selected='selected'" : "";
-      const char* yellow = (mapping->color == Led::YELLOW) ? "selected='selected'" : "";
-      const char* white  = (mapping->color == Led::WHITE)  ? "selected='selected'" : "";
+      String windowSelect = (mapping->type == TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
+      String doorSelect   = (mapping->type == TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
+      String lightSelect  = (mapping->type == TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
+      String alarmSelect  = (mapping->type == TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;   
 
-      const char* on       = (mapping->behavior == Led::ON)       ? "selected='selected'" : "";
-      const char* off      = (mapping->behavior == Led::OFF)      ? "selected='selected'" : "";
-      const char* blinking = (mapping->behavior == Led::BLINKING) ? "selected='selected'" : "";
-      const char* flashing = (mapping->behavior == Led::FLASHING) ? "selected='selected'" : "";
+      String name = "n" + String(i);
+      String type = "t" + String(i);
+      String led  = "l" + String(i);
       
-      html += "<tr>";
-      html += "<td><input type='text' id='name' name='name' value='" + mapping->msg + "' size='30' maxlength='40' placeholder='name'></td>";
-      html += "<td><select name='type'>";
-      html += "<option " + String(window) + ">Window</option>";
-      html += "<option " + String(door)   + ">Door</option>";
-      html += "<option " + String(light)  + ">Light</option>"; 
-      html += "<option " + String(alarm)  + ">Alarm</option>";
-      html += "</select></td>";
-      html += "<td><select name='color'>";
-      html += "<option " + String(none)   + ">None</option>";
-      html += "<option " + String(red)    + ">Red</option>";
-      html += "<option " + String(green)  + ">Green</option>";
-      html += "<option " + String(blue)   + ">Blue</option>"; 
-      html += "<option " + String(yellow) + ">Yellow</option>";
-      html += "<option " + String(white)  + ">White</option>"; 
-      html += "</select></td>";
-      html += "<td><select name='behavior'>";
-      html += "<option " + String(on)       + ">On</option>";
-      html += "<option " + String(off)      + ">Off</option>";
-      html += "<option " + String(blinking) + ">Blinking</option>";
-      html += "<option " + String(flashing) + ">Flashing</option>";
-      html += "</select></td>";            
-      html += " </tr>";
+      html += F("<tr>");
+      html += F("<td><input type='text' id='name' name='");
+      html += name;
+      html += F("' value='");
+      html += mapping->name;
+      html += F("' size='30' maxlength='30' placeholder='name'></td>");
+      html += F("<td><select name='");
+      html += type;
+      html += F("'>");
+      html += F("<option "); html += windowSelect; html += F(" value='"); html += TYPE_WINDOW; html += F("'>Window</option>");
+      html += F("<option "); html += doorSelect;   html += F("value='");  html += TYPE_DOOR;   html += F("'>Door</option>");
+      html += F("<option "); html += lightSelect;  html += F("value='");  html += TYPE_LIGHT;  html += F("'>Light</option>");
+      html += F("<option "); html += alarmSelect;  html += F("value='");  html += TYPE_ALARM;  html += F("'>Alarm</option>");
+      html += F("</select></td>");
+      html += F("<td><input type='text' id='led' name='");
+      html += led;
+      html += F("' value='");
+      html += mapping->ledNumber;
+      html += F("' size='5' maxlength='5' placeholder='nr'></td></tr>");
     }
   }
 
+  String name = "n" + String(m_config.getNumberOfDeviceMappingEntries());
+  String type = "t" + String(m_config.getNumberOfDeviceMappingEntries());
+  String led  = "l" + String(m_config.getNumberOfDeviceMappingEntries());
+
   // one additional for adding an entry
-  html += "<tr>";
-  html += "<td><input type='text' id='name' name='name' value='' size='30' maxlength='40' placeholder='name'></td>";
-  html += "<td><select name='type'><option>Window</option><option>Door</option><option>Light</option><option>Alarm</option></select>";
-  html += "<td><select name='color'><option>None</option><option>Red</option><option>Green</option><option>Blue</option><option>Yellow</option><option>White</option></select>";
-  html += "<td><select name='behavior'><option>On</option><option>Off</option><option>Blinking</option><option>Flashing</option></select>";
-  html += " </tr>";
-  */
+  html += F("<tr>");
+  html += F("<td><input type='text' id='name' name='");
+  html += name;
+  html += F("' value='' size='30' maxlength='30' placeholder='name'></td>");
+  html += F("<td><select name='");
+  html += type;
+  html += F("'>");
+  html += F("<option value='"); html += TYPE_WINDOW; html += F("'>Window</option>");
+  html += F("<option value='"); html += TYPE_DOOR;   html += F("'>Door</option>");
+  html += F("<option value='"); html += TYPE_LIGHT;  html += F("'>Light</option>");
+  html += F("<option value='"); html += TYPE_ALARM;  html += F("'>Alarm</option>");
+  html += F("</select></td>");
+  html += F("<td><input type='text' id='led' name='");
+  html += led;
+  html += F("' value='' size='5' maxlength='5' placeholder='nr'></td></tr>");
+      
   html += F(""
   " <tr>"
-  "  <td></td>"
   "  <td></td>"
   "  <td></td>"
   "  <td><input type='submit' value='Save' style='height:30px;'></td>"
@@ -431,6 +431,9 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
 
   html += F("</table></form></font></body></html>");
 
+  Serial.print(F("Page size: "));
+  Serial.println(html.length());
+  
   m_server.send(200, F("text/html"), html);
 
   if(needSave)
@@ -438,6 +441,8 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
     Serial.println(F("Device mapping config has changed, storing it."));
     //m_config.saveColorMapping();
   }
+
+  Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
 void FhemStatusDisplayWebServer::deliverNotFoundPage()
