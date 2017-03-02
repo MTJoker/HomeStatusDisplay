@@ -6,9 +6,6 @@
 #define CONFIG_FILE_NAME_DEVICEMAPPING (F( "/devicemapping.json"))
 #define CONFIG_FILE_NAME_COLORMAPPING (F("/colormapping.json"))
 
-#define JSON_BUFFER_SIZE_MAIN_CONFIG  400
-#define JSON_BUFFER_SIZE_COLOR_MAPPING_CONFIG  2000
-
 FhemStatusDisplayConfig::FhemStatusDisplayConfig()
 {  
   // reset non-configuraable members
@@ -158,50 +155,54 @@ bool FhemStatusDisplayConfig::readMainConfigFile()
     size_t size = configFile.size();
     Serial.print(F("Opened main config file, size is ")); Serial.println(String(size) + " bytes");  
 
-    // allocate buffer for the file contents
-    char* buffer = (char*)malloc(size);
-
-    configFile.readBytes(buffer, size);
-
-    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_MAIN_CONFIG);
-    JsonObject& json = jsonBuffer.parseObject(buffer);
-
-    if (json.success()) 
-    {
-      Serial.println(F("Main config data successfully parsed."));
-      Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
-      
-      json.prettyPrintTo(Serial);
-      Serial.println("");
-
-      if(json.containsKey(JSON_KEY_HOST) && json.containsKey(JSON_KEY_WIFI_SSID) && json.containsKey(JSON_KEY_WIFI_PSK) && 
-         json.containsKey(JSON_KEY_MQTT_SERVER) && json.containsKey(JSON_KEY_MQTT_STATUS_TOPIC) && json.containsKey(JSON_KEY_MQTT_TEST_TOPIC) && json.containsKey(JSON_KEY_MQTT_WILL_TOPIC) &&
-         json.containsKey(JSON_KEY_LED_COUNT) && json.containsKey(JSON_KEY_LED_PIN))
+    if(size <= MAX_SIZE_COLOR_MAPPING_CONFIG)
+    { 
+      char buffer[MAX_SIZE_MAIN_CONFIG];
+  
+      configFile.readBytes(buffer, size);
+  
+      DynamicJsonBuffer jsonBuffer(MAX_SIZE_MAIN_CONFIG);
+      JsonObject& json = jsonBuffer.parseObject(buffer);
+  
+      if (json.success()) 
       {
-        Serial.println(F("All config file keys available."));
-
-        setHost(json[JSON_KEY_HOST]);
-        setWifiSSID(json[JSON_KEY_WIFI_SSID]);
-        setWifiPSK(json[JSON_KEY_WIFI_PSK]);
-        setMqttServer(json[JSON_KEY_MQTT_SERVER]);
-        setMqttStatusTopic(json[JSON_KEY_MQTT_STATUS_TOPIC]);
-        setMqttTestTopic(json[JSON_KEY_MQTT_TEST_TOPIC]);
-        setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC]);
-        setNumberOfLeds(json[JSON_KEY_LED_COUNT]);
-        setLedDataPin(json[JSON_KEY_LED_PIN]);
-
-        success = true;
-      }
-      else
+        Serial.println(F("Main config data successfully parsed."));
+        Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
+        
+        json.prettyPrintTo(Serial);
+        Serial.println("");
+  
+        if(json.containsKey(JSON_KEY_HOST) && json.containsKey(JSON_KEY_WIFI_SSID) && json.containsKey(JSON_KEY_WIFI_PSK) && 
+           json.containsKey(JSON_KEY_MQTT_SERVER) && json.containsKey(JSON_KEY_MQTT_STATUS_TOPIC) && json.containsKey(JSON_KEY_MQTT_TEST_TOPIC) && json.containsKey(JSON_KEY_MQTT_WILL_TOPIC) &&
+           json.containsKey(JSON_KEY_LED_COUNT) && json.containsKey(JSON_KEY_LED_PIN))
+        {
+          Serial.println(F("All config file keys available."));
+  
+          setHost(json[JSON_KEY_HOST]);
+          setWifiSSID(json[JSON_KEY_WIFI_SSID]);
+          setWifiPSK(json[JSON_KEY_WIFI_PSK]);
+          setMqttServer(json[JSON_KEY_MQTT_SERVER]);
+          setMqttStatusTopic(json[JSON_KEY_MQTT_STATUS_TOPIC]);
+          setMqttTestTopic(json[JSON_KEY_MQTT_TEST_TOPIC]);
+          setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC]);
+          setNumberOfLeds(json[JSON_KEY_LED_COUNT]);
+          setLedDataPin(json[JSON_KEY_LED_PIN]);
+  
+          success = true;
+        }
+        else
+        {
+          Serial.println(F("Missing config file keys!"));
+        }
+      } 
+      else 
       {
-        Serial.println(F("Missing config file keys!"));
+        Serial.println(F("Could not read config data"));
       }
-
-      free(buffer);
-    } 
-    else 
+    }
+    else
     {
-      Serial.println(F("Could not read config data"));
+      Serial.println(F("Config file is too big."));
     }
   }
   else
@@ -225,49 +226,53 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
     size_t size = configFile.size();
     Serial.print(F("Opened color mapping config file, size is ")); Serial.println(String(size) + " bytes");  
 
-    // allocate buffer for the file contents
-    char* buffer = (char*)malloc(size);
-
-    configFile.readBytes(buffer, size);
-
-    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_COLOR_MAPPING_CONFIG);
-    JsonObject& json = jsonBuffer.parseObject(buffer);
-
-    if (json.success()) 
-    {
-      Serial.println(F("Color mapping config data successfully parsed."));
-      Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
-
-      json.prettyPrintTo(Serial);
-      Serial.println("");
-
-      success = true;
-      
-      for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
+    if(size <= MAX_SIZE_COLOR_MAPPING_CONFIG)
+    { 
+      char buffer[MAX_SIZE_COLOR_MAPPING_CONFIG];
+  
+      configFile.readBytes(buffer, size);
+  
+      DynamicJsonBuffer jsonBuffer(MAX_SIZE_COLOR_MAPPING_CONFIG);
+      JsonObject& json = jsonBuffer.parseObject(buffer);
+  
+      if (json.success()) 
       {
-        JsonObject& entry = json[it->key]; 
-
-        if(entry.containsKey(JSON_KEY_COLORMAPPING_MSG) && entry.containsKey(JSON_KEY_COLORMAPPING_TYPE) &&
-           entry.containsKey(JSON_KEY_COLORMAPPING_COLOR) && entry.containsKey(JSON_KEY_COLORMAPPING_BEHAVIOR) )
+        Serial.println(F("Color mapping config data successfully parsed."));
+        Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
+  
+        json.prettyPrintTo(Serial);
+        Serial.println("");
+  
+        success = true;
+        
+        for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
         {
-          addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].asString(), 
-                               (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
-                               (Led::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
-                               (Led::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
-        }
-        else
-        {
-          Serial.println(F("Missing config file keys!"));
-          success = false;
-          break;
+          JsonObject& entry = json[it->key]; 
+  
+          if(entry.containsKey(JSON_KEY_COLORMAPPING_MSG) && entry.containsKey(JSON_KEY_COLORMAPPING_TYPE) &&
+             entry.containsKey(JSON_KEY_COLORMAPPING_COLOR) && entry.containsKey(JSON_KEY_COLORMAPPING_BEHAVIOR) )
+          {
+            addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].asString(), 
+                                 (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
+                                 (Led::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
+                                 (Led::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
+          }
+          else
+          {
+            Serial.println(F("Missing config file keys!"));
+            success = false;
+            break;
+          }
         }
       }
-      
-      free(buffer);
+      else
+      {
+        Serial.println(F("Config file is too big."));
+      }
     } 
     else 
     {
-      Serial.println(F("Could not read config data"));
+      Serial.println(F("Could not read config data."));
     }
   }
   else
@@ -282,7 +287,7 @@ void FhemStatusDisplayConfig::writeMainConfigFile()
 {
   Serial.println(F("Writing main config file."));  
 
-  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_MAIN_CONFIG);
+  DynamicJsonBuffer jsonBuffer(MAX_SIZE_MAIN_CONFIG);
   JsonObject& json = jsonBuffer.createObject();
 
   json[JSON_KEY_HOST] = m_cfgHost;
@@ -315,7 +320,7 @@ void FhemStatusDisplayConfig::writeColorMappingConfigFile()
 {
   Serial.println(F("Writing color mapping config file."));  
 
-  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE_COLOR_MAPPING_CONFIG);
+  DynamicJsonBuffer jsonBuffer(MAX_SIZE_COLOR_MAPPING_CONFIG);
   JsonObject& json = jsonBuffer.createObject();
 
   for(int index = 0; index < m_numColorMappingEntries; index++)

@@ -74,6 +74,9 @@ public:
 
 private:
 
+  static const int MAX_SIZE_MAIN_CONFIG = 400;
+  static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2000;
+
   void resetMainConfigData();
   bool readMainConfigFile();
   void writeMainConfigFile();
