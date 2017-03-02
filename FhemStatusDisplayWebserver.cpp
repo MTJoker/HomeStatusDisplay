@@ -31,7 +31,7 @@ void FhemStatusDisplayWebServer::handleClient()
   m_server.handleClient();
 }
 
-String FhemStatusDisplayWebServer::getHeader()
+String FhemStatusDisplayWebServer::getHeader(const char* title)
 {
   String header;
   header.reserve(400);
@@ -40,13 +40,14 @@ String FhemStatusDisplayWebServer::getHeader()
   header += F("<head> <meta charset='utf-8'>");
   header += F("<title>");
   header += String(m_config.getHost());
-  header += F(" main configuration</title>");
+  header += F("</title>");
   header += F("</head>");
   header += F("<body bgcolor='#F0F0F0'><font face='Verdana,Arial,Helvetica'>");
   header += F("<b><h1>");
   header += String(m_config.getHost());
-  header += F(" main configuration</h1></b>");
-  header += F("<h4>Software version: ");
+  header += F("</h1></b><h2>");
+  header += title;
+  header += F("</h2><h4>Software version: ");
   header += String(m_config.getVersion());
   header += F("</h4>");
   header += F("<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>"); 
@@ -64,12 +65,12 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   String html;
   html.reserve(3000);
   
-  html = getHeader();
+  html = getHeader("Main configuration");
 
   if (WiFi.status() == WL_CONNECTED)
   {
     html += F("Device is connected to WLAN <b>");
-    html + WiFi.SSID();
+    html += WiFi.SSID();
     html += F("</b> and has IP <b>");
     html += ip2String(WiFi.localIP());
     html += F("</b>.<br/><br/>");
@@ -211,7 +212,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   String html;
   html.reserve(17000);
   
-  html = getHeader();
+  html = getHeader("Color mapping configuration");
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -352,7 +353,7 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
 {
   bool needSave = updateColorMappingConfig();
   
-  String html = getHeader();
+  String html = getHeader("Device mapping configuration");
   
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 

@@ -21,7 +21,7 @@ private:
   void deliverDeviceMappingPage();
   void deliverNotFoundPage();
 
-  String getHeader();
+  String getHeader(const char* title);
   String ip2String(IPAddress ip);
   bool updateMainConfig();
   bool updateColorMappingConfig();
