@@ -351,7 +351,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
 
 void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
 {
-  bool needSave = updateColorMappingConfig();
+  bool needSave = updateDeviceMappingConfig();
   
   String html = getHeader("Device mapping configuration");
   
@@ -440,7 +440,7 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   if(needSave)
   {
     Serial.println(F("Device mapping config has changed, storing it."));
-    //m_config.saveColorMapping();
+    m_config.saveDeviceMapping();
   }
 
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
@@ -566,6 +566,51 @@ bool FhemStatusDisplayWebServer::updateColorMappingConfig()
                                         (deviceType)(m_server.arg(type).toInt()), 
                                         (Led::Color)(m_server.arg(color).toInt()), 
                                         (Led::Behavior)(m_server.arg(behavior).toInt()));
+        }
+        else
+        {
+          Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+        }
+      }
+  
+      needSave = true;
+    }
+    else
+    {
+      Serial.println(F("Number of Arguments seems wrong!"));
+    }
+  }
+
+  return needSave;
+}
+
+bool FhemStatusDisplayWebServer::updateDeviceMappingConfig()
+{
+  bool needSave = false;
+
+  int numArgs = m_server.args();
+
+  Serial.println("Got " + String(numArgs)  + " args");
+
+  if(numArgs != 0)    // when page is initially loaded, do nothing because no args
+  {
+    if((numArgs % 3) == 0)
+    {
+      Serial.println(F("Number of arguments seems reasonable"));
+  
+      m_config.resetDeviceMappingConfigData();
+  
+      for(int i = 0; i < (numArgs/3); i++)
+      {
+        String name = "n" + String(i);
+        String type = "t" + String(i);
+        String led  = "l" + String(i);
+        
+        if(m_server.arg(name) != "")
+        {
+          m_config.addDeviceMappingEntry(m_server.arg(name), 
+                                        (deviceType)(m_server.arg(type).toInt()), 
+                                        m_server.arg(led).toInt());
         }
         else
         {

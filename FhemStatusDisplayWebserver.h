@@ -25,6 +25,7 @@ private:
   String ip2String(IPAddress ip);
   bool updateMainConfig();
   bool updateColorMappingConfig();
+  bool updateDeviceMappingConfig();
 
   ESP8266WebServer m_server;
   ESP8266HTTPUpdateServer m_updateServer;

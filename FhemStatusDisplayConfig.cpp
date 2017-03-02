@@ -128,6 +128,15 @@ void FhemStatusDisplayConfig::resetColorMappingConfigData()
   m_numColorMappingEntries = 0;
 }
 
+void FhemStatusDisplayConfig::resetDeviceMappingConfigData()
+{
+  Serial.println(F("Deleting device mapping config data."));
+  
+  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
+  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
+  m_numDeviceMappingEntries = 0;  
+}
+
 void FhemStatusDisplayConfig::createDefaultMainConfigFile()
 {
   Serial.println(F("Creating default main config file."));
@@ -349,6 +358,13 @@ void FhemStatusDisplayConfig::writeColorMappingConfigFile()
   configFile.close();  
 }
 
+void FhemStatusDisplayConfig::writeDeviceMappingConfigFile()
+{
+    Serial.println(F("Writing color mapping config file."));  
+
+    // TODO
+}
+
 void FhemStatusDisplayConfig::saveMain()
 {
   writeMainConfigFile();
@@ -359,13 +375,23 @@ void FhemStatusDisplayConfig::saveColorMapping()
   writeColorMappingConfigFile();
 }
 
+void FhemStatusDisplayConfig::saveDeviceMapping()
+{
+  writeDeviceMappingConfigFile();
+}
+
 bool FhemStatusDisplayConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
 {
   bool success = false;
 
+  Serial.print(F("Adding device mapping entry at index ")); 
+  Serial.println(String(m_numDeviceMappingEntries) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
+
   if(m_numDeviceMappingEntries < (MAX_DEVICE_MAP_ENTRIES - 1))
   {
-    m_cfgDeviceMapping[m_numDeviceMappingEntries].name = name;
+    strncpy(m_cfgDeviceMapping[m_numDeviceMappingEntries].name, name.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
+    m_cfgDeviceMapping[m_numDeviceMappingEntries].name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
+    
     m_cfgDeviceMapping[m_numDeviceMappingEntries].type = type;
     m_cfgDeviceMapping[m_numDeviceMappingEntries].ledNumber = ledNumber;
     m_numDeviceMappingEntries++;

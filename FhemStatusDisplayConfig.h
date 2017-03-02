@@ -28,6 +28,7 @@ public:
 
   void saveMain();
   void saveColorMapping();
+  void saveDeviceMapping();
 
   const char* getVersion() const;
   bool setVersion(const char* version);
@@ -66,6 +67,7 @@ public:
   const deviceMapping* getDeviceMapping(int index) const;
 
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
+  void resetDeviceMappingConfigData();
   
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);
   void resetColorMappingConfigData();
@@ -88,6 +90,8 @@ private:
   bool readColorMappingConfigFile();
   void writeColorMappingConfigFile();
   void createDefaultColorMappingConfigFile();
+
+  void writeDeviceMappingConfigFile();
 
   static const int MAX_VERSION_LEN           = 20;
   static const int MAX_HOST_LEN              = 30;
