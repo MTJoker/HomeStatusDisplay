@@ -1,5 +1,4 @@
 #include "FhemStatusDisplayWebServer.h"
-//#include <ESP8266mDNS.h>
 
 #define SELECTED_STRING (F("selected ='selected'"))
 #define EMPTY_STRING    (F(""))
@@ -17,9 +16,8 @@ void FhemStatusDisplayWebServer::begin()
   Serial.println(F(""));
   Serial.println(F("Starting WebServer."));
 
-  //MDNS.begin(m_config.getHost());
   m_server.begin();
-  //MDNS.addService("http", "tcp", 80);
+
   m_server.on("/", std::bind(&FhemStatusDisplayWebServer::deliverRootPage, this));
   m_server.on("/colormapping", std::bind(&FhemStatusDisplayWebServer::deliverColorMappingPage, this));
   m_server.on("/devicemapping", std::bind(&FhemStatusDisplayWebServer::deliverDeviceMappingPage, this));
@@ -37,20 +35,20 @@ String FhemStatusDisplayWebServer::getHeader(const char* title)
   header.reserve(400);
 
   header  = F("<!doctype html> <html>");
-  header += F("<head> <meta charset='utf-8'>");
+  header += F("<head><meta charset='utf-8'>");
   header += F("<title>");
   header += String(m_config.getHost());
   header += F("</title>");
   header += F("</head>");
-  header += F("<body bgcolor='#F0F0F0'><font face='Verdana,Arial,Helvetica'>");
-  header += F("<b><h1>");
+  header += F("<body bgcolor='#e5e5e5'><font face='Verdana,Arial,Helvetica'>");
+  header += F("<font size='+3'>");
   header += String(m_config.getHost());
-  header += F("</h1></b><h2>");
-  header += title;
-  header += F("</h2><h4>Software version: ");
+  header += F("</font><font size='-3'>V");
   header += String(m_config.getVersion());
+  header += F("</font>");
+  header += F("<p><a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/></p><h4>"); 
+  header += title;
   header += F("</h4>");
-  header += F("<a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/>"); 
 
   Serial.print(F("Header size: "));
   Serial.println(header.length());
@@ -69,11 +67,11 @@ void FhemStatusDisplayWebServer::deliverRootPage()
 
   if (WiFi.status() == WL_CONNECTED)
   {
-    html += F("Device is connected to WLAN <b>");
+    html += F("Device is connected to WLAN: <b>");
     html += WiFi.SSID();
-    html += F("</b> and has IP <b>");
+    html += F("</b><br/>IP: <b>");
     html += ip2String(WiFi.localIP());
-    html += F("</b>.<br/><br/>");
+    html += F("</b><br/><br/>");
   }
   else
   {
@@ -89,7 +87,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   "  <td></td>"
   " </tr>"
   " <tr>"
-  "  <td>Host name</td>");
+  "  <td>Name</td>");
   
   html += F("  <td><input type='text' id='host' name='host' value='");
   html += String(m_config.getHost());
@@ -329,8 +327,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   " <tr>"
   "  <td></td>"
   "  <td></td>"
-  "  <td></td>"
-  "  <td><input type='submit' value='Save' style='height:30px;'></td>"
+  "  <td colspan='2'><input type='submit' value='Save' style='height:30px; width:150px'></td>"
   " </tr>");
 
   html += F("</table></form></font></body></html>");
@@ -362,7 +359,7 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   " <tr>"
   "  <td><b><font size='+1'>Device</font></b></td>"
   "  <td><b><font size='+1'>Type</font></b></td>"
-  "  <td><b><font size='+1'>LedNumber</font></b></td>"
+  "  <td><b><font size='+1'>Led</font></b></td>"
   " </tr>");
   
   for(uint32_t i = 0; i < m_config.getNumberOfDeviceMappingEntries(); i++)
@@ -426,8 +423,7 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   html += F(""
   " <tr>"
   "  <td></td>"
-  "  <td></td>"
-  "  <td><input type='submit' value='Save' style='height:30px;'></td>"
+  "  <td colspan='2'><input type='submit' value='Save' style='height:30px; width:120px'></td>"
   " </tr>");
 
   html += F("</table></form></font></body></html>");
