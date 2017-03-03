@@ -1,4 +1,4 @@
-# FhemStatusDisplay
+# HomeStatusDisplay
 
 Show status information sent via MQTT (e.g. from FHEM or any other MQTT-speaking system) using RGB LEDs.
 ![alt tag](http://www.bernd-schubart.de/downloads/fhem/fhemstatusdisplay/fhemstatusdisplay_20.jpg)
