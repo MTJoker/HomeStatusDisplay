@@ -1,4 +1,4 @@
-#include "FhemStatusDisplay.h"
+#include "HomeStatusDisplay.h"
 
 // function declarations
 void handleMqttMessage(String topic, String msg);
@@ -10,18 +10,18 @@ void handleMqttMessage(String topic, String msg);
 
 int getFreeRamSize();
 
-FhemStatusDisplay::FhemStatusDisplay()
+HomeStatusDisplay::HomeStatusDisplay()
 :
 m_webServer(m_config),
 m_wifi(m_config),
-m_mqttHandler(m_config, std::bind(&FhemStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
+m_mqttHandler(m_config, std::bind(&HomeStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
 m_leds(m_config),
 m_lastWifiConnectionState(false),
 m_lastMqttConnectionState(false)
 {
 }
 
-void FhemStatusDisplay::begin(const char* version, const char* identifier)
+void HomeStatusDisplay::begin(const char* version, const char* identifier)
 {
   // initialize serial
   Serial.begin(115200);
@@ -36,10 +36,11 @@ void FhemStatusDisplay::begin(const char* version, const char* identifier)
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
-void FhemStatusDisplay::work()
+void HomeStatusDisplay::work()
 {
   checkConnections();
 
+  m_wifi.handleConnection();
   m_webServer.handleClient();
 
   if(m_wifi.connected())
@@ -52,7 +53,7 @@ void FhemStatusDisplay::work()
   delay(50);
 }
 
-void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int length)
+void HomeStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int length)
 {
   int i = 0;
 
@@ -75,19 +76,19 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
   {
     if(mqttTopicString.substring(12, 17) == LIGHT_STRING)
     {
-      handleStatus(mqttTopicString.substring(18), TYPE_LIGHT, mqttMsgString);
+      handleStatus(mqttTopicString.substring(18), HSDConfig::TYPE_LIGHT, mqttMsgString);
     }
     else if(mqttTopicString.substring(12, 18) == WINDOW_STRING)
     {
-      handleStatus(mqttTopicString.substring(19), TYPE_WINDOW, mqttMsgString);
+      handleStatus(mqttTopicString.substring(19), HSDConfig::TYPE_WINDOW, mqttMsgString);
     }
     else if(mqttTopicString.substring(12, 16) == DOOR_STRING)
     {
-      handleStatus(mqttTopicString.substring(17), TYPE_DOOR, mqttMsgString);
+      handleStatus(mqttTopicString.substring(17), HSDConfig::TYPE_DOOR, mqttMsgString);
     }
     else if(mqttTopicString.substring(12, 17) == ALARM_STRING)
     {
-      handleStatus(mqttTopicString.substring(18), TYPE_ALARM, mqttMsgString);
+      handleStatus(mqttTopicString.substring(18), HSDConfig::TYPE_ALARM, mqttMsgString);
     }
     else
     {
@@ -96,7 +97,7 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
   }
 }
 
-void FhemStatusDisplay::handleTest(String msg)
+void HomeStatusDisplay::handleTest(String msg)
 {
   int type = msg.toInt();
   if(type > 0)
@@ -111,15 +112,15 @@ void FhemStatusDisplay::handleTest(String msg)
   }
 }
 
-void FhemStatusDisplay::handleStatus(String device, deviceType type, String msg)
+void HomeStatusDisplay::handleStatus(String device, HSDConfig::deviceType type, String msg)
 {
   int ledNumber = m_config.getLedNumber(device, type);
   int colorMapIndex = m_config.getColorMapIndex(type, msg);
 
   if( (ledNumber != -1) && (colorMapIndex != -1) )
   {
-    Led::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
-    Led::Color color = m_config.getLedColor(colorMapIndex);
+    HSDLed::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
+    HSDLed::Color color = m_config.getLedColor(colorMapIndex);
 
     Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
     m_leds.set(ledNumber, behavior, color);
@@ -130,7 +131,7 @@ void FhemStatusDisplay::handleStatus(String device, deviceType type, String msg)
   }
 }
 
-void FhemStatusDisplay::checkConnections()
+void HomeStatusDisplay::checkConnections()
 {
   if(!m_lastMqttConnectionState && m_mqttHandler.connected())
   {
@@ -145,7 +146,7 @@ void FhemStatusDisplay::checkConnections()
 
   if(!m_mqttHandler.connected() && m_wifi.connected())
   {
-    m_leds.setAll(Led::ON, Led::YELLOW);
+    m_leds.setAll(HSDLed::ON, HSDLed::YELLOW);
   }
   
   if(!m_lastWifiConnectionState && m_wifi.connected())
@@ -154,7 +155,7 @@ void FhemStatusDisplay::checkConnections()
 
     if(!m_mqttHandler.connected())
     {
-      m_leds.setAll(Led::ON, Led::YELLOW);
+      m_leds.setAll(HSDLed::ON, HSDLed::YELLOW);
     }
     
     m_lastWifiConnectionState = true;
@@ -167,7 +168,7 @@ void FhemStatusDisplay::checkConnections()
 
   if(!m_wifi.connected())
   {
-    m_leds.setAll(Led::ON, Led::RED);
+    m_leds.setAll(HSDLed::ON, HSDLed::RED);
   }
 }
 

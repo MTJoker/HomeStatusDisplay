@@ -1,14 +1,14 @@
 #pragma once
 
-#include "FhemStatusDisplayConfig.h"
+#include "HSDConfig.h"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-class MQTTHandler
+class HSDMqtt
 {
 public:
 
-  MQTTHandler(const FhemStatusDisplayConfig& config, MQTT_CALLBACK_SIGNATURE);
+  HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE);
 
   static const uint32_t MAX_IN_TOPICS = 10;
 
@@ -27,7 +27,7 @@ private:
   WiFiClient m_wifiClient;
   PubSubClient m_pubSubClient;
 
-  const FhemStatusDisplayConfig& m_config;
+  const HSDConfig& m_config;
 
   const char* m_inTopics[MAX_IN_TOPICS];
   uint32_t m_numberOfInTopics;
