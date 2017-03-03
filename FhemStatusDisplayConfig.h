@@ -16,6 +16,9 @@
 #define JSON_KEY_COLORMAPPING_TYPE     (F("type"))
 #define JSON_KEY_COLORMAPPING_COLOR    (F("color"))
 #define JSON_KEY_COLORMAPPING_BEHAVIOR (F("behavior"))
+#define JSON_KEY_DEVICEMAPPING_NAME    (F("name"))
+#define JSON_KEY_DEVICEMAPPING_TYPE    (F("type"))
+#define JSON_KEY_DEVICEMAPPING_LED     (F("led"))
 
 class FhemStatusDisplayConfig
 {
@@ -80,6 +83,7 @@ public:
 private:
 
   static const int MAX_SIZE_MAIN_CONFIG = 400;
+  static const int MAX_SIZE_DEVICE_MAPPING_CONFIG = 2000;
   static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2000;
 
   void resetMainConfigData();
@@ -91,7 +95,9 @@ private:
   void writeColorMappingConfigFile();
   void createDefaultColorMappingConfigFile();
 
+  bool readDeviceMappingConfigFile();
   void writeDeviceMappingConfigFile();
+  void createDefaultDeviceMappingConfigFile();
 
   static const int MAX_VERSION_LEN           = 20;
   static const int MAX_HOST_LEN              = 30;
