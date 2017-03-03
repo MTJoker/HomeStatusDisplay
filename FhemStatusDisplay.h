@@ -16,7 +16,7 @@ public:
   
 private:
 
-  static const uint32_t MQTT_MSG_MAX_LEN = 100;
+  static const int MQTT_MSG_MAX_LEN = 50;
   
   void mqttCallback(char* topic, byte* payload, unsigned int length);
 
