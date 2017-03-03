@@ -1,8 +1,14 @@
 #include "FhemStatusDisplay.h"
-#include <Arduino.h>
 
 // function declarations
 void handleMqttMessage(String topic, String msg);
+
+#define WINDOW_STRING (F("window"))
+#define DOOR_STRING (F("door"))
+#define LIGHT_STRING (F("light"))
+#define ALARM_STRING (F("alarm"))
+
+int getFreeRamSize();
 
 FhemStatusDisplay::FhemStatusDisplay()
 :
@@ -19,13 +25,15 @@ void FhemStatusDisplay::begin(const char* version, const char* identifier)
 {
   // initialize serial
   Serial.begin(115200);
-  Serial.println("");
+  Serial.println(F(""));
 
   m_config.begin(version, identifier);
   m_webServer.begin();
   m_leds.begin();
   m_wifi.begin();
   m_mqttHandler.begin(); 
+
+  Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
 void FhemStatusDisplay::work()
@@ -48,7 +56,7 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
 {
   int i = 0;
 
-  for( i = 0; (i < length) && (i < MQTT_MSG_MAX_LEN); i++) 
+  for(i = 0; (i < length) && (i < MQTT_MSG_MAX_LEN); i++) 
   {
     mqttMsgBuffer[i] = payload[i];
   }
@@ -57,7 +65,7 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
   String mqttTopicString(topic);
   String mqttMsgString = String(mqttMsgBuffer);
   
-  Serial.println("Received an MQTT message for topic " + mqttTopicString + ": " + mqttMsgString);
+  Serial.print(F("Received an MQTT message for topic ")); Serial.println(mqttTopicString + ": " + mqttMsgString);
 
   if(mqttTopicString.equals(m_config.getMqttTestTopic()))
   {
@@ -65,35 +73,35 @@ void FhemStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
   }
   else
   {
-    if(mqttTopicString.substring(12, 17) == "light")
+    if(mqttTopicString.substring(12, 17) == LIGHT_STRING)
     {
       handleStatus(mqttTopicString.substring(18), TYPE_LIGHT, mqttMsgString);
     }
-    else if(mqttTopicString.substring(12, 18) == "window")
+    else if(mqttTopicString.substring(12, 18) == WINDOW_STRING)
     {
       handleStatus(mqttTopicString.substring(19), TYPE_WINDOW, mqttMsgString);
     }
-    else if(mqttTopicString.substring(12, 16) == "door")
+    else if(mqttTopicString.substring(12, 16) == DOOR_STRING)
     {
       handleStatus(mqttTopicString.substring(17), TYPE_DOOR, mqttMsgString);
     }
-    else if(mqttTopicString.substring(12, 17) == "alarm")
+    else if(mqttTopicString.substring(12, 17) == ALARM_STRING)
     {
       handleStatus(mqttTopicString.substring(18), TYPE_ALARM, mqttMsgString);
     }
     else
     {
-      Serial.println("Unknown topic, ignoring");
+      Serial.println(F("Unknown topic, ignoring"));
     }
   }
 }
 
 void FhemStatusDisplay::handleTest(String msg)
 {
-  uint32_t type = msg.toInt();
+  int type = msg.toInt();
   if(type > 0)
   {
-    Serial.println("Showing testpattern " + String(type));
+    Serial.print(F("Showing testpattern ")); Serial.println(type);
     m_leds.test(type);
   }
   else if(type == 0)
@@ -132,8 +140,12 @@ void FhemStatusDisplay::checkConnections()
   else if(m_lastMqttConnectionState && !m_mqttHandler.connected())
   {
     m_leds.clear();
-    m_leds.setAll(Led::ON, Led::YELLOW);
     m_lastMqttConnectionState = false;
+  }
+
+  if(!m_mqttHandler.connected() && m_wifi.connected())
+  {
+    m_leds.setAll(Led::ON, Led::YELLOW);
   }
   
   if(!m_lastWifiConnectionState && m_wifi.connected())
@@ -150,9 +162,12 @@ void FhemStatusDisplay::checkConnections()
   else if(m_lastWifiConnectionState && !m_wifi.connected())
   {
     m_leds.clear();
-
-    m_leds.setAll(Led::ON, Led::RED);
     m_lastWifiConnectionState = false;
+  }
+
+  if(!m_wifi.connected())
+  {
+    m_leds.setAll(Led::ON, Led::RED);
   }
 }
 

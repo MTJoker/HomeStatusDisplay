@@ -1,7 +1,7 @@
 #include "FhemStatusDisplay.h"
 
 static const char* VERSION = "0.1_dev";
-static const char* IDENTIFIER = "StatusDisplay-GroundFloor";
+static const char* IDENTIFIER = "StatusDisplay";
 
 FhemStatusDisplay display;
 

@@ -3,6 +3,23 @@
 #include "FhemStatusDisplayTypes.h"
 #include "Led.h"
 
+#define JSON_KEY_HOST                  (F("host"))
+#define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
+#define JSON_KEY_WIFI_PSK              (F("wifiPSK"))
+#define JSON_KEY_MQTT_SERVER           (F("mqttServer"))
+#define JSON_KEY_MQTT_STATUS_TOPIC     (F("mqttStatusTopic"))
+#define JSON_KEY_MQTT_TEST_TOPIC       (F("mqttTestTopic"))
+#define JSON_KEY_MQTT_WILL_TOPIC       (F("mqttWillTopic"))
+#define JSON_KEY_LED_COUNT             (F("ledCount"))
+#define JSON_KEY_LED_PIN               (F("ledPin"))
+#define JSON_KEY_COLORMAPPING_MSG      (F("msg"))
+#define JSON_KEY_COLORMAPPING_TYPE     (F("type"))
+#define JSON_KEY_COLORMAPPING_COLOR    (F("color"))
+#define JSON_KEY_COLORMAPPING_BEHAVIOR (F("behavior"))
+#define JSON_KEY_DEVICEMAPPING_NAME    (F("name"))
+#define JSON_KEY_DEVICEMAPPING_TYPE    (F("type"))
+#define JSON_KEY_DEVICEMAPPING_LED     (F("led"))
+
 class FhemStatusDisplayConfig
 {
   
@@ -12,7 +29,9 @@ public:
 
   void begin(const char* version, const char* defaultIdentifier);
 
-  void save();
+  void saveMain();
+  void saveColorMapping();
+  void saveDeviceMapping();
 
   const char* getVersion() const;
   bool setVersion(const char* version);
@@ -38,15 +57,24 @@ public:
   const char* getMqttWillTopic() const;
   bool setMqttWillTopic(const char* topic);
 
-  uint32_t getNumberOfLeds() const;
+  int getNumberOfLeds() const;
   bool setNumberOfLeds(uint32_t numberOfLeds);
 
-  uint32_t getLedDataPin() const;
-  bool setLedDataPin(uint32 dataPin);
+  int getLedDataPin() const;
+  bool setLedDataPin(int dataPin);
+
+  int getNumberOfColorMappingEntries() const;
+  const colorMapping* getColorMapping(int index) const;
+
+  int getNumberOfDeviceMappingEntries() const;
+  const deviceMapping* getDeviceMapping(int index) const;
 
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
+  void resetDeviceMappingConfigData();
+  
   bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);
-
+  void resetColorMappingConfigData();
+    
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
   Led::Behavior getLedBehavior(int colorMapIndex);
@@ -54,28 +82,40 @@ public:
 
 private:
 
-  void resetConfigurableData();
-  bool readConfigFile();
-  void writeConfigFile();
-  void createDefaultConfigFile();
+  static const int MAX_SIZE_MAIN_CONFIG = 400;
+  static const int MAX_SIZE_DEVICE_MAPPING_CONFIG = 2000;
+  static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2000;
 
-  static const uint32_t MAX_VERSION_LEN           = 30;
-  static const uint32_t MAX_HOST_LEN              = 30;
-  static const uint32_t MAX_WIFI_SSID_LEN         = 40;
-  static const uint32_t MAX_WIFI_PSK_LEN          = 40;
-  static const uint32_t MAX_MQTT_SERVER_LEN       = 40;
-  static const uint32_t MAX_MQTT_STATUS_TOPIC_LEN = 60;
-  static const uint32_t MAX_MQTT_TEST_TOPIC_LEN   = 60;
-  static const uint32_t MAX_MQTT_WILL_TOPIC_LEN   = 60;
+  void resetMainConfigData();
+  bool readMainConfigFile();
+  void writeMainConfigFile();
+  void createDefaultMainConfigFile();
 
-  static const uint32_t MAX_COLOR_MAP_ENTRIES  = 50;
-  static const uint32_t MAX_DEVICE_MAP_ENTRIES = 50;
+  bool readColorMappingConfigFile();
+  void writeColorMappingConfigFile();
+  void createDefaultColorMappingConfigFile();
+
+  bool readDeviceMappingConfigFile();
+  void writeDeviceMappingConfigFile();
+  void createDefaultDeviceMappingConfigFile();
+
+  static const int MAX_VERSION_LEN           = 20;
+  static const int MAX_HOST_LEN              = 30;
+  static const int MAX_WIFI_SSID_LEN         = 30;
+  static const int MAX_WIFI_PSK_LEN          = 30;
+  static const int MAX_MQTT_SERVER_LEN       = 20;
+  static const int MAX_MQTT_STATUS_TOPIC_LEN = 50;
+  static const int MAX_MQTT_TEST_TOPIC_LEN   = 50;
+  static const int MAX_MQTT_WILL_TOPIC_LEN   = 50;
+
+  static const int MAX_COLOR_MAP_ENTRIES  = 50;
+  static const int MAX_DEVICE_MAP_ENTRIES = 50;
 
   colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
-  uint32_t m_numColorMappingEntries;
+  int m_numColorMappingEntries;
   
   deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
-  uint32_t m_numDeviceMappingEntries;
+  int m_numDeviceMappingEntries;
   
   char m_cfgVersion[MAX_VERSION_LEN + 1];
   char m_cfgHost[MAX_HOST_LEN + 1];
@@ -86,8 +126,7 @@ private:
   char m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN + 1];
   char m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN + 1];
   
-  uint32_t m_cfgNumberOfLeds;
-  uint32_t m_cfgLedDataPin;
-
+  int m_cfgNumberOfLeds;
+  int m_cfgLedDataPin;
 };
 

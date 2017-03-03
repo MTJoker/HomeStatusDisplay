@@ -17,10 +17,15 @@ public:
 private:
 
   void deliverRootPage();
+  void deliverColorMappingPage();
+  void deliverDeviceMappingPage();
   void deliverNotFoundPage();
 
+  String getHeader(const char* title);
   String ip2String(IPAddress ip);
-  bool updateConfig();
+  bool updateMainConfig();
+  bool updateColorMappingConfig();
+  bool updateDeviceMappingConfig();
 
   ESP8266WebServer m_server;
   ESP8266HTTPUpdateServer m_updateServer;
