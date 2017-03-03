@@ -1,6 +1,6 @@
-#include "Led.h"
+#include "HSDLed.h"
 
-Led::Led()
+HSDLed::HSDLed()
 :
 m_behavior(OFF),
 m_color(NONE),
@@ -11,20 +11,20 @@ m_previousMillis(0)
 {
 }
 
-void Led::setOn(Color color)
+void HSDLed::setOn(Color color)
 {
   m_behavior = ON;
   m_color = color;
   m_isOn = true;
 }
 
-void Led::setOff()
+void HSDLed::setOff()
 {
   m_behavior = OFF;
   m_isOn = false;
 }
 
-void Led::setBlinking(Color color)
+void HSDLed::setBlinking(Color color)
 {
   if( (m_behavior != BLINKING) && (m_color != color) ) 
   {
@@ -37,7 +37,7 @@ void Led::setBlinking(Color color)
   }
 }
 
-void Led::setFlashing(Color color)
+void HSDLed::setFlashing(Color color)
 {
   if( (m_behavior != FLASHING) && (m_color != color) ) 
   {
@@ -50,12 +50,12 @@ void Led::setFlashing(Color color)
   }
 }
 
-Led::Color Led::getColor()
+HSDLed::Color HSDLed::getColor()
 {
   return m_isOn ? m_color : NONE;
 }
 
-void Led::update()
+void HSDLed::update()
 {
   if( (m_behavior == BLINKING) || (m_behavior == FLASHING) )
   {

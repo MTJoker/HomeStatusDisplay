@@ -1,4 +1,4 @@
-#include "FhemStatusDisplayConfig.h"
+#include "HSDConfig.h"
 #include <FS.h>
 #include <ArduinoJson.h>
 
@@ -6,7 +6,7 @@
 #define CONFIG_FILE_NAME_DEVICEMAPPING (F( "/devicemapping.json"))
 #define CONFIG_FILE_NAME_COLORMAPPING (F("/colormapping.json"))
 
-FhemStatusDisplayConfig::FhemStatusDisplayConfig()
+HSDConfig::HSDConfig()
 {  
   // reset non-configuraable members
   setVersion("");
@@ -18,7 +18,7 @@ FhemStatusDisplayConfig::FhemStatusDisplayConfig()
   resetDeviceMappingConfigData();
 }
 
-void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIdentifier)
+void HSDConfig::begin(const char* version, const char* defaultIdentifier)
 {
   Serial.println(F(""));
   Serial.println(F("Initializing config."));
@@ -51,7 +51,7 @@ void FhemStatusDisplayConfig::begin(const char* version, const char* defaultIden
   }
 }
 
-void FhemStatusDisplayConfig::resetMainConfigData()
+void HSDConfig::resetMainConfigData()
 {
   setWifiSSID("");
   setWifiPSK("");
@@ -65,7 +65,7 @@ void FhemStatusDisplayConfig::resetMainConfigData()
   setLedDataPin(0);
 }
 
-void FhemStatusDisplayConfig::resetColorMappingConfigData()
+void HSDConfig::resetColorMappingConfigData()
 {
   Serial.println(F("Deleting color mapping config data."));
   
@@ -74,7 +74,7 @@ void FhemStatusDisplayConfig::resetColorMappingConfigData()
   m_numColorMappingEntries = 0;
 }
 
-void FhemStatusDisplayConfig::resetDeviceMappingConfigData()
+void HSDConfig::resetDeviceMappingConfigData()
 {
   Serial.println(F("Deleting device mapping config data."));
   
@@ -83,28 +83,28 @@ void FhemStatusDisplayConfig::resetDeviceMappingConfigData()
   m_numDeviceMappingEntries = 0;  
 }
 
-void FhemStatusDisplayConfig::createDefaultMainConfigFile()
+void HSDConfig::createDefaultMainConfigFile()
 {
   Serial.println(F("Creating default main config file."));
   resetMainConfigData();
   writeMainConfigFile();
 }
 
-void FhemStatusDisplayConfig::createDefaultColorMappingConfigFile()
+void HSDConfig::createDefaultColorMappingConfigFile()
 {
   Serial.println(F("Creating default color mapping config file."));
   resetColorMappingConfigData();
   writeColorMappingConfigFile();
 }
 
-void FhemStatusDisplayConfig::createDefaultDeviceMappingConfigFile()
+void HSDConfig::createDefaultDeviceMappingConfigFile()
 {
   Serial.println(F("Creating default device mapping config file."));
   resetDeviceMappingConfigData();
   writeDeviceMappingConfigFile();
 }
 
-bool FhemStatusDisplayConfig::readMainConfigFile()
+bool HSDConfig::readMainConfigFile()
 {
   bool success = false;
   
@@ -175,7 +175,7 @@ bool FhemStatusDisplayConfig::readMainConfigFile()
   return success;
 }
 
-bool FhemStatusDisplayConfig::readColorMappingConfigFile()
+bool HSDConfig::readColorMappingConfigFile()
 {
   bool success = false;
   
@@ -216,8 +216,8 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
           {
             addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].asString(), 
                                  (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
-                                 (Led::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
-                                 (Led::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
+                                 (HSDLed::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
+                                 (HSDLed::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
           }
           else
           {
@@ -245,7 +245,7 @@ bool FhemStatusDisplayConfig::readColorMappingConfigFile()
   return success;
 }
 
-bool FhemStatusDisplayConfig::readDeviceMappingConfigFile()
+bool HSDConfig::readDeviceMappingConfigFile()
 {
   bool success = false;
   
@@ -314,7 +314,7 @@ bool FhemStatusDisplayConfig::readDeviceMappingConfigFile()
   return success;
 }
 
-void FhemStatusDisplayConfig::writeMainConfigFile()
+void HSDConfig::writeMainConfigFile()
 {
   Serial.println(F("Writing main config file."));  
 
@@ -347,7 +347,7 @@ void FhemStatusDisplayConfig::writeMainConfigFile()
   configFile.close();
 }
 
-void FhemStatusDisplayConfig::writeColorMappingConfigFile()
+void HSDConfig::writeColorMappingConfigFile()
 {
   Serial.println(F("Writing color mapping config file."));  
 
@@ -380,7 +380,7 @@ void FhemStatusDisplayConfig::writeColorMappingConfigFile()
   configFile.close();  
 }
 
-void FhemStatusDisplayConfig::writeDeviceMappingConfigFile()
+void HSDConfig::writeDeviceMappingConfigFile()
 {
   Serial.println(F("Writing device mapping config file."));  
 
@@ -412,22 +412,22 @@ void FhemStatusDisplayConfig::writeDeviceMappingConfigFile()
   configFile.close();  
 }
 
-void FhemStatusDisplayConfig::saveMain()
+void HSDConfig::saveMain()
 {
   writeMainConfigFile();
 }
 
-void FhemStatusDisplayConfig::saveColorMapping()
+void HSDConfig::saveColorMapping()
 {
   writeColorMappingConfigFile();
 }
 
-void FhemStatusDisplayConfig::saveDeviceMapping()
+void HSDConfig::saveDeviceMapping()
 {
   writeDeviceMappingConfigFile();
 }
 
-bool FhemStatusDisplayConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
+bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
 {
   bool success = false;
 
@@ -448,7 +448,7 @@ bool FhemStatusDisplayConfig::addDeviceMappingEntry(String name, deviceType type
   return success;
 }
 
-bool FhemStatusDisplayConfig::addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior)
+bool HSDConfig::addColorMappingEntry(String msg, deviceType type, HSDLed::Color color, HSDLed::Behavior behavior)
 {
   bool success = false;
 
@@ -470,130 +470,130 @@ bool FhemStatusDisplayConfig::addColorMappingEntry(String msg, deviceType type, 
   return success;  
 }
 
-const char* FhemStatusDisplayConfig::getHost() const
+const char* HSDConfig::getHost() const
 {
   return m_cfgHost;
 }
 
-bool FhemStatusDisplayConfig::setHost(const char* host)
+bool HSDConfig::setHost(const char* host)
 {
   strncpy(m_cfgHost, host, MAX_HOST_LEN);
   m_cfgHost[MAX_HOST_LEN] = '\0';
   return true;
 }
 
-const char* FhemStatusDisplayConfig::getVersion() const
+const char* HSDConfig::getVersion() const
 {
   return m_cfgVersion;
 }
 
-bool FhemStatusDisplayConfig::setVersion(const char* version)
+bool HSDConfig::setVersion(const char* version)
 {
   strncpy(m_cfgVersion, version, MAX_VERSION_LEN);
   m_cfgVersion[MAX_VERSION_LEN] = '\0';
   return true;
 }
 
-const char* FhemStatusDisplayConfig::getWifiSSID() const
+const char* HSDConfig::getWifiSSID() const
 {
   return m_cfgWifiSSID;
 }
 
-bool FhemStatusDisplayConfig::setWifiSSID(const char* ssid)
+bool HSDConfig::setWifiSSID(const char* ssid)
 {
   strncpy(m_cfgWifiSSID, ssid, MAX_WIFI_SSID_LEN);
   m_cfgWifiSSID[MAX_WIFI_SSID_LEN] = '\0';
   return true;
 }
 
-const char* FhemStatusDisplayConfig::getWifiPSK() const
+const char* HSDConfig::getWifiPSK() const
 {
   return m_cfgWifiPSK;
 }
 
-bool FhemStatusDisplayConfig::setWifiPSK(const char* psk)
+bool HSDConfig::setWifiPSK(const char* psk)
 {
   strncpy(m_cfgWifiPSK, psk, MAX_WIFI_PSK_LEN);
   m_cfgWifiPSK[MAX_WIFI_PSK_LEN] = '\0';
   return true;
 }
 
-const char* FhemStatusDisplayConfig::getMqttServer() const
+const char* HSDConfig::getMqttServer() const
 {
   return m_cfgMqttServer;
 }
 
-bool FhemStatusDisplayConfig::setMqttServer(const char* ip)
+bool HSDConfig::setMqttServer(const char* ip)
 {
   strncpy(m_cfgMqttServer, ip, MAX_MQTT_SERVER_LEN);
   m_cfgMqttServer[MAX_MQTT_SERVER_LEN] = '\0';
   return true;
 }
 
-const char* FhemStatusDisplayConfig::getMqttStatusTopic() const
+const char* HSDConfig::getMqttStatusTopic() const
 {
   return m_cfgMqttStatusTopic;
 }
 
-bool FhemStatusDisplayConfig::setMqttStatusTopic(const char* topic)
+bool HSDConfig::setMqttStatusTopic(const char* topic)
 {
   strncpy(m_cfgMqttStatusTopic, topic, MAX_MQTT_STATUS_TOPIC_LEN);
   m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN] = '\0';
   return true;
 }
 
-const char* FhemStatusDisplayConfig::getMqttTestTopic() const
+const char* HSDConfig::getMqttTestTopic() const
 {
   return m_cfgMqttTestTopic;
 }
 
-bool FhemStatusDisplayConfig::setMqttTestTopic(const char* topic)
+bool HSDConfig::setMqttTestTopic(const char* topic)
 {
   strncpy(m_cfgMqttTestTopic, topic, MAX_MQTT_TEST_TOPIC_LEN);
   m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
   return true;
 }
 
-int FhemStatusDisplayConfig::getNumberOfLeds() const
+int HSDConfig::getNumberOfLeds() const
 {
   return m_cfgNumberOfLeds;
 }
 
-const char* FhemStatusDisplayConfig::getMqttWillTopic() const
+const char* HSDConfig::getMqttWillTopic() const
 {
   return m_cfgMqttWillTopic;
 }
 
-bool FhemStatusDisplayConfig::setMqttWillTopic(const char* topic)
+bool HSDConfig::setMqttWillTopic(const char* topic)
 {
   strncpy(m_cfgMqttWillTopic, topic, MAX_MQTT_WILL_TOPIC_LEN);
   m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN] = '\0';
   return true;
 }
 
-bool FhemStatusDisplayConfig::setNumberOfLeds(uint32_t numberOfLeds)
+bool HSDConfig::setNumberOfLeds(uint32_t numberOfLeds)
 {
   m_cfgNumberOfLeds = numberOfLeds;
   return true;
 }
 
-int FhemStatusDisplayConfig::getLedDataPin() const
+int HSDConfig::getLedDataPin() const
 {
   return m_cfgLedDataPin;
 }
 
-bool FhemStatusDisplayConfig::setLedDataPin(int dataPin)
+bool HSDConfig::setLedDataPin(int dataPin)
 {
   m_cfgLedDataPin = dataPin;
   return true;
 }
 
-int FhemStatusDisplayConfig::getNumberOfColorMappingEntries() const
+int HSDConfig::getNumberOfColorMappingEntries() const
 {
   return m_numColorMappingEntries;
 }
 
-const colorMapping* FhemStatusDisplayConfig::getColorMapping(int index) const
+const HSDConfig::colorMapping* HSDConfig::getColorMapping(int index) const
 {
   const colorMapping* mapping = NULL;
 
@@ -605,12 +605,12 @@ const colorMapping* FhemStatusDisplayConfig::getColorMapping(int index) const
   return mapping;
 }
 
-int FhemStatusDisplayConfig::getNumberOfDeviceMappingEntries() const
+int HSDConfig::getNumberOfDeviceMappingEntries() const
 {
   return m_numDeviceMappingEntries;
 }
 
-const deviceMapping* FhemStatusDisplayConfig::getDeviceMapping(int index) const
+const HSDConfig::deviceMapping* HSDConfig::getDeviceMapping(int index) const
 {
   const deviceMapping* mapping = NULL;
 
@@ -622,7 +622,7 @@ const deviceMapping* FhemStatusDisplayConfig::getDeviceMapping(int index) const
   return mapping;
 }
 
-int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceType)
+int HSDConfig::getLedNumber(String deviceName, deviceType deviceType)
 {
   int number = -1;
 
@@ -638,7 +638,7 @@ int FhemStatusDisplayConfig::getLedNumber(String deviceName, deviceType deviceTy
   return number;
 }
 
-int FhemStatusDisplayConfig::getColorMapIndex(deviceType deviceType, String msg)
+int HSDConfig::getColorMapIndex(deviceType deviceType, String msg)
 {
   int index = -1;
 
@@ -654,12 +654,12 @@ int FhemStatusDisplayConfig::getColorMapIndex(deviceType deviceType, String msg)
   return index;
 }
 
-Led::Behavior FhemStatusDisplayConfig::getLedBehavior(int colorMapIndex)
+HSDLed::Behavior HSDConfig::getLedBehavior(int colorMapIndex)
 {
   return m_cfgColorMapping[colorMapIndex].behavior;
 }
 
-Led::Color FhemStatusDisplayConfig::getLedColor(int colorMapIndex)
+HSDLed::Color HSDConfig::getLedColor(int colorMapIndex)
 {
   return m_cfgColorMapping[colorMapIndex].color;
 }

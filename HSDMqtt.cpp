@@ -1,6 +1,6 @@
-#include "MQTTHandler.h"
+#include "HSDMqtt.h"
 
-MQTTHandler::MQTTHandler(const FhemStatusDisplayConfig& config, MQTT_CALLBACK_SIGNATURE)
+HSDMqtt::HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE)
 :
 m_config(config),
 m_pubSubClient(m_wifiClient),
@@ -9,7 +9,7 @@ m_lastReconnectAttempt(0)
   m_pubSubClient.setCallback(callback);
 }
 
-void MQTTHandler::begin()
+void HSDMqtt::begin()
 {
   Serial.println("");
   Serial.print(F("Initializing MQTT connection to "));
@@ -22,7 +22,7 @@ void MQTTHandler::begin()
   m_pubSubClient.setServer(m_config.getMqttServer(), 1883);  
 }
 
-void MQTTHandler::initTopics()
+void HSDMqtt::initTopics()
 {
   for(uint32_t index = 0; index < MAX_IN_TOPICS; index++)
   {
@@ -32,7 +32,7 @@ void MQTTHandler::initTopics()
   m_numberOfInTopics = 0;
 }
 
-void MQTTHandler::handle()
+void HSDMqtt::handle()
 {
   if (!m_pubSubClient.connected()) 
   {
@@ -53,12 +53,12 @@ void MQTTHandler::handle()
   }
 }
 
-bool MQTTHandler::connected()
+bool HSDMqtt::connected()
 {
   return m_pubSubClient.connected();
 }
 
-bool MQTTHandler::reconnect()
+bool HSDMqtt::reconnect()
 {
   // Create a random client ID
   String clientId = "ESP8266Client-";
@@ -87,7 +87,7 @@ bool MQTTHandler::reconnect()
   return m_pubSubClient.connected();
 }
 
-void MQTTHandler::subscribe(const char* topic)
+void HSDMqtt::subscribe(const char* topic)
 {
   if(topic)
   {
@@ -102,7 +102,7 @@ void MQTTHandler::subscribe(const char* topic)
   }
 }
 
-void MQTTHandler::publish(String topic, String msg)
+void HSDMqtt::publish(String topic, String msg)
 {
   if(m_pubSubClient.publish(topic.c_str(), msg.c_str()))
   {
@@ -114,7 +114,7 @@ void MQTTHandler::publish(String topic, String msg)
   }
 }
 
-bool MQTTHandler::addTopic(const char* topic)
+bool HSDMqtt::addTopic(const char* topic)
 {
   bool success = false;
   

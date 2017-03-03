@@ -1,7 +1,6 @@
 #pragma once
 
-#include "FhemStatusDisplayTypes.h"
-#include "Led.h"
+#include "HSDLed.h"
 
 #define JSON_KEY_HOST                  (F("host"))
 #define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
@@ -20,12 +19,51 @@
 #define JSON_KEY_DEVICEMAPPING_TYPE    (F("type"))
 #define JSON_KEY_DEVICEMAPPING_LED     (F("led"))
 
-class FhemStatusDisplayConfig
+class HSDConfig
 {
   
 public:
 
-  FhemStatusDisplayConfig();
+  static const int MAX_DEVICE_MAPPING_NAME_LEN = 30;
+  static const int MAX_COLOR_MAPPING_MSG_LEN = 20;
+  
+  /*
+   * Enum which defines the types of devices which can send messages.
+   * If the same message (e.g. "on") can be received from different types
+   * of devices (e.g. light and alarm), different reaction can be done.
+   */
+  enum deviceType
+  {
+    TYPE_WINDOW,
+    TYPE_DOOR,
+    TYPE_LIGHT,
+    TYPE_ALARM
+  };
+
+  /*
+   * This struct is used for mapping a device of a specific device type 
+   * to a led number, that means a specific position on the led stripe
+   */
+  struct deviceMapping
+  {
+    char name[MAX_DEVICE_MAPPING_NAME_LEN]; // name of the device
+    deviceType type;                        // type of the device
+    int ledNumber;                          // led number on which reactions for this device are displayed
+  };
+  
+  /*
+   * This struct is used for mapping a message for a specific device
+   * type to a led behavior (see LedSwitcher::ledState).
+   */
+  struct colorMapping
+  {
+    char msg[MAX_COLOR_MAPPING_MSG_LEN+1];  // message 
+    deviceType type;                        // type of the device
+    HSDLed::Color color;                       // led color for message from device type
+    HSDLed::Behavior behavior;                 // led behavior for message from device type
+  };
+
+  HSDConfig();
 
   void begin(const char* version, const char* defaultIdentifier);
 
@@ -72,13 +110,13 @@ public:
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   void resetDeviceMappingConfigData();
   
-  bool addColorMappingEntry(String msg, deviceType type, Led::Color color, Led::Behavior behavior);
+  bool addColorMappingEntry(String msg, deviceType type, HSDLed::Color color, HSDLed::Behavior behavior);
   void resetColorMappingConfigData();
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
-  Led::Behavior getLedBehavior(int colorMapIndex);
-  Led::Color getLedColor(int colorMapIndex);
+  HSDLed::Behavior getLedBehavior(int colorMapIndex);
+  HSDLed::Color getLedColor(int colorMapIndex);
 
 private:
 

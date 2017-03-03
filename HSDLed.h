@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-class Led
+class HSDLed
 {
 public:
 
@@ -24,7 +24,7 @@ public:
     WHITE  = 0x0F0F0F
   };
 
-  Led();
+  HSDLed();
   void setOn(Color color);
   void setOff();
   void setBlinking(Color color);

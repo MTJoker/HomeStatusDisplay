@@ -1,10 +1,10 @@
-#include "FhemStatusDisplayWifi.h"
+#include "HSDWifi.h"
 #include <ESP8266WiFi.h>
 
 #define SOFT_AP_SSID  (F("StatusDisplay"))
 #define SOFT_AP_PSK   (F("statusdisplay"))
 
-FhemStatusDisplayWifi::FhemStatusDisplayWifi(const FhemStatusDisplayConfig& config)
+HSDWifi::HSDWifi(const HSDConfig& config)
 :
 m_config(config),
 m_connectFailure(false),
@@ -16,12 +16,12 @@ m_millisLastConnectTry(0)
   
 }
 
-void FhemStatusDisplayWifi::begin()
+void HSDWifi::begin()
 {
   // nothing to do right now
 }
 
-void FhemStatusDisplayWifi::handleConnection()
+void HSDWifi::handleConnection()
 {
   if(!connected()) // TODO: check access point running
   {  
@@ -73,12 +73,12 @@ void FhemStatusDisplayWifi::handleConnection()
   }
 }
 
-bool FhemStatusDisplayWifi::connected()
+bool HSDWifi::connected()
 {
   return (WiFi.status() == WL_CONNECTED);
 }
 
-void FhemStatusDisplayWifi::startAccessPoint()
+void HSDWifi::startAccessPoint()
 {
   Serial.println(F(""));
   Serial.println(F("Starting access point."));

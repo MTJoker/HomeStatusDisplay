@@ -1,14 +1,15 @@
-#include "StatusDisplayLeds.h"
-#include "FhemStatusDisplayTypes.h"
+#include "HSDLeds.h"
 
-StatusDisplayLeds::StatusDisplayLeds(const FhemStatusDisplayConfig& config)
+#define NUMBER_OF_ELEMENTS(array)  (sizeof(array)/sizeof(array[0]))
+
+HSDLeds::HSDLeds(const HSDConfig& config)
 :
 m_config(config)
 {
 
 }
 
-StatusDisplayLeds::~StatusDisplayLeds()
+HSDLeds::~HSDLeds()
 {
   if(m_pLeds)
   {
@@ -16,10 +17,10 @@ StatusDisplayLeds::~StatusDisplayLeds()
   }
 }
 
-void StatusDisplayLeds::begin()
+void HSDLeds::begin()
 {
   m_numLeds = m_config.getNumberOfLeds();
-  m_pLeds = new Led[m_numLeds];
+  m_pLeds = new HSDLed[m_numLeds];
 
   m_stripe.setPin(m_config.getLedDataPin());
   m_stripe.updateLength(m_numLeds);
@@ -29,23 +30,23 @@ void StatusDisplayLeds::begin()
   m_stripe.begin();
 }
 
-void StatusDisplayLeds::set(uint32_t ledNum, Led::Behavior behavior, Led::Color color)
+void HSDLeds::set(uint32_t ledNum, HSDLed::Behavior behavior, HSDLed::Color color)
 { 
   if(ledNum < m_numLeds)
   {
-    if(behavior == Led::ON)
+    if(behavior == HSDLed::ON)
     {
       m_pLeds[ledNum].setOn(color);
     }
-    else if(behavior == Led::OFF)
+    else if(behavior == HSDLed::OFF)
     {
       m_pLeds[ledNum].setOff();
     }
-    else if(behavior == Led::BLINKING)
+    else if(behavior == HSDLed::BLINKING)
     {
       m_pLeds[ledNum].setBlinking(color);
     }
-    else if(behavior == Led::FLASHING)
+    else if(behavior == HSDLed::FLASHING)
     {
       m_pLeds[ledNum].setFlashing(color);
     }
@@ -54,7 +55,7 @@ void StatusDisplayLeds::set(uint32_t ledNum, Led::Behavior behavior, Led::Color 
   }
 }
 
-void StatusDisplayLeds::setAll(Led::Behavior behavior, Led::Color color)
+void HSDLeds::setAll(HSDLed::Behavior behavior, HSDLed::Color color)
 {
   for(uint32_t i=0; i < m_numLeds; i++)
   {
@@ -64,7 +65,7 @@ void StatusDisplayLeds::setAll(Led::Behavior behavior, Led::Color color)
   updateStripe();
 }
 
-void StatusDisplayLeds::updateStripe()
+void HSDLeds::updateStripe()
 {
   for(uint32_t i=0; i < m_numLeds; i++)
   {
@@ -74,7 +75,7 @@ void StatusDisplayLeds::updateStripe()
   m_stripe.show();
 }
 
-void StatusDisplayLeds::clear()
+void HSDLeds::clear()
 {
   for(uint32_t i=0; i < m_numLeds; i++)
   {
@@ -84,7 +85,7 @@ void StatusDisplayLeds::clear()
   updateStripe();
 }
 
-void StatusDisplayLeds::update()
+void HSDLeds::update()
 {
   for(uint32_t i=0; i < m_numLeds; i++)
   {
@@ -94,7 +95,7 @@ void StatusDisplayLeds::update()
   updateStripe();
 }
 
-void StatusDisplayLeds::test(uint32_t type)
+void HSDLeds::test(uint32_t type)
 {
   clear();
 
@@ -102,7 +103,7 @@ void StatusDisplayLeds::test(uint32_t type)
   {
     for(uint32_t led = 0; led < m_numLeds/3; led++)
     {
-      m_pLeds[led].setOn(Led::GREEN);
+      m_pLeds[led].setOn(HSDLed::GREEN);
     }
     updateStripe();
   }
@@ -110,7 +111,7 @@ void StatusDisplayLeds::test(uint32_t type)
   {
     for(uint32_t led = m_numLeds/3; led < m_numLeds/3*2; led++)
     {
-      m_pLeds[led].setOn(Led::GREEN);
+      m_pLeds[led].setOn(HSDLed::GREEN);
     }
     updateStripe();
   }
@@ -118,13 +119,13 @@ void StatusDisplayLeds::test(uint32_t type)
   {
     for(uint32_t led = m_numLeds/3*2; led < m_numLeds; led++)
     {
-      m_pLeds[led].setOn(Led::GREEN);
+      m_pLeds[led].setOn(HSDLed::GREEN);
     }
     updateStripe();
   }
   else if(type == 4)
   {
-    Led::Color colors[] = {Led::RED, Led::GREEN, Led::BLUE};
+    HSDLed::Color colors[] = {HSDLed::RED, HSDLed::GREEN, HSDLed::BLUE};
 
     for(uint32_t led = 0; led < m_numLeds/3; led++)
     {

@@ -1,9 +1,9 @@
-#include "FhemStatusDisplayWebServer.h"
+#include "HSDWebserver.h"
 
 #define SELECTED_STRING (F("selected ='selected'"))
 #define EMPTY_STRING    (F(""))
 
-FhemStatusDisplayWebServer::FhemStatusDisplayWebServer(FhemStatusDisplayConfig& config)
+HSDWebserver::HSDWebserver(HSDConfig& config)
 :
 m_server(80),
 m_config(config)
@@ -11,25 +11,25 @@ m_config(config)
   m_updateServer.setup(&m_server);
 }
 
-void FhemStatusDisplayWebServer::begin()
+void HSDWebserver::begin()
 {
   Serial.println(F(""));
   Serial.println(F("Starting WebServer."));
 
   m_server.begin();
 
-  m_server.on("/", std::bind(&FhemStatusDisplayWebServer::deliverRootPage, this));
-  m_server.on("/colormapping", std::bind(&FhemStatusDisplayWebServer::deliverColorMappingPage, this));
-  m_server.on("/devicemapping", std::bind(&FhemStatusDisplayWebServer::deliverDeviceMappingPage, this));
-  m_server.onNotFound(std::bind(&FhemStatusDisplayWebServer::deliverNotFoundPage, this));
+  m_server.on("/", std::bind(&HSDWebserver::deliverRootPage, this));
+  m_server.on("/colormapping", std::bind(&HSDWebserver::deliverColorMappingPage, this));
+  m_server.on("/devicemapping", std::bind(&HSDWebserver::deliverDeviceMappingPage, this));
+  m_server.onNotFound(std::bind(&HSDWebserver::deliverNotFoundPage, this));
 }
 
-void FhemStatusDisplayWebServer::handleClient()
+void HSDWebserver::handleClient()
 {
   m_server.handleClient();
 }
 
-String FhemStatusDisplayWebServer::getHeader(const char* title)
+String HSDWebserver::getHeader(const char* title)
 {
   String header;
   header.reserve(400);
@@ -56,7 +56,7 @@ String FhemStatusDisplayWebServer::getHeader(const char* title)
   return header;
 }
 
-void FhemStatusDisplayWebServer::deliverRootPage()
+void HSDWebserver::deliverRootPage()
 {
   bool needSave = updateMainConfig();
   
@@ -203,7 +203,7 @@ void FhemStatusDisplayWebServer::deliverRootPage()
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
-void FhemStatusDisplayWebServer::deliverColorMappingPage()
+void HSDWebserver::deliverColorMappingPage()
 {
   bool needSave = updateColorMappingConfig();
   
@@ -225,26 +225,26 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
 
   for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
   {
-    const colorMapping* mapping = m_config.getColorMapping(i);
+    const HSDConfig::colorMapping* mapping = m_config.getColorMapping(i);
 
     if(mapping)
     {
-      String windowSelect = (mapping->type == TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
-      String doorSelect   = (mapping->type == TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
-      String lightSelect  = (mapping->type == TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
-      String alarmSelect  = (mapping->type == TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;
+      String windowSelect = (mapping->type == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
+      String doorSelect   = (mapping->type == HSDConfig::TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
+      String lightSelect  = (mapping->type == HSDConfig::TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
+      String alarmSelect  = (mapping->type == HSDConfig::TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;
       
-      String noneSelect   = (mapping->color == Led::NONE)   ? SELECTED_STRING : EMPTY_STRING;
-      String redSelect    = (mapping->color == Led::RED)    ? SELECTED_STRING : EMPTY_STRING;
-      String greenSelect  = (mapping->color == Led::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
-      String blueSelect   = (mapping->color == Led::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
-      String yellowSelect = (mapping->color == Led::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
-      String whiteSelect  = (mapping->color == Led::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
+      String noneSelect   = (mapping->color == HSDLed::NONE)   ? SELECTED_STRING : EMPTY_STRING;
+      String redSelect    = (mapping->color == HSDLed::RED)    ? SELECTED_STRING : EMPTY_STRING;
+      String greenSelect  = (mapping->color == HSDLed::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
+      String blueSelect   = (mapping->color == HSDLed::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
+      String yellowSelect = (mapping->color == HSDLed::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
+      String whiteSelect  = (mapping->color == HSDLed::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
 
-      String onSelect       = (mapping->behavior == Led::ON)       ? SELECTED_STRING : EMPTY_STRING;
-      String offSelect      = (mapping->behavior == Led::OFF)      ? SELECTED_STRING : EMPTY_STRING;
-      String blinkingSelect = (mapping->behavior == Led::BLINKING) ? SELECTED_STRING : EMPTY_STRING;
-      String flashingSelect = (mapping->behavior == Led::FLASHING) ? SELECTED_STRING : EMPTY_STRING;
+      String onSelect       = (mapping->behavior == HSDLed::ON)       ? SELECTED_STRING : EMPTY_STRING;
+      String offSelect      = (mapping->behavior == HSDLed::OFF)      ? SELECTED_STRING : EMPTY_STRING;
+      String blinkingSelect = (mapping->behavior == HSDLed::BLINKING) ? SELECTED_STRING : EMPTY_STRING;
+      String flashingSelect = (mapping->behavior == HSDLed::FLASHING) ? SELECTED_STRING : EMPTY_STRING;
 
       String name     = "n" + String(i);
       String type     = "t" + String(i);
@@ -260,28 +260,28 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
       html += F("<td><select name='");
       html += type;
       html += F("'>");
-      html += F("<option "); html += windowSelect; html += F(" value='"); html += TYPE_WINDOW; html += F("'>Window</option>");
-      html += F("<option "); html += doorSelect;   html += F("value='");  html += TYPE_DOOR;   html += F("'>Door</option>");
-      html += F("<option "); html += lightSelect;  html += F("value='");  html += TYPE_LIGHT;  html += F("'>Light</option>");
-      html += F("<option "); html += alarmSelect;  html += F("value='");  html += TYPE_ALARM;  html += F("'>Alarm</option>");
+      html += F("<option "); html += windowSelect; html += F(" value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
+      html += F("<option "); html += doorSelect;   html += F("value='");  html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
+      html += F("<option "); html += lightSelect;  html += F("value='");  html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
+      html += F("<option "); html += alarmSelect;  html += F("value='");  html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
       html += F("</select></td>");
       html += F("<td><select name='");
       html += color;
       html += F("'>");
-      html += F("<option "); html += noneSelect;   html += F(" value='"); html += Led::NONE;   html += F("'>None</option>");
-      html += F("<option "); html += redSelect;    html += F(" value='"); html += Led::RED;    html += F("'>Red</option>");
-      html += F("<option "); html += greenSelect;  html += F(" value='"); html += Led::GREEN;  html += F("'>Green</option>");
-      html += F("<option "); html += blueSelect;   html += F(" value='"); html += Led::BLUE;   html += F("'>Blue</option>");
-      html += F("<option "); html += yellowSelect; html += F(" value='"); html += Led::YELLOW; html += F("'>Yellow</option>");
-      html += F("<option "); html += whiteSelect;  html += F(" value='"); html += Led::WHITE;  html += F("'>White</option>");
+      html += F("<option "); html += noneSelect;   html += F(" value='"); html += HSDLed::NONE;   html += F("'>None</option>");
+      html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDLed::RED;    html += F("'>Red</option>");
+      html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDLed::GREEN;  html += F("'>Green</option>");
+      html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDLed::BLUE;   html += F("'>Blue</option>");
+      html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDLed::YELLOW; html += F("'>Yellow</option>");
+      html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDLed::WHITE;  html += F("'>White</option>");
       html += F("</select></td>");
       html += F("<td><select name='");
       html += behavior;
       html += F("'>");
-      html += F("<option "); html += onSelect;       html += F(" value='"); html += Led::ON;       html += F("'>On</option>");
-      html += F("<option "); html += offSelect ;     html += F(" value='"); html += Led::OFF;      html += F("'>Off</option>");
-      html += F("<option "); html += blinkingSelect; html += F(" value='"); html += Led::BLINKING; html += F("'>Blinking</option>");
-      html += F("<option "); html += flashingSelect; html += F(" value='"); html += Led::FLASHING; html += F("'>Flashing</option>");
+      html += F("<option "); html += onSelect;       html += F(" value='"); html += HSDLed::ON;       html += F("'>On</option>");
+      html += F("<option "); html += offSelect ;     html += F(" value='"); html += HSDLed::OFF;      html += F("'>Off</option>");
+      html += F("<option "); html += blinkingSelect; html += F(" value='"); html += HSDLed::BLINKING; html += F("'>Blinking</option>");
+      html += F("<option "); html += flashingSelect; html += F(" value='"); html += HSDLed::FLASHING; html += F("'>Flashing</option>");
       html += F("</select></td></tr>");
     }
   }
@@ -299,28 +299,28 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   html += F("<td><select name='");
   html += type;
   html += F("'>");
-  html += F("<option value='"); html += TYPE_WINDOW; html += F("'>Window</option>");
-  html += F("<option value='"); html += TYPE_DOOR;   html += F("'>Door</option>");
-  html += F("<option value='"); html += TYPE_LIGHT;  html += F("'>Light</option>");
-  html += F("<option value='"); html += TYPE_ALARM;  html += F("'>Alarm</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
   html += F("</select></td>");
   html += F("<td><select name='");
   html += color;
   html += F("'>");
-  html += F("<option value='"); html += Led::NONE;   html += F("'>None</option>");
-  html += F("<option value='"); html += Led::RED;    html += F("'>Red</option>");
-  html += F("<option value='"); html += Led::GREEN;  html += F("'>Green</option>");
-  html += F("<option value='"); html += Led::BLUE;   html += F("'>Blue</option>");
-  html += F("<option value='"); html += Led::YELLOW; html += F("'>Yellow</option>");
-  html += F("<option value='"); html += Led::WHITE;  html += F("'>White</option>");
+  html += F("<option value='"); html += HSDLed::NONE;   html += F("'>None</option>");
+  html += F("<option value='"); html += HSDLed::RED;    html += F("'>Red</option>");
+  html += F("<option value='"); html += HSDLed::GREEN;  html += F("'>Green</option>");
+  html += F("<option value='"); html += HSDLed::BLUE;   html += F("'>Blue</option>");
+  html += F("<option value='"); html += HSDLed::YELLOW; html += F("'>Yellow</option>");
+  html += F("<option value='"); html += HSDLed::WHITE;  html += F("'>White</option>");
   html += F("</select></td>");
   html += F("<td><select name='");
   html += behavior;
   html += F("'>");
-  html += F("<option value='"); html += Led::ON;       html += F("'>On</option>");
-  html += F("<option value='"); html += Led::OFF;      html += F("'>Off</option>");
-  html += F("<option value='"); html += Led::BLINKING; html += F("'>Blinking</option>");
-  html += F("<option value='"); html += Led::FLASHING; html += F("'>Flashing</option>");
+  html += F("<option value='"); html += HSDLed::ON;       html += F("'>On</option>");
+  html += F("<option value='"); html += HSDLed::OFF;      html += F("'>Off</option>");
+  html += F("<option value='"); html += HSDLed::BLINKING; html += F("'>Blinking</option>");
+  html += F("<option value='"); html += HSDLed::FLASHING; html += F("'>Flashing</option>");
   html += F("</select></td></tr>");
   
   html += F(""
@@ -346,7 +346,7 @@ void FhemStatusDisplayWebServer::deliverColorMappingPage()
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
-void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
+void HSDWebserver::deliverDeviceMappingPage()
 {
   bool needSave = updateDeviceMappingConfig();
   
@@ -364,14 +364,14 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   
   for(uint32_t i = 0; i < m_config.getNumberOfDeviceMappingEntries(); i++)
   {
-    const deviceMapping* mapping = m_config.getDeviceMapping(i);
+    const HSDConfig::deviceMapping* mapping = m_config.getDeviceMapping(i);
 
     if(mapping)
     {
-      String windowSelect = (mapping->type == TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
-      String doorSelect   = (mapping->type == TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
-      String lightSelect  = (mapping->type == TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
-      String alarmSelect  = (mapping->type == TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;   
+      String windowSelect = (mapping->type == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
+      String doorSelect   = (mapping->type == HSDConfig::TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
+      String lightSelect  = (mapping->type == HSDConfig::TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
+      String alarmSelect  = (mapping->type == HSDConfig::TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;   
 
       String name = "n" + String(i);
       String type = "t" + String(i);
@@ -386,10 +386,10 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
       html += F("<td><select name='");
       html += type;
       html += F("'>");
-      html += F("<option "); html += windowSelect; html += F(" value='"); html += TYPE_WINDOW; html += F("'>Window</option>");
-      html += F("<option "); html += doorSelect;   html += F("value='");  html += TYPE_DOOR;   html += F("'>Door</option>");
-      html += F("<option "); html += lightSelect;  html += F("value='");  html += TYPE_LIGHT;  html += F("'>Light</option>");
-      html += F("<option "); html += alarmSelect;  html += F("value='");  html += TYPE_ALARM;  html += F("'>Alarm</option>");
+      html += F("<option "); html += windowSelect; html += F(" value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
+      html += F("<option "); html += doorSelect;   html += F("value='");  html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
+      html += F("<option "); html += lightSelect;  html += F("value='");  html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
+      html += F("<option "); html += alarmSelect;  html += F("value='");  html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
       html += F("</select></td>");
       html += F("<td><input type='text' id='led' name='");
       html += led;
@@ -411,10 +411,10 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   html += F("<td><select name='");
   html += type;
   html += F("'>");
-  html += F("<option value='"); html += TYPE_WINDOW; html += F("'>Window</option>");
-  html += F("<option value='"); html += TYPE_DOOR;   html += F("'>Door</option>");
-  html += F("<option value='"); html += TYPE_LIGHT;  html += F("'>Light</option>");
-  html += F("<option value='"); html += TYPE_ALARM;  html += F("'>Alarm</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
+  html += F("<option value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
   html += F("</select></td>");
   html += F("<td><input type='text' id='led' name='");
   html += led;
@@ -442,7 +442,7 @@ void FhemStatusDisplayWebServer::deliverDeviceMappingPage()
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
-void FhemStatusDisplayWebServer::deliverNotFoundPage()
+void HSDWebserver::deliverNotFoundPage()
 {
   String html = F("File Not Found\n\n");
   html += F("URI: ");
@@ -461,7 +461,7 @@ void FhemStatusDisplayWebServer::deliverNotFoundPage()
   m_server.send(404, F("text/plain"), html);
 }
 
-String FhemStatusDisplayWebServer::ip2String(IPAddress ip)
+String HSDWebserver::ip2String(IPAddress ip)
 {
   char buffer[20];
   memset(buffer, 0, sizeof(buffer));
@@ -471,7 +471,7 @@ String FhemStatusDisplayWebServer::ip2String(IPAddress ip)
   return String(buffer);
 }
 
-bool FhemStatusDisplayWebServer::updateMainConfig()
+bool HSDWebserver::updateMainConfig()
 {
   bool needSave = false;
 
@@ -533,7 +533,7 @@ bool FhemStatusDisplayWebServer::updateMainConfig()
   return needSave;
 }
 
-bool FhemStatusDisplayWebServer::updateColorMappingConfig()
+bool HSDWebserver::updateColorMappingConfig()
 {
   bool needSave = false;
 
@@ -559,9 +559,9 @@ bool FhemStatusDisplayWebServer::updateColorMappingConfig()
         if(m_server.arg(name) != "")
         {
           m_config.addColorMappingEntry(m_server.arg(name), 
-                                        (deviceType)(m_server.arg(type).toInt()), 
-                                        (Led::Color)(m_server.arg(color).toInt()), 
-                                        (Led::Behavior)(m_server.arg(behavior).toInt()));
+                                        (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
+                                        (HSDLed::Color)(m_server.arg(color).toInt()), 
+                                        (HSDLed::Behavior)(m_server.arg(behavior).toInt()));
         }
         else
         {
@@ -580,7 +580,7 @@ bool FhemStatusDisplayWebServer::updateColorMappingConfig()
   return needSave;
 }
 
-bool FhemStatusDisplayWebServer::updateDeviceMappingConfig()
+bool HSDWebserver::updateDeviceMappingConfig()
 {
   bool needSave = false;
 
@@ -605,7 +605,7 @@ bool FhemStatusDisplayWebServer::updateDeviceMappingConfig()
         if(m_server.arg(name) != "")
         {
           m_config.addDeviceMappingEntry(m_server.arg(name), 
-                                        (deviceType)(m_server.arg(type).toInt()), 
+                                        (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
                                         m_server.arg(led).toInt());
         }
         else

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "FhemStatusDisplayConfig.h"
+#include "HSDConfig.h"
 
-class FhemStatusDisplayWifi
+class HSDWifi
 {
 public:
 
-  FhemStatusDisplayWifi(const FhemStatusDisplayConfig& config);
+  HSDWifi(const HSDConfig& config);
 
   void begin();
   void handleConnection();
@@ -16,7 +16,7 @@ private:
 
   void startAccessPoint();
 
-  const FhemStatusDisplayConfig& m_config;
+  const HSDConfig& m_config;
   bool m_connectFailure;
   int m_maxConnectRetries;
   int m_numConnectRetriesDone;
