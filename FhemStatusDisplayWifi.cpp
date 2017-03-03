@@ -6,15 +6,70 @@
 
 FhemStatusDisplayWifi::FhemStatusDisplayWifi(const FhemStatusDisplayConfig& config)
 :
-m_config(config)
+m_config(config),
+m_connectFailure(false),
+m_maxConnectRetries(20),
+m_numConnectRetriesDone(0),
+m_retryDelay(500),
+m_millisLastConnectTry(0)
 {
+  
 }
 
 void FhemStatusDisplayWifi::begin()
 {
-  if(!startWifi())
-  {
-    startAccessPoint();
+  // nothing to do right now
+}
+
+void FhemStatusDisplayWifi::handleConnection()
+{
+  if(!connected()) // TODO: check access point running
+  {  
+    if(m_connectFailure)
+    {
+      startAccessPoint();
+    }
+    else
+    {
+      unsigned long currentMillis = millis();
+      
+      if( (currentMillis - m_millisLastConnectTry) >= m_retryDelay)
+      {
+        m_millisLastConnectTry = currentMillis; 
+      
+        if(m_numConnectRetriesDone == 0)
+        {
+          Serial.print(F("Starting Wifi connection to "));
+          Serial.println(m_config.getWifiSSID());
+      
+          WiFi.mode(WIFI_STA);
+          WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
+      
+          m_numConnectRetriesDone++;
+        }
+        else if(m_numConnectRetriesDone < m_maxConnectRetries)
+        {
+          if(WiFi.status() != WL_CONNECTED)
+          {
+            m_numConnectRetriesDone++;
+          }
+          else
+          {
+            Serial.print(F("WiFi connected with IP "));
+            Serial.print(WiFi.localIP());
+            Serial.println(F("."));
+      
+            m_numConnectRetriesDone = 0;
+          }
+        }
+        else
+        {
+          Serial.println(F("Failed to connect WiFi."));
+          
+          m_connectFailure = true;
+        }   
+      }   
+    }
   }
 }
 
@@ -23,51 +78,17 @@ bool FhemStatusDisplayWifi::connected()
   return (WiFi.status() == WL_CONNECTED);
 }
 
-bool FhemStatusDisplayWifi::startWifi()
-{
-  bool success = false;
- 
-  Serial.println("");
-  Serial.print(F("Starting Wifi connection to "));
-  Serial.print(m_config.getWifiSSID());
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
-  
-  uint32_t timeout = 0;
-  while( (WiFi.status() != WL_CONNECTED) && (timeout < 20) ) 
-  {
-    delay(500);
-    Serial.print(F("."));
-    timeout++;
-  }
-  Serial.println(F(""));
-  
-  if(WiFi.status() == WL_CONNECTED)
-  {
-    success = true; 
-    Serial.print(F("WiFi connected with IP "));
-    Serial.print(WiFi.localIP());
-    Serial.println(F("."));
-  }  
-  else
-  {
-    Serial.println(F("Failed to connect WiFi."));
-  }
-
-  return success;
-}
-
 void FhemStatusDisplayWifi::startAccessPoint()
 {
   Serial.println(F(""));
   Serial.println(F("Starting access point."));
 
   WiFi.mode(WIFI_AP);
+
   if(WiFi.softAP(String(SOFT_AP_SSID).c_str(), String(SOFT_AP_PSK).c_str()))
   {
     IPAddress ip = WiFi.softAPIP();
-  
+ 
     Serial.print(F("AccessPoint SSID is ")); Serial.print(SOFT_AP_SSID); Serial.println(ip);
   }
   else

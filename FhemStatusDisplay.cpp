@@ -40,6 +40,7 @@ void FhemStatusDisplay::work()
 {
   checkConnections();
 
+  m_wifi.handleConnection();
   m_webServer.handleClient();
 
   if(m_wifi.connected())
