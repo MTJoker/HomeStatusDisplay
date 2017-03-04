@@ -2,15 +2,20 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 
-static const int MAX_SIZE_MAIN_CONFIG = 400;
-static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2500;
-static const int MAX_SIZE_DEVICE_MAPPING_CONFIG = 2000;
+static const int MAX_SIZE_MAIN_CONFIG_FILE = 400;
+static const int JSON_BUFFER_MAIN_CONFIG_FILE = 500;
+
+static const int MAX_SIZE_COLOR_MAPPING_CONFIG_FILE = 1500;
+static const int JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE = 3000;
+
+static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 2000;
+static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 4000;
   
 HSDConfig::HSDConfig()
 :
-m_mainConfigFile(String("/config.json"), MAX_SIZE_MAIN_CONFIG),
-m_colorMappingConfigFile(String("/colormapping.json"), MAX_SIZE_COLOR_MAPPING_CONFIG),
-m_deviceMappingConfigFile(String("/devicemapping.json"), MAX_SIZE_DEVICE_MAPPING_CONFIG)
+m_mainConfigFile(String("/config.json"), MAX_SIZE_MAIN_CONFIG_FILE),
+m_colorMappingConfigFile(String("/colormapping.json"), MAX_SIZE_COLOR_MAPPING_CONFIG_FILE),
+m_deviceMappingConfigFile(String("/devicemapping.json"), MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE)
 {  
   // reset non-configuraable members
   setVersion("");
@@ -82,13 +87,15 @@ bool HSDConfig::readMainConfigFile()
   {
     const char* buffer = m_mainConfigFile.getData();
 
-    DynamicJsonBuffer jsonBuffer(MAX_SIZE_MAIN_CONFIG);
+    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_MAIN_CONFIG_FILE);
     JsonObject& json = jsonBuffer.parseObject(buffer);
 
     if (json.success()) 
     {
       Serial.println(F("Main config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());     
+      json.prettyPrintTo(Serial);
+      Serial.println(F(""));
 
       if(json.containsKey(JSON_KEY_HOST) && json.containsKey(JSON_KEY_WIFI_SSID) && json.containsKey(JSON_KEY_WIFI_PSK) && 
          json.containsKey(JSON_KEY_MQTT_SERVER) && json.containsKey(JSON_KEY_MQTT_STATUS_TOPIC) && json.containsKey(JSON_KEY_MQTT_TEST_TOPIC) && json.containsKey(JSON_KEY_MQTT_WILL_TOPIC) &&
@@ -136,13 +143,15 @@ bool HSDConfig::readColorMappingConfigFile()
   {
     const char* buffer = m_colorMappingConfigFile.getData();
 
-    DynamicJsonBuffer jsonBuffer(MAX_SIZE_COLOR_MAPPING_CONFIG);
+    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE);
     JsonObject& json = jsonBuffer.parseObject(buffer);
 
     if (json.success()) 
     {
       Serial.println(F("Color mapping config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
+      json.prettyPrintTo(Serial);
+      Serial.println(F(""));
 
       success = true;
       
@@ -187,13 +196,15 @@ bool HSDConfig::readDeviceMappingConfigFile()
   {
     const char* buffer = m_deviceMappingConfigFile.getData();
 
-    DynamicJsonBuffer jsonBuffer(MAX_SIZE_DEVICE_MAPPING_CONFIG);
+    DynamicJsonBuffer jsonBuffer(JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE);
     JsonObject& json = jsonBuffer.parseObject(buffer);
 
     if (json.success()) 
     {
       Serial.println(F("Device mapping config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
+      json.prettyPrintTo(Serial);
+      Serial.println(F(""));
 
       success = true;
       
@@ -231,7 +242,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
 
 void HSDConfig::writeMainConfigFile()
 {
-  DynamicJsonBuffer jsonBuffer(MAX_SIZE_MAIN_CONFIG);
+  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_MAIN_CONFIG_FILE);
   JsonObject& json = jsonBuffer.createObject();
 
   json[JSON_KEY_HOST] = m_cfgHost;
@@ -254,7 +265,7 @@ void HSDConfig::writeMainConfigFile()
 
 void HSDConfig::writeColorMappingConfigFile()
 {
-  DynamicJsonBuffer jsonBuffer(MAX_SIZE_COLOR_MAPPING_CONFIG);
+  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE);
   JsonObject& json = jsonBuffer.createObject();
 
   for(int index = 0; index < m_numColorMappingEntries; index++)
@@ -279,7 +290,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
 {
   Serial.println(F("Writing device mapping config file."));  
 
-  DynamicJsonBuffer jsonBuffer(MAX_SIZE_DEVICE_MAPPING_CONFIG);
+  DynamicJsonBuffer jsonBuffer(JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE);
   JsonObject& json = jsonBuffer.createObject();
 
   for(int index = 0; index < m_numDeviceMappingEntries; index++)
