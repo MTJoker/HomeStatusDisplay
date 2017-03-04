@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDLed.h"
+#include "HSDConfigFile.h"
 
 #define JSON_KEY_HOST                  (F("host"))
 #define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
@@ -101,17 +102,18 @@ public:
   int getLedDataPin() const;
   bool setLedDataPin(int dataPin);
 
-  int getNumberOfColorMappingEntries() const;
-  const colorMapping* getColorMapping(int index) const;
+  void resetMainConfigData();
+  void resetDeviceMappingConfigData();
+  void resetColorMappingConfigData();
 
   int getNumberOfDeviceMappingEntries() const;
-  const deviceMapping* getDeviceMapping(int index) const;
-
-  bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
-  void resetDeviceMappingConfigData();
+  int getNumberOfColorMappingEntries() const;
   
+  bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool addColorMappingEntry(String msg, deviceType type, HSDLed::Color color, HSDLed::Behavior behavior);
-  void resetColorMappingConfigData();
+
+  const deviceMapping* getDeviceMapping(int index) const;
+  const colorMapping* getColorMapping(int index) const; 
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
@@ -120,22 +122,14 @@ public:
 
 private:
 
-  static const int MAX_SIZE_MAIN_CONFIG = 400;
-  static const int MAX_SIZE_DEVICE_MAPPING_CONFIG = 2000;
-  static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2000;
-
-  void resetMainConfigData();
   bool readMainConfigFile();
   void writeMainConfigFile();
-  void createDefaultMainConfigFile();
 
   bool readColorMappingConfigFile();
   void writeColorMappingConfigFile();
-  void createDefaultColorMappingConfigFile();
 
   bool readDeviceMappingConfigFile();
   void writeDeviceMappingConfigFile();
-  void createDefaultDeviceMappingConfigFile();
 
   static const int MAX_VERSION_LEN           = 20;
   static const int MAX_HOST_LEN              = 30;
@@ -166,5 +160,9 @@ private:
   
   int m_cfgNumberOfLeds;
   int m_cfgLedDataPin;
+
+  HSDConfigFile m_mainConfigFile;
+  HSDConfigFile m_colorMappingConfigFile;
+  HSDConfigFile m_deviceMappingConfigFile;
 };
 
