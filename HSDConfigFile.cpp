@@ -35,6 +35,7 @@ bool HSDConfigFile::read()
 
       if(size <= m_maxSize)
       { 
+        clearBuffer();
         configFile.readBytes(m_buffer, size);
         success = true;
       }
@@ -93,5 +94,13 @@ bool HSDConfigFile::write(JsonObject* data)
 const char* HSDConfigFile::getData()
 {
   return m_buffer;
+}
+
+void HSDConfigFile::clearBuffer()
+{
+  if(m_buffer)
+  {
+    memset(m_buffer, 0, m_maxSize);
+  }
 }
 

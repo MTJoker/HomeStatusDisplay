@@ -17,6 +17,8 @@ public:
   
 private:
 
+  void clearBuffer();
+  
   String m_fileName;
   int m_maxSize;
   char * m_buffer;
