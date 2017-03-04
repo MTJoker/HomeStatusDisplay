@@ -13,9 +13,9 @@ static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 4000;
   
 HSDConfig::HSDConfig()
 :
-m_mainConfigFile(String("/config.json"), MAX_SIZE_MAIN_CONFIG_FILE),
-m_colorMappingConfigFile(String("/colormapping.json"), MAX_SIZE_COLOR_MAPPING_CONFIG_FILE),
-m_deviceMappingConfigFile(String("/devicemapping.json"), MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE)
+m_mainConfigFile(String("/config.json")),
+m_colorMappingConfigFile(String("/colormapping.json")),
+m_deviceMappingConfigFile(String("/devicemapping.json"))
 {  
   // reset non-configuraable members
   setVersion("");
@@ -83,12 +83,12 @@ bool HSDConfig::readMainConfigFile()
 {
   bool success = false;
 
-  if(m_mainConfigFile.read())
-  {
-    const char* buffer = m_mainConfigFile.getData();
+  char fileBuffer[MAX_SIZE_MAIN_CONFIG_FILE];
 
+  if(m_mainConfigFile.read(fileBuffer, MAX_SIZE_MAIN_CONFIG_FILE))
+  {
     DynamicJsonBuffer jsonBuffer(JSON_BUFFER_MAIN_CONFIG_FILE);
-    JsonObject& json = jsonBuffer.parseObject(buffer);
+    JsonObject& json = jsonBuffer.parseObject(fileBuffer);
 
     if (json.success()) 
     {
@@ -139,12 +139,12 @@ bool HSDConfig::readColorMappingConfigFile()
 {
   bool success = false;
 
-  if(m_colorMappingConfigFile.read())
-  {
-    const char* buffer = m_colorMappingConfigFile.getData();
+  char fileBuffer[MAX_SIZE_COLOR_MAPPING_CONFIG_FILE];
 
+  if(m_colorMappingConfigFile.read(fileBuffer, MAX_SIZE_COLOR_MAPPING_CONFIG_FILE))
+  {
     DynamicJsonBuffer jsonBuffer(JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE);
-    JsonObject& json = jsonBuffer.parseObject(buffer);
+    JsonObject& json = jsonBuffer.parseObject(fileBuffer);
 
     if (json.success()) 
     {
@@ -192,12 +192,12 @@ bool HSDConfig::readDeviceMappingConfigFile()
 {
   bool success = false;
 
-  if(m_deviceMappingConfigFile.read())
-  {
-    const char* buffer = m_deviceMappingConfigFile.getData();
+  char fileBuffer[MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE];
 
+  if(m_deviceMappingConfigFile.read(fileBuffer, MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE))
+  {
     DynamicJsonBuffer jsonBuffer(JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE);
-    JsonObject& json = jsonBuffer.parseObject(buffer);
+    JsonObject& json = jsonBuffer.parseObject(fileBuffer);
 
     if (json.success()) 
     {

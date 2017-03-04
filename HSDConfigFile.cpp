@@ -1,23 +1,17 @@
 #include "HSDConfigFile.h"
 #include <FS.h>
 
-HSDConfigFile::HSDConfigFile(String fileName, int maxSize)
+HSDConfigFile::HSDConfigFile(String fileName)
 :
-m_fileName(fileName),
-m_maxSize(maxSize)
+m_fileName(fileName)
 {
-  m_buffer = new char[maxSize];  
 }
 
 HSDConfigFile::~HSDConfigFile()
 {
-  if(m_buffer)
-  {
-    delete[] m_buffer;
-  }
 }
 
-bool HSDConfigFile::read()
+bool HSDConfigFile::read(char* buffer, int bufSize)
 {
   bool success = false;
 
@@ -33,10 +27,9 @@ bool HSDConfigFile::read()
       size_t size = configFile.size();
       Serial.print(F("File size is ")); Serial.println(String(size) + " bytes"); 
 
-      if(size <= m_maxSize)
+      if(size <= bufSize)
       { 
-        clearBuffer();
-        configFile.readBytes(m_buffer, size);
+        configFile.readBytes(buffer, size);
         success = true;
       }
       else
@@ -89,18 +82,5 @@ bool HSDConfigFile::write(JsonObject* data)
   }
 
   return success;
-}
-
-const char* HSDConfigFile::getData()
-{
-  return m_buffer;
-}
-
-void HSDConfigFile::clearBuffer()
-{
-  if(m_buffer)
-  {
-    memset(m_buffer, 0, m_maxSize);
-  }
 }
 

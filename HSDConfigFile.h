@@ -8,19 +8,14 @@ class HSDConfigFile
   
 public:
 
-  HSDConfigFile(String fileName, int maxSize);
+  HSDConfigFile(String fileName);
   virtual ~HSDConfigFile();
 
-  bool read();
+  bool read(char* buffer, int bufSize);
   bool write(JsonObject* data);
-  const char* getData();
   
 private:
-
-  void clearBuffer();
   
   String m_fileName;
-  int m_maxSize;
-  char * m_buffer;
 };
 
