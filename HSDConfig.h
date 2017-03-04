@@ -60,8 +60,8 @@ public:
   {
     char msg[MAX_COLOR_MAPPING_MSG_LEN+1];  // message 
     deviceType type;                        // type of the device
-    HSDLed::Color color;                       // led color for message from device type
-    HSDLed::Behavior behavior;                 // led behavior for message from device type
+    HSDLed::Color color;                    // led color for message from device type
+    HSDLed::Behavior behavior;              // led behavior for message from device type
   };
 
   HSDConfig();

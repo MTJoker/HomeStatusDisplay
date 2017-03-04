@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 
 static const int MAX_SIZE_MAIN_CONFIG = 400;
-static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2000;
+static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2500;
 static const int MAX_SIZE_DEVICE_MAPPING_CONFIG = 2000;
   
 HSDConfig::HSDConfig()
@@ -63,7 +63,6 @@ void HSDConfig::resetColorMappingConfigData()
   Serial.println(F("Deleting color mapping config data."));
   
   memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
-  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
   m_numColorMappingEntries = 0;
 }
 
@@ -71,7 +70,6 @@ void HSDConfig::resetDeviceMappingConfigData()
 {
   Serial.println(F("Deleting device mapping config data."));
   
-  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
   memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
   m_numDeviceMappingEntries = 0;  
 }
@@ -90,10 +88,7 @@ bool HSDConfig::readMainConfigFile()
     if (json.success()) 
     {
       Serial.println(F("Main config data successfully parsed."));
-      Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
-      
-      //json.prettyPrintTo(Serial);
-      //Serial.println("");
+      Serial.print(F("JSON length is ")); Serial.println(json.measureLength());     
 
       if(json.containsKey(JSON_KEY_HOST) && json.containsKey(JSON_KEY_WIFI_SSID) && json.containsKey(JSON_KEY_WIFI_PSK) && 
          json.containsKey(JSON_KEY_MQTT_SERVER) && json.containsKey(JSON_KEY_MQTT_STATUS_TOPIC) && json.containsKey(JSON_KEY_MQTT_TEST_TOPIC) && json.containsKey(JSON_KEY_MQTT_WILL_TOPIC) &&
@@ -149,9 +144,6 @@ bool HSDConfig::readColorMappingConfigFile()
       Serial.println(F("Color mapping config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
 
-      //json.prettyPrintTo(Serial);
-      //Serial.println("");
-
       success = true;
       
       for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
@@ -202,9 +194,6 @@ bool HSDConfig::readDeviceMappingConfigFile()
     {
       Serial.println(F("Device mapping config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
-
-      //json.prettyPrintTo(Serial);
-      //Serial.println("");
 
       success = true;
       
@@ -295,11 +284,11 @@ void HSDConfig::writeDeviceMappingConfigFile()
 
   for(int index = 0; index < m_numDeviceMappingEntries; index++)
   {
-    JsonObject& colorMappingEntry = json.createNestedObject(String(index));
+    JsonObject& deviceMappingEntry = json.createNestedObject(String(index));
 
-    colorMappingEntry[JSON_KEY_DEVICEMAPPING_NAME] = m_cfgDeviceMapping[index].name;
-    colorMappingEntry[JSON_KEY_DEVICEMAPPING_TYPE] = (int)m_cfgDeviceMapping[index].type;
-    colorMappingEntry[JSON_KEY_DEVICEMAPPING_LED]  = (int)m_cfgDeviceMapping[index].ledNumber;
+    deviceMappingEntry[JSON_KEY_DEVICEMAPPING_NAME] = m_cfgDeviceMapping[index].name;
+    deviceMappingEntry[JSON_KEY_DEVICEMAPPING_TYPE] = (int)m_cfgDeviceMapping[index].type;
+    deviceMappingEntry[JSON_KEY_DEVICEMAPPING_LED]  = (int)m_cfgDeviceMapping[index].ledNumber;
   }
   
   if(!m_deviceMappingConfigFile.write(&json))
@@ -329,11 +318,11 @@ bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumbe
 {
   bool success = false;
 
-  Serial.print(F("Adding device mapping entry at index ")); 
-  Serial.println(String(m_numDeviceMappingEntries) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
-
   if(m_numDeviceMappingEntries < (MAX_DEVICE_MAP_ENTRIES - 1))
   {
+    Serial.print(F("Adding device mapping entry at index ")); 
+    Serial.println(String(m_numDeviceMappingEntries) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
+  
     strncpy(m_cfgDeviceMapping[m_numDeviceMappingEntries].name, name.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
     m_cfgDeviceMapping[m_numDeviceMappingEntries].name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
     
@@ -341,6 +330,11 @@ bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumbe
     m_cfgDeviceMapping[m_numDeviceMappingEntries].ledNumber = ledNumber;
     m_numDeviceMappingEntries++;
     success = true;
+  }
+  else
+  {
+    Serial.print(F("Cannot add device mapping entry at index ")); 
+    Serial.println(String(m_numDeviceMappingEntries));
   }
 
   return success;
@@ -350,11 +344,11 @@ bool HSDConfig::addColorMappingEntry(String msg, deviceType type, HSDLed::Color 
 {
   bool success = false;
 
-  Serial.print(F("Adding color mapping entry at index ")); 
-  Serial.println(String(m_numColorMappingEntries) + " with name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
-
   if(m_numColorMappingEntries < (MAX_COLOR_MAP_ENTRIES - 1))
-  {
+  {   
+    Serial.print(F("Adding color mapping entry at index ")); 
+    Serial.println(String(m_numColorMappingEntries) + " with name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
+  
     strncpy(m_cfgColorMapping[m_numColorMappingEntries].msg, msg.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
     m_cfgColorMapping[m_numColorMappingEntries].msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
 
@@ -363,6 +357,11 @@ bool HSDConfig::addColorMappingEntry(String msg, deviceType type, HSDLed::Color 
     m_cfgColorMapping[m_numColorMappingEntries].behavior = behavior;
     m_numColorMappingEntries++;
     success = true;
+  }
+  else
+  {
+    Serial.print(F("Cannot add device mapping entry at index ")); 
+    Serial.println(String(m_numColorMappingEntries));
   }
   
   return success;  
