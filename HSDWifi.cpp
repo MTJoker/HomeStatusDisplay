@@ -11,7 +11,8 @@ m_connectFailure(false),
 m_maxConnectRetries(20),
 m_numConnectRetriesDone(0),
 m_retryDelay(500),
-m_millisLastConnectTry(0)
+m_millisLastConnectTry(0),
+m_accessPointActive(false)
 {
   
 }
@@ -23,7 +24,7 @@ void HSDWifi::begin()
 
 void HSDWifi::handleConnection()
 {
-  if(!connected()) // TODO: check access point running
+  if(!connected() && !m_accessPointActive)
   {  
     if(m_connectFailure)
     {
@@ -89,7 +90,10 @@ void HSDWifi::startAccessPoint()
   {
     IPAddress ip = WiFi.softAPIP();
  
-    Serial.print(F("AccessPoint SSID is ")); Serial.print(SOFT_AP_SSID); Serial.println(ip);
+    Serial.print(F("AccessPoint SSID is ")); Serial.println(SOFT_AP_SSID); 
+    Serial.print(F("IP: ")); Serial.println(ip);
+
+    m_accessPointActive = true;
   }
   else
   {

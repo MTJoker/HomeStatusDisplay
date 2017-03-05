@@ -1,6 +1,7 @@
 #include "HSDWebserver.h"
 
-#define SELECTED_STRING (F("selected ='selected'"))
+#define SELECTED_STRING (F("selected='selected'"))
+#define CHECKED_STRING  (F("checked='checked'")) 
 #define EMPTY_STRING    (F(""))
 
 HSDWebserver::HSDWebserver(HSDConfig& config)
@@ -213,6 +214,12 @@ void HSDWebserver::deliverColorMappingPage()
   html = getHeader("Color mapping configuration");
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
+
+  String checkBoxChecked = (m_config.isSwitchLedOffIfUnknownMessage()) ? CHECKED_STRING : EMPTY_STRING;
+
+  html += F("<p><input type='checkbox' name='oiu' value='1' ");
+  html += checkBoxChecked;
+  html += F(">Switch off if message is undefined</p>");
 
   html += F(""
   "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
@@ -543,11 +550,20 @@ bool HSDWebserver::updateColorMappingConfig()
 
   if(numArgs != 0)    // when page is initially loaded, do nothing because no args
   {
-    if((numArgs % 4) == 0)
+    if( (numArgs % 4 == 0) || ((numArgs % 4 == 1)  && m_server.hasArg(JSON_KEY_COLORMAPPING_OIU)) )   // one more if checkbox is checked
     {
       Serial.println(F("Number of arguments seems reasonable"));
-  
+      
       m_config.resetColorMappingConfigData();
+
+      if(m_server.hasArg("oiu"))
+      {
+        m_config.setSwitchLedOffIfUnknownMessage(true);
+      }
+      else
+      {
+        m_config.setSwitchLedOffIfUnknownMessage(false);
+      }
   
       for(int i = 0; i < (numArgs/4); i++)
       {
@@ -555,17 +571,20 @@ bool HSDWebserver::updateColorMappingConfig()
         String type     = "t" + String(i);
         String color    = "c" + String(i);
         String behavior = "b" + String(i);
-        
-        if(m_server.arg(name) != "")
+
+        if(m_server.hasArg(name) && m_server.hasArg(type) && m_server.hasArg(color) && m_server.hasArg(behavior))
         {
-          m_config.addColorMappingEntry(m_server.arg(name), 
-                                        (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                        (HSDLed::Color)(m_server.arg(color).toInt()), 
-                                        (HSDLed::Behavior)(m_server.arg(behavior).toInt()));
-        }
-        else
-        {
-          Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          if(m_server.arg(name) != "")
+          {
+            m_config.addColorMappingEntry(m_server.arg(name), 
+                                          (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
+                                          (HSDLed::Color)(m_server.arg(color).toInt()), 
+                                          (HSDLed::Behavior)(m_server.arg(behavior).toInt()));
+          }
+          else
+          {
+            Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          }
         }
       }
   
@@ -601,16 +620,19 @@ bool HSDWebserver::updateDeviceMappingConfig()
         String name = "n" + String(i);
         String type = "t" + String(i);
         String led  = "l" + String(i);
-        
-        if(m_server.arg(name) != "")
+
+        if(m_server.hasArg(name) && m_server.hasArg(type) && m_server.hasArg(led))
         {
-          m_config.addDeviceMappingEntry(m_server.arg(name), 
-                                        (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                        m_server.arg(led).toInt());
-        }
-        else
-        {
-          Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          if(m_server.arg(name) != "")
+          {
+            m_config.addDeviceMappingEntry(m_server.arg(name), 
+                                          (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
+                                          m_server.arg(led).toInt());
+          }
+          else
+          {
+            Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          }
         }
       }
   

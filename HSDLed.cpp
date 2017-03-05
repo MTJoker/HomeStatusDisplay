@@ -21,6 +21,7 @@ void HSDLed::setOn(Color color)
 void HSDLed::setOff()
 {
   m_behavior = OFF;
+  m_color = NONE;
   m_isOn = false;
 }
 

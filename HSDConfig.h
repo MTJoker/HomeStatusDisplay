@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDLed.h"
+#include "HSDConfigFile.h"
 
 #define JSON_KEY_HOST                  (F("host"))
 #define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
@@ -11,6 +12,7 @@
 #define JSON_KEY_MQTT_WILL_TOPIC       (F("mqttWillTopic"))
 #define JSON_KEY_LED_COUNT             (F("ledCount"))
 #define JSON_KEY_LED_PIN               (F("ledPin"))
+#define JSON_KEY_COLORMAPPING_OIU      (F("oiu"))
 #define JSON_KEY_COLORMAPPING_MSG      (F("msg"))
 #define JSON_KEY_COLORMAPPING_TYPE     (F("type"))
 #define JSON_KEY_COLORMAPPING_COLOR    (F("color"))
@@ -59,8 +61,8 @@ public:
   {
     char msg[MAX_COLOR_MAPPING_MSG_LEN+1];  // message 
     deviceType type;                        // type of the device
-    HSDLed::Color color;                       // led color for message from device type
-    HSDLed::Behavior behavior;                 // led behavior for message from device type
+    HSDLed::Color color;                    // led color for message from device type
+    HSDLed::Behavior behavior;              // led behavior for message from device type
   };
 
   HSDConfig();
@@ -101,17 +103,21 @@ public:
   int getLedDataPin() const;
   bool setLedDataPin(int dataPin);
 
-  int getNumberOfColorMappingEntries() const;
-  const colorMapping* getColorMapping(int index) const;
+  void resetMainConfigData();
+  void resetDeviceMappingConfigData();
+  void resetColorMappingConfigData();
 
   int getNumberOfDeviceMappingEntries() const;
-  const deviceMapping* getDeviceMapping(int index) const;
-
-  bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
-  void resetDeviceMappingConfigData();
+  int getNumberOfColorMappingEntries() const;
   
+  bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool addColorMappingEntry(String msg, deviceType type, HSDLed::Color color, HSDLed::Behavior behavior);
-  void resetColorMappingConfigData();
+
+  const deviceMapping* getDeviceMapping(int index) const;
+  const colorMapping* getColorMapping(int index) const; 
+
+  void setSwitchLedOffIfUnknownMessage(bool switchOff);
+  bool isSwitchLedOffIfUnknownMessage() const;
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
@@ -120,22 +126,14 @@ public:
 
 private:
 
-  static const int MAX_SIZE_MAIN_CONFIG = 400;
-  static const int MAX_SIZE_DEVICE_MAPPING_CONFIG = 2000;
-  static const int MAX_SIZE_COLOR_MAPPING_CONFIG = 2000;
-
-  void resetMainConfigData();
   bool readMainConfigFile();
   void writeMainConfigFile();
-  void createDefaultMainConfigFile();
 
   bool readColorMappingConfigFile();
   void writeColorMappingConfigFile();
-  void createDefaultColorMappingConfigFile();
 
   bool readDeviceMappingConfigFile();
   void writeDeviceMappingConfigFile();
-  void createDefaultDeviceMappingConfigFile();
 
   static const int MAX_VERSION_LEN           = 20;
   static const int MAX_HOST_LEN              = 30;
@@ -151,6 +149,7 @@ private:
 
   colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
   int m_numColorMappingEntries;
+  bool m_cfgSwitchLedOffIfUnknownMessage;
   
   deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
   int m_numDeviceMappingEntries;
@@ -166,5 +165,9 @@ private:
   
   int m_cfgNumberOfLeds;
   int m_cfgLedDataPin;
+
+  HSDConfigFile m_mainConfigFile;
+  HSDConfigFile m_colorMappingConfigFile;
+  HSDConfigFile m_deviceMappingConfigFile;
 };
 
