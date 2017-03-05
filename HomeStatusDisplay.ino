@@ -1,6 +1,6 @@
 #include "HomeStatusDisplay.h"
 
-static const char* VERSION = "0.2_dev";
+static const char* VERSION = "0.2";
 static const char* IDENTIFIER = "HomeStatusDisplay";
 
 HomeStatusDisplay display;
