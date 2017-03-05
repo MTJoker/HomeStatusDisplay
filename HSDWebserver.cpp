@@ -550,7 +550,7 @@ bool HSDWebserver::updateColorMappingConfig()
 
   if(numArgs != 0)    // when page is initially loaded, do nothing because no args
   {
-    if( (numArgs % 4 == 0) || (numArgs % 4 == 1) )   // one more if checkbox is checked
+    if( (numArgs % 4 == 0) || ((numArgs % 4 == 1)  && m_server.hasArg(JSON_KEY_COLORMAPPING_OIU)) )   // one more if checkbox is checked
     {
       Serial.println(F("Number of arguments seems reasonable"));
       
@@ -572,17 +572,19 @@ bool HSDWebserver::updateColorMappingConfig()
         String color    = "c" + String(i);
         String behavior = "b" + String(i);
 
-        // TODO: check availability of arguments
-        if(m_server.arg(name) != "")
+        if(m_server.hasArg(name) && m_server.hasArg(type) && m_server.hasArg(color) && m_server.hasArg(behavior))
         {
-          m_config.addColorMappingEntry(m_server.arg(name), 
-                                        (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                        (HSDLed::Color)(m_server.arg(color).toInt()), 
-                                        (HSDLed::Behavior)(m_server.arg(behavior).toInt()));
-        }
-        else
-        {
-          Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          if(m_server.arg(name) != "")
+          {
+            m_config.addColorMappingEntry(m_server.arg(name), 
+                                          (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
+                                          (HSDLed::Color)(m_server.arg(color).toInt()), 
+                                          (HSDLed::Behavior)(m_server.arg(behavior).toInt()));
+          }
+          else
+          {
+            Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          }
         }
       }
   
@@ -618,16 +620,19 @@ bool HSDWebserver::updateDeviceMappingConfig()
         String name = "n" + String(i);
         String type = "t" + String(i);
         String led  = "l" + String(i);
-        
-        if(m_server.arg(name) != "")
+
+        if(m_server.hasArg(name) && m_server.hasArg(type) && m_server.hasArg(led))
         {
-          m_config.addDeviceMappingEntry(m_server.arg(name), 
-                                        (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                        m_server.arg(led).toInt());
-        }
-        else
-        {
-          Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          if(m_server.arg(name) != "")
+          {
+            m_config.addDeviceMappingEntry(m_server.arg(name), 
+                                          (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
+                                          m_server.arg(led).toInt());
+          }
+          else
+          {
+            Serial.print(F("Skipping entry number ")); Serial.println(String(i));
+          }
         }
       }
   

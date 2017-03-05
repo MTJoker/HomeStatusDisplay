@@ -153,8 +153,6 @@ bool HSDConfig::readColorMappingConfigFile()
 
       success = true;
 
-      Serial.println("Number of key value pairs: " + String(json.size()));
-
       if(json.containsKey(JSON_KEY_COLORMAPPING_OIU))
       {
         setSwitchLedOffIfUnknownMessage(json[JSON_KEY_COLORMAPPING_OIU].as<bool>());
