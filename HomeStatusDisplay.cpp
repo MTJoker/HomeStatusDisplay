@@ -113,17 +113,26 @@ void HomeStatusDisplay::handleTest(String msg)
 }
 
 void HomeStatusDisplay::handleStatus(String device, HSDConfig::deviceType type, String msg)
-{
+{ 
   int ledNumber = m_config.getLedNumber(device, type);
-  int colorMapIndex = m_config.getColorMapIndex(type, msg);
 
-  if( (ledNumber != -1) && (colorMapIndex != -1) )
+  if(ledNumber != -1)
   {
-    HSDLed::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
-    HSDLed::Color color = m_config.getLedColor(colorMapIndex);
+    int colorMapIndex = m_config.getColorMapIndex(type, msg);
+    
+    if(colorMapIndex != -1)
+    {
+      HSDLed::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
+      HSDLed::Color color = m_config.getLedColor(colorMapIndex);
 
-    Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
-    m_leds.set(ledNumber, behavior, color);
+      Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
+      m_leds.set(ledNumber, behavior, color);
+    }
+    else if(m_config.isSwitchLedOffIfUnknownMessage())
+    {
+      Serial.println("Unknown message " + msg + " for led number " + String(ledNumber) + ", set to OFF");
+      m_leds.set(ledNumber, HSDLed::OFF, HSDLed::NONE);
+    }
   }
   else
   {

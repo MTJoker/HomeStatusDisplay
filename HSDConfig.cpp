@@ -69,6 +69,8 @@ void HSDConfig::resetColorMappingConfigData()
   
   memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
   m_numColorMappingEntries = 0;
+
+  m_cfgSwitchLedOffIfUnknownMessage = false;
 }
 
 void HSDConfig::resetDeviceMappingConfigData()
@@ -115,10 +117,6 @@ bool HSDConfig::readMainConfigFile()
 
         success = true;
       }
-      else
-      {
-        Serial.println(F("Config data is incomplete."));
-      }
     } 
     else 
     {
@@ -154,6 +152,13 @@ bool HSDConfig::readColorMappingConfigFile()
       Serial.println(F(""));
 
       success = true;
+
+      Serial.println("Number of key value pairs: " + String(json.size()));
+
+      if(json.containsKey(JSON_KEY_COLORMAPPING_OIU))
+      {
+        setSwitchLedOffIfUnknownMessage(json[JSON_KEY_COLORMAPPING_OIU].as<bool>());
+      }
       
       for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
       {
@@ -162,16 +167,10 @@ bool HSDConfig::readColorMappingConfigFile()
         if(entry.containsKey(JSON_KEY_COLORMAPPING_MSG) && entry.containsKey(JSON_KEY_COLORMAPPING_TYPE) &&
            entry.containsKey(JSON_KEY_COLORMAPPING_COLOR) && entry.containsKey(JSON_KEY_COLORMAPPING_BEHAVIOR) )
         {
-          addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].asString(), 
+          addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].as<char*>(), 
                                (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
                                (HSDLed::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
                                (HSDLed::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
-        }
-        else
-        {
-          Serial.println(F("Config data is incomplete."));
-          success = false;
-          break;
         }
       }
     }
@@ -215,15 +214,9 @@ bool HSDConfig::readDeviceMappingConfigFile()
         if(entry.containsKey(JSON_KEY_DEVICEMAPPING_NAME) && entry.containsKey(JSON_KEY_DEVICEMAPPING_TYPE) &&
            entry.containsKey(JSON_KEY_DEVICEMAPPING_LED) )
         {
-          addDeviceMappingEntry(entry[JSON_KEY_DEVICEMAPPING_NAME].asString(), 
+          addDeviceMappingEntry(entry[JSON_KEY_DEVICEMAPPING_NAME].as<char*>(), 
                                (deviceType)(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()), 
                                entry[JSON_KEY_DEVICEMAPPING_LED].as<int>()); 
-        }
-        else
-        {
-          Serial.println(F("Config data is incomplete."));
-          success = false;
-          break;
         }
       }
     }
@@ -267,6 +260,8 @@ void HSDConfig::writeColorMappingConfigFile()
 {
   DynamicJsonBuffer jsonBuffer(JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE);
   JsonObject& json = jsonBuffer.createObject();
+
+  json[JSON_KEY_COLORMAPPING_OIU] = m_cfgSwitchLedOffIfUnknownMessage;
 
   for(int index = 0; index < m_numColorMappingEntries; index++)
   {
@@ -377,6 +372,16 @@ bool HSDConfig::addColorMappingEntry(String msg, deviceType type, HSDLed::Color 
   
   return success;  
 }
+
+void HSDConfig::setSwitchLedOffIfUnknownMessage(bool switchOff)
+{
+  m_cfgSwitchLedOffIfUnknownMessage = switchOff;
+}
+
+bool HSDConfig::isSwitchLedOffIfUnknownMessage() const
+{
+  return m_cfgSwitchLedOffIfUnknownMessage;
+} 
 
 const char* HSDConfig::getHost() const
 {

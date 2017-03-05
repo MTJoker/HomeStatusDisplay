@@ -12,6 +12,7 @@
 #define JSON_KEY_MQTT_WILL_TOPIC       (F("mqttWillTopic"))
 #define JSON_KEY_LED_COUNT             (F("ledCount"))
 #define JSON_KEY_LED_PIN               (F("ledPin"))
+#define JSON_KEY_COLORMAPPING_OIU      (F("oiu"))
 #define JSON_KEY_COLORMAPPING_MSG      (F("msg"))
 #define JSON_KEY_COLORMAPPING_TYPE     (F("type"))
 #define JSON_KEY_COLORMAPPING_COLOR    (F("color"))
@@ -114,6 +115,9 @@ public:
 
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index) const; 
+
+  void setSwitchLedOffIfUnknownMessage(bool switchOff);
+  bool isSwitchLedOffIfUnknownMessage() const;
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
@@ -145,6 +149,7 @@ private:
 
   colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
   int m_numColorMappingEntries;
+  bool m_cfgSwitchLedOffIfUnknownMessage;
   
   deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
   int m_numDeviceMappingEntries;
