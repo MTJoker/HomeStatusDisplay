@@ -3,10 +3,10 @@
 // function declarations
 void handleMqttMessage(String topic, String msg);
 
-#define WINDOW_STRING (F("window"))
-#define DOOR_STRING (F("door"))
-#define LIGHT_STRING (F("light"))
-#define ALARM_STRING (F("alarm"))
+#define WINDOW_STRING (F("/window/"))
+#define DOOR_STRING (F("/door/"))
+#define LIGHT_STRING (F("/light/"))
+#define ALARM_STRING (F("/alarm/"))
 
 int getFreeRamSize();
 
@@ -72,29 +72,52 @@ void HomeStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
   {
     handleTest(mqttMsgString);
   }
-  else
+  else if(isStatusTopic(mqttTopicString))
   {
-    if(mqttTopicString.substring(12, 17) == LIGHT_STRING)
-    {
-      handleStatus(mqttTopicString.substring(18), HSDConfig::TYPE_LIGHT, mqttMsgString);
-    }
-    else if(mqttTopicString.substring(12, 18) == WINDOW_STRING)
-    {
-      handleStatus(mqttTopicString.substring(19), HSDConfig::TYPE_WINDOW, mqttMsgString);
-    }
-    else if(mqttTopicString.substring(12, 16) == DOOR_STRING)
-    {
-      handleStatus(mqttTopicString.substring(17), HSDConfig::TYPE_DOOR, mqttMsgString);
-    }
-    else if(mqttTopicString.substring(12, 17) == ALARM_STRING)
-    {
-      handleStatus(mqttTopicString.substring(18), HSDConfig::TYPE_ALARM, mqttMsgString);
-    }
-    else
-    {
-      Serial.println(F("Unknown topic, ignoring"));
-    }
+    HSDConfig::deviceType type = getDeviceType(mqttTopicString);
+    String device = getDevice(mqttTopicString);
+
+    handleStatus(device, type, mqttMsgString);
   }
+}
+
+bool HomeStatusDisplay::isStatusTopic(String& topic)
+{
+  String mqttStatusTopic = String(m_config.getMqttStatusTopic());
+  int posOfLastSlashInStatusTopic = mqttStatusTopic.lastIndexOf("/");
+
+  return topic.startsWith(mqttStatusTopic.substring(0, posOfLastSlashInStatusTopic)) ? true : false;
+}
+
+HSDConfig::deviceType HomeStatusDisplay::getDeviceType(String& statusTopic)
+{
+  HSDConfig::deviceType type = HSDConfig::TYPE_UNKNOWN;
+
+  if(statusTopic.indexOf(LIGHT_STRING) != -1)
+  {
+    type = HSDConfig::TYPE_LIGHT;
+  }
+  else if(statusTopic.indexOf(WINDOW_STRING) != -1)
+  {
+    type = HSDConfig::TYPE_WINDOW;
+  }
+  else if(statusTopic.indexOf(DOOR_STRING) != -1)
+  {
+    type = HSDConfig::TYPE_DOOR;
+  }
+  else if(statusTopic.indexOf(ALARM_STRING) != -1)
+  {
+    type = HSDConfig::TYPE_ALARM;
+  } 
+
+  return type;
+}
+
+String HomeStatusDisplay::getDevice(String& statusTopic)
+{
+  int posOfLastSlashInStatusTopic = statusTopic.lastIndexOf("/");
+
+  return statusTopic.substring(posOfLastSlashInStatusTopic + 1);
 }
 
 void HomeStatusDisplay::handleTest(String msg)

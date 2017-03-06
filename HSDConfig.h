@@ -39,7 +39,8 @@ public:
     TYPE_WINDOW,
     TYPE_DOOR,
     TYPE_LIGHT,
-    TYPE_ALARM
+    TYPE_ALARM,
+    TYPE_UNKNOWN
   };
 
   /*
