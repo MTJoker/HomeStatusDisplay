@@ -219,7 +219,7 @@ void HSDWebserver::deliverColorMappingPage()
 
   html += F("<p><input type='checkbox' name='oiu' value='1' ");
   html += checkBoxChecked;
-  html += F(">Switch off if message is undefined</p>");
+  html += F(">Behavior 'Off' if message is undefined</p>");
 
   html += F(""
   "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
