@@ -248,9 +248,7 @@ void HSDConfig::writeMainConfigFile()
 
   if(!m_mainConfigFile.write(&json))
   {
-    Serial.println(F("Failed to write main config file, formatting file system."));
-    SPIFFS.format();
-    Serial.println(F("Done."));
+    onFileWriteError();
   }
 }
 
@@ -273,9 +271,7 @@ void HSDConfig::writeColorMappingConfigFile()
 
   if(!m_colorMappingConfigFile.write(&json))
   {
-    Serial.println(F("Failed to write color mapping config file, formatting file system."));
-    SPIFFS.format();
-    Serial.println(F("Done."));
+    onFileWriteError();
   }
 }
 
@@ -297,9 +293,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
   
   if(!m_deviceMappingConfigFile.write(&json))
   {
-    Serial.println(F("Failed to write device mapping config file, formatting file system."));
-    SPIFFS.format();
-    Serial.println(F("Done."));
+    onFileWriteError();
   } 
 }
 
@@ -316,6 +310,13 @@ void HSDConfig::saveColorMapping()
 void HSDConfig::saveDeviceMapping()
 {
   writeDeviceMappingConfigFile();
+}
+
+void HSDConfig::onFileWriteError()
+{
+  Serial.println(F("Failed to write file, formatting file system."));
+  SPIFFS.format();
+  Serial.println(F("Done.")); 
 }
 
 bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)

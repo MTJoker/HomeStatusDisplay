@@ -52,7 +52,7 @@ public:
     deviceType type;                        // type of the device
     int ledNumber;                          // led number on which reactions for this device are displayed
   };
-  
+
   /*
    * This struct is used for mapping a message for a specific device
    * type to a led behavior (see LedSwitcher::ledState).
@@ -134,6 +134,8 @@ private:
 
   bool readDeviceMappingConfigFile();
   void writeDeviceMappingConfigFile();
+
+  void onFileWriteError();
 
   static const int MAX_VERSION_LEN           = 20;
   static const int MAX_HOST_LEN              = 30;
