@@ -20,11 +20,6 @@ public:
 
 private:
 
-  static const uint32_t blinkOnTime   = 500;
-  static const uint32_t blinkOffTime  = 500;
-  static const uint32_t flashOnTime  = 2000;
-  static const uint32_t flashOffTime  = 200;
-
   void updateStripe();
 
   const HSDConfig& m_config;

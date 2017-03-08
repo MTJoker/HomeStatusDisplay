@@ -11,7 +11,8 @@ public:
     OFF,
     ON,
     BLINKING,
-    FLASHING
+    FLASHING,
+    FLICKERING
   };
 
   enum Color
@@ -29,6 +30,7 @@ public:
   void setOff();
   void setBlinking(Color color);
   void setFlashing(Color color);
+  void setFlickering(Color color);
   void update();
   Color getColor();
   
@@ -38,6 +40,8 @@ private:
   static const uint32_t blinkOffTime = 500;
   static const uint32_t flashOnTime = 2000;
   static const uint32_t flashOffTime = 200;
+  static const uint32_t flickerOnTime  = 100;
+  static const uint32_t flickerOffTime  = 100;
   
   Behavior m_behavior;
   Color m_color;

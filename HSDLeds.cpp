@@ -50,6 +50,10 @@ void HSDLeds::set(uint32_t ledNum, HSDLed::Behavior behavior, HSDLed::Color colo
     {
       m_pLeds[ledNum].setFlashing(color);
     }
+    else if(behavior == HSDLed::FLICKERING)
+    {
+      m_pLeds[ledNum].setFlickering(color);
+    }
 
     updateStripe();
   }

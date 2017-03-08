@@ -51,6 +51,19 @@ void HSDLed::setFlashing(Color color)
   }
 }
 
+void HSDLed::setFlickering(Color color)
+{
+  if( (m_behavior != FLICKERING) && (m_color != color) ) 
+  {
+    m_behavior = FLICKERING;
+    m_color = color;
+    m_isOn = true;
+    m_previousMillis = 0;
+    m_onTime = flickerOnTime;
+    m_offTime = flickerOffTime;
+  }
+}
+
 HSDLed::Color HSDLed::getColor()
 {
   return m_isOn ? m_color : NONE;
@@ -58,7 +71,7 @@ HSDLed::Color HSDLed::getColor()
 
 void HSDLed::update()
 {
-  if( (m_behavior == BLINKING) || (m_behavior == FLASHING) )
+  if( (m_behavior == BLINKING) || (m_behavior == FLASHING) || (m_behavior == FLICKERING) )
   {
     // check to see if it's time to change the state of the LED
     unsigned long currentMillis = millis();

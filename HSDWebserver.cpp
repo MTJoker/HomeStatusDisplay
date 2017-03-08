@@ -248,10 +248,11 @@ void HSDWebserver::deliverColorMappingPage()
       String yellowSelect = (mapping->color == HSDLed::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
       String whiteSelect  = (mapping->color == HSDLed::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
 
-      String onSelect       = (mapping->behavior == HSDLed::ON)       ? SELECTED_STRING : EMPTY_STRING;
-      String offSelect      = (mapping->behavior == HSDLed::OFF)      ? SELECTED_STRING : EMPTY_STRING;
-      String blinkingSelect = (mapping->behavior == HSDLed::BLINKING) ? SELECTED_STRING : EMPTY_STRING;
-      String flashingSelect = (mapping->behavior == HSDLed::FLASHING) ? SELECTED_STRING : EMPTY_STRING;
+      String onSelect       =   (mapping->behavior == HSDLed::ON)         ? SELECTED_STRING : EMPTY_STRING;
+      String offSelect      =   (mapping->behavior == HSDLed::OFF)        ? SELECTED_STRING : EMPTY_STRING;
+      String blinkingSelect =   (mapping->behavior == HSDLed::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
+      String flashingSelect =   (mapping->behavior == HSDLed::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
+      String flickeringSelect = (mapping->behavior == HSDLed::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
 
       String name     = "n" + String(i);
       String type     = "t" + String(i);
@@ -285,10 +286,11 @@ void HSDWebserver::deliverColorMappingPage()
       html += F("<td><select name='");
       html += behavior;
       html += F("'>");
-      html += F("<option "); html += onSelect;       html += F(" value='"); html += HSDLed::ON;       html += F("'>On</option>");
-      html += F("<option "); html += offSelect ;     html += F(" value='"); html += HSDLed::OFF;      html += F("'>Off</option>");
-      html += F("<option "); html += blinkingSelect; html += F(" value='"); html += HSDLed::BLINKING; html += F("'>Blinking</option>");
-      html += F("<option "); html += flashingSelect; html += F(" value='"); html += HSDLed::FLASHING; html += F("'>Flashing</option>");
+      html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDLed::ON;         html += F("'>On</option>");
+      html += F("<option "); html += offSelect ;       html += F(" value='"); html += HSDLed::OFF;        html += F("'>Off</option>");
+      html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDLed::BLINKING;   html += F("'>Blinking</option>");
+      html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDLed::FLASHING;   html += F("'>Flashing</option>");
+      html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDLed::FLICKERING; html += F("'>Flickering</option>");
       html += F("</select></td></tr>");
     }
   }
