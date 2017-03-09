@@ -3,7 +3,6 @@
 #define SELECTED_STRING (F("selected='selected'"))
 #define CHECKED_STRING  (F("checked='checked'")) 
 #define EMPTY_STRING    (F(""))
-#define BUTTON_STYLE    (F("style='height:30px; width:100px; border:0;background-color:black;color:#fff;margin:5px;cursor:pointer;'"));  // TODO: use css
 
 HSDWebserver::HSDWebserver(HSDConfig& config)
 :
@@ -20,9 +19,10 @@ void HSDWebserver::begin()
 
   m_server.begin();
 
-  m_server.on("/", std::bind(&HSDWebserver::deliverRootPage, this));
-  m_server.on("/colormapping", std::bind(&HSDWebserver::deliverColorMappingPage, this));
-  m_server.on("/devicemapping", std::bind(&HSDWebserver::deliverDeviceMappingPage, this));
+  m_server.on("/", std::bind(&HSDWebserver::deliverStatusPage, this));
+  m_server.on("/cfgmain", std::bind(&HSDWebserver::deliverRootPage, this));
+  m_server.on("/cfgcolormapping", std::bind(&HSDWebserver::deliverColorMappingPage, this));
+  m_server.on("/cfgdevicemapping", std::bind(&HSDWebserver::deliverDeviceMappingPage, this));
   m_server.onNotFound(std::bind(&HSDWebserver::deliverNotFoundPage, this));
 }
 
@@ -31,16 +31,17 @@ void HSDWebserver::handleClient()
   m_server.handleClient();
 }
 
-String HSDWebserver::getHeader(const char* title)
+String HSDWebserver::htmlHeader(const char* title)
 {
   String header;
-  header.reserve(400);
+  header.reserve(1500);
 
   header  = F("<!doctype html> <html>");
   header += F("<head><meta charset='utf-8'>");
   header += F("<title>");
   header += String(m_config.getHost());
   header += F("</title>");
+  header += F("<style>.button {border-radius:0;height:30px;width:100px;border:0;background-color:black;color:#fff;margin:5px;cursor:pointer;}</style>");
   header += F("</head>");
   header += F("<body bgcolor='#e5e5e5'><font face='Verdana,Arial,Helvetica'>");
   header += F("<font size='+3'>");
@@ -48,11 +49,84 @@ String HSDWebserver::getHeader(const char* title)
   header += F("</font><font size='-3'>V");
   header += String(m_config.getVersion());
   header += F("</font>");
-  header += F("<p><a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/></p><h4>"); 
+  header += F("<form><p><input type='button' class='button' onclick=\"location.href='./'\"  value='Status'>");
+  header += F("<input type='submit' class='button'value='Reboot' id='reset' name='reset'>");
+  header += F("<input type='button' class='button'onclick=\"location.href='./update'\"  value='Update Firmware'></p>");
+  
+  header += F("<p><input type='button' class='button'onclick=\"location.href='./cfgmain'\"  value='General'>");
+  header += F("<input type='button' class='button'onclick=\"location.href='./cfgcolormapping'\"  value='Color mapping'>");
+  header += F("<input type='button' class='button'onclick=\"location.href='./cfgdevicemapping'\"  value='Device mapping'></p></form>");
+  
+  header += F("<h4>"); 
   header += title;
   header += F("</h4>");
+
+  Serial.print(F("Header size: "));
+  Serial.println(header.length());
   
   return header;
+}
+
+String HSDWebserver::htmlSaveButton()
+{
+  return F("<input type='submit' class='button' value='Save'>");
+}
+
+String HSDWebserver::htmlColorOptions(HSDLed::Color selectedColor)
+{
+  String noneSelect   = (selectedColor == HSDLed::NONE)   ? SELECTED_STRING : EMPTY_STRING;
+  String redSelect    = (selectedColor == HSDLed::RED)    ? SELECTED_STRING : EMPTY_STRING;
+  String greenSelect  = (selectedColor == HSDLed::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
+  String blueSelect   = (selectedColor == HSDLed::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
+  String yellowSelect = (selectedColor == HSDLed::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
+  String whiteSelect  = (selectedColor == HSDLed::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
+
+  String html;
+  
+  html += F("<option "); html += noneSelect;   html += F(" value='"); html += HSDLed::NONE;   html += F("'>None</option>");
+  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDLed::RED;    html += F("'>Red</option>");
+  html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDLed::GREEN;  html += F("'>Green</option>");
+  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDLed::BLUE;   html += F("'>Blue</option>");
+  html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDLed::YELLOW; html += F("'>Yellow</option>");
+  html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDLed::WHITE;  html += F("'>White</option>");
+
+  return html;
+}
+
+String HSDWebserver::htmlTypeOptions(HSDConfig::deviceType selectedType)
+{
+  String windowSelect = (selectedType == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
+  String doorSelect   = (selectedType == HSDConfig::TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
+  String lightSelect  = (selectedType == HSDConfig::TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
+  String alarmSelect  = (selectedType == HSDConfig::TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;
+
+  String html;
+  
+  html += F("<option "); html += windowSelect; html += F(" value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
+  html += F("<option "); html += doorSelect;   html += F("value='");  html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
+  html += F("<option "); html += lightSelect;  html += F("value='");  html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
+  html += F("<option "); html += alarmSelect;  html += F("value='");  html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
+  
+  return html;
+}
+
+String HSDWebserver::htmlBehaviorOptions(HSDLed::Behavior selectedBehavior)
+{
+  String onSelect       =   (selectedBehavior == HSDLed::ON)         ? SELECTED_STRING : EMPTY_STRING;
+  String offSelect      =   (selectedBehavior == HSDLed::OFF)        ? SELECTED_STRING : EMPTY_STRING;
+  String blinkingSelect =   (selectedBehavior == HSDLed::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
+  String flashingSelect =   (selectedBehavior == HSDLed::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
+  String flickeringSelect = (selectedBehavior == HSDLed::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
+  
+  String html;
+
+  html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDLed::ON;         html += F("'>On</option>");
+  html += F("<option "); html += offSelect ;       html += F(" value='"); html += HSDLed::OFF;        html += F("'>Off</option>");
+  html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDLed::BLINKING;   html += F("'>Blinking</option>");
+  html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDLed::FLASHING;   html += F("'>Flashing</option>");
+  html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDLed::FLICKERING; html += F("'>Flickering</option>");
+  
+  return html;
 }
 
 void HSDWebserver::deliverRootPage()
@@ -62,20 +136,7 @@ void HSDWebserver::deliverRootPage()
   String html;
   html.reserve(3000);
   
-  html = getHeader("Main configuration");
-
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    html += F("Device is connected to WLAN: <b>");
-    html += WiFi.SSID();
-    html += F("</b><br/>IP: <b>");
-    html += ip2String(WiFi.localIP());
-    html += F("</b><br/><br/>");
-  }
-  else
-  {
-    html += F("Device is not connected to local network yet.<br/><br/>");
-  }
+  html = htmlHeader("General configuration");
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
   
@@ -150,9 +211,7 @@ void HSDWebserver::deliverRootPage()
   html += String(m_config.getLedDataPin());
   html += F("' size='30' maxlength='40' placeholder='0'></td></tr></table>");
 
-  html += F("<input type='submit' value='Save'");  html += BUTTON_STYLE; html += F(">");
-  html += F("<input type='submit' value='Reboot'"); html += BUTTON_STYLE; html += F(">");
-  html += F("<input type='button' onclick=\"location.href='./update'\"  value='Update Firmware'"); html += BUTTON_STYLE; html += F(">");
+  html += htmlSaveButton();
 
   html += F("</form></font></body></html>");
   
@@ -167,13 +226,37 @@ void HSDWebserver::deliverRootPage()
     m_config.saveMain();
   }
 
-  if(m_server.hasArg(F("reset"))) 
-  {
-    Serial.println(F("Rebooting ESP."));
-    ESP.restart();
-  }
+  checkReboot();
 
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
+}
+
+void HSDWebserver::deliverStatusPage()
+{
+  String html;
+  html.reserve(3000);
+  
+  html = htmlHeader("Status");
+
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    html += F("Device is connected to WLAN <b>");
+    html += WiFi.SSID();
+    html += F("</b><br/>IP address is <b>");
+    html += ip2String(WiFi.localIP());
+    html += F("</b><br/><br/>");
+  }
+  else
+  {
+    html += F("Device is not connected to local network.<br/><br/>");
+  }
+
+  Serial.print(F("Page size: "));
+  Serial.println(html.length());
+  
+  m_server.send(200, F("text/html"), html);
+
+  checkReboot();
 }
 
 void HSDWebserver::deliverColorMappingPage()
@@ -183,7 +266,7 @@ void HSDWebserver::deliverColorMappingPage()
   String html;
   html.reserve(17000);
   
-  html = getHeader("Color mapping configuration");
+  html = htmlHeader("Color mapping configuration");
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -208,24 +291,6 @@ void HSDWebserver::deliverColorMappingPage()
 
     if(mapping)
     {
-      String windowSelect = (mapping->type == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
-      String doorSelect   = (mapping->type == HSDConfig::TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
-      String lightSelect  = (mapping->type == HSDConfig::TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
-      String alarmSelect  = (mapping->type == HSDConfig::TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;
-      
-      String noneSelect   = (mapping->color == HSDLed::NONE)   ? SELECTED_STRING : EMPTY_STRING;
-      String redSelect    = (mapping->color == HSDLed::RED)    ? SELECTED_STRING : EMPTY_STRING;
-      String greenSelect  = (mapping->color == HSDLed::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
-      String blueSelect   = (mapping->color == HSDLed::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
-      String yellowSelect = (mapping->color == HSDLed::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
-      String whiteSelect  = (mapping->color == HSDLed::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
-
-      String onSelect       =   (mapping->behavior == HSDLed::ON)         ? SELECTED_STRING : EMPTY_STRING;
-      String offSelect      =   (mapping->behavior == HSDLed::OFF)        ? SELECTED_STRING : EMPTY_STRING;
-      String blinkingSelect =   (mapping->behavior == HSDLed::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
-      String flashingSelect =   (mapping->behavior == HSDLed::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
-      String flickeringSelect = (mapping->behavior == HSDLed::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
-
       String name     = "n" + String(i);
       String type     = "t" + String(i);
       String color    = "c" + String(i);
@@ -240,29 +305,17 @@ void HSDWebserver::deliverColorMappingPage()
       html += F("<td><select name='");
       html += type;
       html += F("'>");
-      html += F("<option "); html += windowSelect; html += F(" value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
-      html += F("<option "); html += doorSelect;   html += F("value='");  html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
-      html += F("<option "); html += lightSelect;  html += F("value='");  html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
-      html += F("<option "); html += alarmSelect;  html += F("value='");  html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
+      html += htmlTypeOptions(mapping->type);
       html += F("</select></td>");
       html += F("<td><select name='");
       html += color;
       html += F("'>");
-      html += F("<option "); html += noneSelect;   html += F(" value='"); html += HSDLed::NONE;   html += F("'>None</option>");
-      html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDLed::RED;    html += F("'>Red</option>");
-      html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDLed::GREEN;  html += F("'>Green</option>");
-      html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDLed::BLUE;   html += F("'>Blue</option>");
-      html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDLed::YELLOW; html += F("'>Yellow</option>");
-      html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDLed::WHITE;  html += F("'>White</option>");
+      html += htmlColorOptions(mapping->color);
       html += F("</select></td>");
       html += F("<td><select name='");
       html += behavior;
       html += F("'>");
-      html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDLed::ON;         html += F("'>On</option>");
-      html += F("<option "); html += offSelect ;       html += F(" value='"); html += HSDLed::OFF;        html += F("'>Off</option>");
-      html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDLed::BLINKING;   html += F("'>Blinking</option>");
-      html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDLed::FLASHING;   html += F("'>Flashing</option>");
-      html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDLed::FLICKERING; html += F("'>Flickering</option>");
+      html += htmlBehaviorOptions(mapping->behavior);
       html += F("</select></td></tr>");
     }
   }
@@ -280,31 +333,20 @@ void HSDWebserver::deliverColorMappingPage()
   html += F("<td><select name='");
   html += type;
   html += F("'>");
-  html += F("<option value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
-  html += F("<option value='"); html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
-  html += F("<option value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
-  html += F("<option value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
+  html += htmlTypeOptions(HSDConfig::TYPE_WINDOW);
   html += F("</select></td>");
   html += F("<td><select name='");
   html += color;
   html += F("'>");
-  html += F("<option value='"); html += HSDLed::NONE;   html += F("'>None</option>");
-  html += F("<option value='"); html += HSDLed::RED;    html += F("'>Red</option>");
-  html += F("<option value='"); html += HSDLed::GREEN;  html += F("'>Green</option>");
-  html += F("<option value='"); html += HSDLed::BLUE;   html += F("'>Blue</option>");
-  html += F("<option value='"); html += HSDLed::YELLOW; html += F("'>Yellow</option>");
-  html += F("<option value='"); html += HSDLed::WHITE;  html += F("'>White</option>");
+  html += htmlColorOptions(HSDLed::NONE);
   html += F("</select></td>");
   html += F("<td><select name='");
   html += behavior;
   html += F("'>");
-  html += F("<option value='"); html += HSDLed::ON;       html += F("'>On</option>");
-  html += F("<option value='"); html += HSDLed::OFF;      html += F("'>Off</option>");
-  html += F("<option value='"); html += HSDLed::BLINKING; html += F("'>Blinking</option>");
-  html += F("<option value='"); html += HSDLed::FLASHING; html += F("'>Flashing</option>");
+  html += htmlBehaviorOptions(HSDLed::ON);
   html += F("</select></td></tr></table>");
 
-  html += F("<input type='submit' value='Save'");  html += BUTTON_STYLE; html += F(">");
+  html += htmlSaveButton();
   html += F("</form></font></body></html>");
 
   Serial.print(F("Page size: "));
@@ -318,6 +360,8 @@ void HSDWebserver::deliverColorMappingPage()
     m_config.saveColorMapping();
   }
 
+  checkReboot();
+
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
@@ -325,7 +369,7 @@ void HSDWebserver::deliverDeviceMappingPage()
 {
   bool needSave = updateDeviceMappingConfig();
   
-  String html = getHeader("Device mapping configuration");
+  String html = htmlHeader("Device mapping configuration");
   
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -343,11 +387,6 @@ void HSDWebserver::deliverDeviceMappingPage()
 
     if(mapping)
     {
-      String windowSelect = (mapping->type == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
-      String doorSelect   = (mapping->type == HSDConfig::TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
-      String lightSelect  = (mapping->type == HSDConfig::TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
-      String alarmSelect  = (mapping->type == HSDConfig::TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;   
-
       String name = "n" + String(i);
       String type = "t" + String(i);
       String led  = "l" + String(i);
@@ -361,10 +400,7 @@ void HSDWebserver::deliverDeviceMappingPage()
       html += F("<td><select name='");
       html += type;
       html += F("'>");
-      html += F("<option "); html += windowSelect; html += F(" value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
-      html += F("<option "); html += doorSelect;   html += F("value='");  html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
-      html += F("<option "); html += lightSelect;  html += F("value='");  html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
-      html += F("<option "); html += alarmSelect;  html += F("value='");  html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
+      html += htmlTypeOptions(mapping->type);
       html += F("</select></td>");
       html += F("<td><input type='text' id='led' name='");
       html += led;
@@ -386,16 +422,13 @@ void HSDWebserver::deliverDeviceMappingPage()
   html += F("<td><select name='");
   html += type;
   html += F("'>");
-  html += F("<option value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
-  html += F("<option value='"); html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
-  html += F("<option value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
-  html += F("<option value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
+  html += htmlTypeOptions(HSDConfig::TYPE_WINDOW);
   html += F("</select></td>");
   html += F("<td><input type='text' id='led' name='");
   html += led;
   html += F("' value='' size='5' maxlength='5' placeholder='nr'></td></tr></table>");
       
-  html += F("<input type='submit' value='Save'");  html += BUTTON_STYLE; html += F(">");
+  html += htmlSaveButton();
   html += F("</form></font></body></html>");
 
   Serial.print(F("Page size: "));
@@ -408,6 +441,8 @@ void HSDWebserver::deliverDeviceMappingPage()
     Serial.println(F("Device mapping config has changed, storing it."));
     m_config.saveDeviceMapping();
   }
+
+  checkReboot();
 
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
@@ -439,6 +474,15 @@ String HSDWebserver::ip2String(IPAddress ip)
   sprintf(buffer, "%d.%d.%d.%d", ip[0],ip[1],ip[2],ip[3]);
   
   return String(buffer);
+}
+
+void HSDWebserver::checkReboot()
+{
+  if(m_server.hasArg(F("reset"))) 
+  {
+    Serial.println(F("Rebooting ESP."));
+    ESP.restart();
+  }
 }
 
 bool HSDWebserver::updateMainConfig()

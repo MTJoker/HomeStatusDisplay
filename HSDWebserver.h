@@ -17,12 +17,20 @@ public:
 private:
 
   void deliverRootPage();
+  void deliverStatusPage();
   void deliverColorMappingPage();
   void deliverDeviceMappingPage();
   void deliverNotFoundPage();
 
-  String getHeader(const char* title);
+  void checkReboot();
+  String htmlHeader(const char* title);
+  String htmlSaveButton();
+  String htmlColorOptions(HSDLed::Color selectedColor);
+  String htmlTypeOptions(HSDConfig::deviceType selectedType);
+  String htmlBehaviorOptions(HSDLed::Behavior selectedBehavior);
+
   String ip2String(IPAddress ip);
+  
   bool updateMainConfig();
   bool updateColorMappingConfig();
   bool updateDeviceMappingConfig();
