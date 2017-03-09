@@ -28,6 +28,8 @@ private:
   String htmlColorOptions(HSDLed::Color selectedColor);
   String htmlTypeOptions(HSDConfig::deviceType selectedType);
   String htmlBehaviorOptions(HSDLed::Behavior selectedBehavior);
+  String htmlColorMappingEntry(int entryNum, const HSDConfig::colorMapping* mapping);
+  String htmlDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping);
 
   String ip2String(IPAddress ip);
   

@@ -34,7 +34,7 @@ void HSDWebserver::handleClient()
 String HSDWebserver::htmlHeader(const char* title)
 {
   String header;
-  header.reserve(1500);
+  header.reserve(1000);
 
   header  = F("<!doctype html> <html>");
   header += F("<head><meta charset='utf-8'>");
@@ -60,9 +60,6 @@ String HSDWebserver::htmlHeader(const char* title)
   header += F("<h4>"); 
   header += title;
   header += F("</h4>");
-
-  Serial.print(F("Header size: "));
-  Serial.println(header.length());
   
   return header;
 }
@@ -126,6 +123,84 @@ String HSDWebserver::htmlBehaviorOptions(HSDLed::Behavior selectedBehavior)
   html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDLed::FLASHING;   html += F("'>Flashing</option>");
   html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDLed::FLICKERING; html += F("'>Flickering</option>");
   
+  return html;
+}
+
+String HSDWebserver::htmlColorMappingEntry(int entryNum, const HSDConfig::colorMapping* mapping)
+{
+  String name     = "n" + String(entryNum);
+  String type     = "t" + String(entryNum);
+  String color    = "c" + String(entryNum);
+  String behavior = "b" + String(entryNum);
+
+  const HSDConfig::colorMapping* mappingInternal = mapping;
+  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDLed::NONE, HSDLed::OFF};
+
+  if(!mapping)
+  {
+    mappingInternal = &mappingDefault;
+  }
+  
+  String html;
+  
+  html += F("<tr>");
+  html += F("<td><input type='text' id='name' name='");
+  html += name;
+  html += F("' value='");
+  html += mappingInternal->msg;
+  html += F("' size='20' maxlength='20' placeholder='name'></td>");
+  html += F("<td><select name='");
+  html += type;
+  html += F("'>");
+  html += htmlTypeOptions(mappingInternal->type);
+  html += F("</select></td>");
+  html += F("<td><select name='");
+  html += color;
+  html += F("'>");
+  html += htmlColorOptions(mappingInternal->color);
+  html += F("</select></td>");
+  html += F("<td><select name='");
+  html += behavior;
+  html += F("'>");
+  html += htmlBehaviorOptions(mappingInternal->behavior);
+  html += F("</select></td></tr>");
+
+  return html;
+}
+
+String HSDWebserver::htmlDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping)
+{
+  String name = "n" + String(entryNum);
+  String type = "t" + String(entryNum);
+  String led  = "l" + String(entryNum);
+
+  const HSDConfig::deviceMapping* mappingInternal = mapping;
+  HSDConfig::deviceMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, m_config.getNumberOfDeviceMappingEntries()};
+
+  if(!mapping)
+  {
+    mappingInternal = &mappingDefault;
+  }
+  
+  String html;
+    
+  html += F("<tr>");
+  html += F("<td><input type='text' id='name' name='");
+  html += name;
+  html += F("' value='");
+  html += mappingInternal->name;
+  html += F("' size='30' maxlength='30' placeholder='name'></td>");
+  html += F("<td><select name='");
+  html += type;
+  html += F("'>");
+  html += htmlTypeOptions(mappingInternal->type);
+  html += F("</select></td>");
+  html += F("<td><input type='text' id='led' name='");
+  html += led;
+  html += F("' value='");
+  html += mappingInternal->ledNumber;
+  html += F("' size='5' maxlength='5' placeholder='nr'></td></tr>");
+
   return html;
 }
 
@@ -240,15 +315,27 @@ void HSDWebserver::deliverStatusPage()
 
   if (WiFi.status() == WL_CONNECTED)
   {
-    html += F("Device is connected to WLAN <b>");
+    html += F("<p>Device is connected to WLAN <b>");
     html += WiFi.SSID();
     html += F("</b><br/>IP address is <b>");
     html += ip2String(WiFi.localIP());
-    html += F("</b><br/><br/>");
+    html += F("</b><br/><p>");
   }
   else
   {
-    html += F("Device is not connected to local network.<br/><br/>");
+    html += F("<p>Device is not connected to local network<p>");
+  }
+
+  if(m_config.getNumberOfLeds() == 0)
+  {
+    html += F("<p>No LEDs configured yet<p>");
+  }
+  else
+  {
+    for(int ledIndex = 0; ledIndex < m_config.getNumberOfLeds(); ledIndex++)
+    {
+      // TODO: get led status
+    }
   }
 
   Serial.print(F("Page size: "));
@@ -291,61 +378,14 @@ void HSDWebserver::deliverColorMappingPage()
 
     if(mapping)
     {
-      String name     = "n" + String(i);
-      String type     = "t" + String(i);
-      String color    = "c" + String(i);
-      String behavior = "b" + String(i);
-      
-      html += F("<tr>");
-      html += F("<td><input type='text' id='name' name='");
-      html += name;
-      html += F("' value='");
-      html += mapping->msg;
-      html += F("' size='20' maxlength='20' placeholder='name'></td>");
-      html += F("<td><select name='");
-      html += type;
-      html += F("'>");
-      html += htmlTypeOptions(mapping->type);
-      html += F("</select></td>");
-      html += F("<td><select name='");
-      html += color;
-      html += F("'>");
-      html += htmlColorOptions(mapping->color);
-      html += F("</select></td>");
-      html += F("<td><select name='");
-      html += behavior;
-      html += F("'>");
-      html += htmlBehaviorOptions(mapping->behavior);
-      html += F("</select></td></tr>");
+      html += htmlColorMappingEntry(i, mapping);
     }
   }
-
-  String name     = "n" + String(m_config.getNumberOfColorMappingEntries());
-  String type     = "t" + String(m_config.getNumberOfColorMappingEntries());
-  String color    = "c" + String(m_config.getNumberOfColorMappingEntries());
-  String behavior = "b" + String(m_config.getNumberOfColorMappingEntries());
-
+  
   // one additional for adding an entry
-  html += F("<tr>");
-  html += F("<td><input type='text' id='name' name='");
-  html += name;
-  html += F("' value='' size='20' maxlength='20' placeholder='name'></td>");
-  html += F("<td><select name='");
-  html += type;
-  html += F("'>");
-  html += htmlTypeOptions(HSDConfig::TYPE_WINDOW);
-  html += F("</select></td>");
-  html += F("<td><select name='");
-  html += color;
-  html += F("'>");
-  html += htmlColorOptions(HSDLed::NONE);
-  html += F("</select></td>");
-  html += F("<td><select name='");
-  html += behavior;
-  html += F("'>");
-  html += htmlBehaviorOptions(HSDLed::ON);
-  html += F("</select></td></tr></table>");
-
+  html += htmlColorMappingEntry(m_config.getNumberOfColorMappingEntries(), NULL);
+  html += F("</table>");
+  
   html += htmlSaveButton();
   html += F("</form></font></body></html>");
 
@@ -387,47 +427,14 @@ void HSDWebserver::deliverDeviceMappingPage()
 
     if(mapping)
     {
-      String name = "n" + String(i);
-      String type = "t" + String(i);
-      String led  = "l" + String(i);
-      
-      html += F("<tr>");
-      html += F("<td><input type='text' id='name' name='");
-      html += name;
-      html += F("' value='");
-      html += mapping->name;
-      html += F("' size='30' maxlength='30' placeholder='name'></td>");
-      html += F("<td><select name='");
-      html += type;
-      html += F("'>");
-      html += htmlTypeOptions(mapping->type);
-      html += F("</select></td>");
-      html += F("<td><input type='text' id='led' name='");
-      html += led;
-      html += F("' value='");
-      html += mapping->ledNumber;
-      html += F("' size='5' maxlength='5' placeholder='nr'></td></tr>");
+      html += htmlDeviceMappingEntry(i, mapping);
     }
   }
 
-  String name = "n" + String(m_config.getNumberOfDeviceMappingEntries());
-  String type = "t" + String(m_config.getNumberOfDeviceMappingEntries());
-  String led  = "l" + String(m_config.getNumberOfDeviceMappingEntries());
-
   // one additional for adding an entry
-  html += F("<tr>");
-  html += F("<td><input type='text' id='name' name='");
-  html += name;
-  html += F("' value='' size='30' maxlength='30' placeholder='name'></td>");
-  html += F("<td><select name='");
-  html += type;
-  html += F("'>");
-  html += htmlTypeOptions(HSDConfig::TYPE_WINDOW);
-  html += F("</select></td>");
-  html += F("<td><input type='text' id='led' name='");
-  html += led;
-  html += F("' value='' size='5' maxlength='5' placeholder='nr'></td></tr></table>");
-      
+  html += htmlDeviceMappingEntry(m_config.getNumberOfDeviceMappingEntries(), NULL);     
+  html += F("</table>");
+     
   html += htmlSaveButton();
   html += F("</form></font></body></html>");
 
