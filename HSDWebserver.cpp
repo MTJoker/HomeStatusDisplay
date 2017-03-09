@@ -3,6 +3,7 @@
 #define SELECTED_STRING (F("selected='selected'"))
 #define CHECKED_STRING  (F("checked='checked'")) 
 #define EMPTY_STRING    (F(""))
+#define BUTTON_STYLE    (F("style='height:30px; width:100px; border:0;background-color:black;color:#fff;margin:5px;cursor:pointer;'"));  // TODO: use css
 
 HSDWebserver::HSDWebserver(HSDConfig& config)
 :
@@ -50,9 +51,6 @@ String HSDWebserver::getHeader(const char* title)
   header += F("<p><a href='/'>Main</a> | <a href='/colormapping'>Color Mapping</a> | <a href='/devicemapping'>Device Mapping</a><br/></p><h4>"); 
   header += title;
   header += F("</h4>");
-
-  Serial.print(F("Header size: "));
-  Serial.println(header.length());
   
   return header;
 }
@@ -150,39 +148,13 @@ void HSDWebserver::deliverRootPage()
   "  <td>LED pin</td>");
   html += F("  <td><input type='text' id='ledPin' name='ledPin' value='");
   html += String(m_config.getLedDataPin());
-  html += F("' size='30' maxlength='40' placeholder='0'></td></tr>");
+  html += F("' size='30' maxlength='40' placeholder='0'></td></tr></table>");
 
-  html += F(""
-  " <tr>"
-  "  <td></td>"
-  "  <td></td>"
-  " </tr>"
-  " <tr>"
-  "  <td></td>"
-  "  <td><input type='submit' value='Save' style='height:30px; width:200px' ></td>"
-  " </tr>");
+  html += F("<input type='submit' value='Save'");  html += BUTTON_STYLE; html += F(">");
+  html += F("<input type='submit' value='Reboot'"); html += BUTTON_STYLE; html += F(">");
+  html += F("<input type='button' onclick=\"location.href='./update'\"  value='Update Firmware'"); html += BUTTON_STYLE; html += F(">");
 
-  html += F(""
-  " <tr>"
-  "  <td></td>"
-  "  <td></td>"
-  " </tr>"
-  " <tr>"
-  "  <td></td>"
-  "  <td><input type='submit' value='Reboot' id='reset' name='reset' value='' style='height:30px; width:200px'></td>"
-  " </tr>");
-
-  html += F(""
-  " <tr>"
-  "  <td></td>"
-  "  <td></td>"
-  " </tr>"
-  " <tr>"
-  "  <td></td>"
-  "  <td><input type='button' onclick=\"location.href='./update'\"  value='Update Firmware' style='height:30px; width:200px' ></td>"
-  " </tr>");
-  
-  html += F("</table></form></font></body></html>");
+  html += F("</form></font></body></html>");
   
   Serial.print(F("Page size: "));
   Serial.println(html.length());
@@ -330,16 +302,10 @@ void HSDWebserver::deliverColorMappingPage()
   html += F("<option value='"); html += HSDLed::OFF;      html += F("'>Off</option>");
   html += F("<option value='"); html += HSDLed::BLINKING; html += F("'>Blinking</option>");
   html += F("<option value='"); html += HSDLed::FLASHING; html += F("'>Flashing</option>");
-  html += F("</select></td></tr>");
-  
-  html += F(""
-  " <tr>"
-  "  <td></td>"
-  "  <td></td>"
-  "  <td colspan='2'><input type='submit' value='Save' style='height:30px; width:150px'></td>"
-  " </tr>");
+  html += F("</select></td></tr></table>");
 
-  html += F("</table></form></font></body></html>");
+  html += F("<input type='submit' value='Save'");  html += BUTTON_STYLE; html += F(">");
+  html += F("</form></font></body></html>");
 
   Serial.print(F("Page size: "));
   Serial.println(html.length());
@@ -427,15 +393,10 @@ void HSDWebserver::deliverDeviceMappingPage()
   html += F("</select></td>");
   html += F("<td><input type='text' id='led' name='");
   html += led;
-  html += F("' value='' size='5' maxlength='5' placeholder='nr'></td></tr>");
+  html += F("' value='' size='5' maxlength='5' placeholder='nr'></td></tr></table>");
       
-  html += F(""
-  " <tr>"
-  "  <td></td>"
-  "  <td colspan='2'><input type='submit' value='Save' style='height:30px; width:120px'></td>"
-  " </tr>");
-
-  html += F("</table></form></font></body></html>");
+  html += F("<input type='submit' value='Save'");  html += BUTTON_STYLE; html += F(">");
+  html += F("</form></font></body></html>");
 
   Serial.print(F("Page size: "));
   Serial.println(html.length());
@@ -547,8 +508,6 @@ bool HSDWebserver::updateColorMappingConfig()
   bool needSave = false;
 
   int numArgs = m_server.args();
-
-  Serial.println("Got " + String(numArgs)  + " args");
 
   if(numArgs != 0)    // when page is initially loaded, do nothing because no args
   {
