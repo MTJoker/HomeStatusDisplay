@@ -14,8 +14,13 @@ public:
   void begin();
   void update();
   void clear();
+  
   void set(uint32_t ledNum, HSDLed::Behavior behavior, HSDLed::Color color);
   void setAll(HSDLed::Behavior behavior, HSDLed::Color color);
+
+  HSDLed::Color getColor(uint32_t ledNum) const;
+  HSDLed::Behavior getBehavior(uint32_t ledNum) const;
+
   void test(uint32_t type);
 
 private:

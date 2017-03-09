@@ -64,9 +64,19 @@ void HSDLed::setFlickering(Color color)
   }
 }
 
-HSDLed::Color HSDLed::getColor()
+HSDLed::Color HSDLed::getColor() const
 {
-  return m_isOn ? m_color : NONE;
+  return m_color;
+}
+
+HSDLed::Behavior HSDLed::getBehavior() const
+{
+  return m_behavior;
+}
+
+bool HSDLed::isOn() const
+{
+  return m_isOn;
 }
 
 void HSDLed::update()

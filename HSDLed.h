@@ -32,7 +32,10 @@ public:
   void setFlashing(Color color);
   void setFlickering(Color color);
   void update();
-  Color getColor();
+  
+  Color getColor() const;
+  Behavior getBehavior() const;
+  bool isOn() const;
   
 private:
 

@@ -3,13 +3,14 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include "HSDConfig.h"
+#include "HSDLeds.h"
 
 class HSDWebserver
 {
   
 public:
 
-  HSDWebserver(HSDConfig& config);
+  HSDWebserver(HSDConfig& config, const HSDLeds& leds);
 
   void begin();
   void handleClient();
@@ -32,6 +33,8 @@ private:
   String htmlDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping);
 
   String ip2String(IPAddress ip);
+  String color2String(HSDLed::Color color);
+  String behavior2String(HSDLed::Behavior behavior);
   
   bool updateMainConfig();
   bool updateColorMappingConfig();
@@ -40,4 +43,5 @@ private:
   ESP8266WebServer m_server;
   ESP8266HTTPUpdateServer m_updateServer;
   HSDConfig& m_config;
+  const HSDLeds& m_leds;
 };

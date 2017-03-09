@@ -69,11 +69,42 @@ void HSDLeds::setAll(HSDLed::Behavior behavior, HSDLed::Color color)
   updateStripe();
 }
 
+HSDLed::Color HSDLeds::getColor(uint32_t ledNum) const
+{
+  HSDLed::Color color = HSDLed::NONE;
+
+  if(ledNum < m_numLeds)
+  {
+    color = m_pLeds[ledNum].getColor();
+  }
+  
+  return color;
+}
+
+HSDLed::Behavior HSDLeds::getBehavior(uint32_t ledNum) const
+{
+  HSDLed::Behavior behavior = HSDLed::OFF;
+
+  if(ledNum < m_numLeds)
+  {
+    behavior = m_pLeds[ledNum].getBehavior();
+  }
+  
+  return behavior;
+}
+
 void HSDLeds::updateStripe()
 {
   for(uint32_t i=0; i < m_numLeds; i++)
   {
-    m_stripe.setPixelColor(i, m_pLeds[i].getColor());
+    if(!m_pLeds[i].isOn())
+    {
+      m_stripe.setPixelColor(i, HSDLed::NONE);
+    }
+    else
+    {
+      m_stripe.setPixelColor(i, m_pLeds[i].getColor());
+    }
   }
   
   m_stripe.show();

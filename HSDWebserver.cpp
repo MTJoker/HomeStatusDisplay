@@ -4,10 +4,11 @@
 #define CHECKED_STRING  (F("checked='checked'")) 
 #define EMPTY_STRING    (F(""))
 
-HSDWebserver::HSDWebserver(HSDConfig& config)
+HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds)
 :
 m_server(80),
-m_config(config)
+m_config(config),
+m_leds(leds)
 {
   m_updateServer.setup(&m_server);
 }
@@ -332,10 +333,26 @@ void HSDWebserver::deliverStatusPage()
   }
   else
   {
-    for(int ledIndex = 0; ledIndex < m_config.getNumberOfLeds(); ledIndex++)
+    html += F("<p>");
+    
+    for(int ledNr = 0; ledNr < m_config.getNumberOfLeds(); ledNr++)
     {
-      // TODO: get led status
+      HSDLed::Color color = m_leds.getColor(ledNr);
+      HSDLed::Behavior behavior = m_leds.getBehavior(ledNr);
+
+      if( (HSDLed::NONE != color) && (HSDLed::OFF != behavior) )
+      {
+        html += F("LED number ");
+        html += ledNr;
+        html += F(" is ");
+        html += behavior2String(behavior);
+        html += F(" with color ");
+        html += color2String(color);
+        html += F("<br/>");
+      }
     }
+
+    html += F("</p>");
   }
 
   Serial.print(F("Page size: "));
@@ -481,6 +498,39 @@ String HSDWebserver::ip2String(IPAddress ip)
   sprintf(buffer, "%d.%d.%d.%d", ip[0],ip[1],ip[2],ip[3]);
   
   return String(buffer);
+}
+
+String HSDWebserver::color2String(HSDLed::Color color)
+{
+  String colorString = F("none");
+
+  switch(color)
+  {
+    case HSDLed::RED:    colorString = F("red"); break;
+    case HSDLed::GREEN:  colorString = F("green"); break;
+    case HSDLed::BLUE:   colorString = F("blue"); break;
+    case HSDLed::YELLOW: colorString = F("yellow"); break;
+    case HSDLed::WHITE:  colorString = F("white"); break;
+    default: break;
+  }
+
+  return colorString;
+}
+
+String HSDWebserver::behavior2String(HSDLed::Behavior behavior)
+{
+  String behaviorString = F("off");
+  
+  switch(behavior)
+  {
+    case HSDLed::ON:         behaviorString = F("on"); break;
+    case HSDLed::BLINKING:   behaviorString = F("blinking"); break;
+    case HSDLed::FLASHING:   behaviorString = F("flashing"); break;
+    case HSDLed::FLICKERING: behaviorString = F("flickering"); break;
+    default: break;
+  }
+
+  return behaviorString;
 }
 
 void HSDWebserver::checkReboot()
