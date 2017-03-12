@@ -158,7 +158,15 @@ void HSDLeds::test(uint32_t type)
     }
     updateStripe();
   }
-  else if(type == 4)
+  else if(type == 4)  // all rows on
+  {
+    for(uint32_t led = 0; led < m_numLeds; led++)
+    {
+      m_pLeds[led].setOn(HSDLed::GREEN);
+    }
+    updateStripe();
+  }
+  else if(type == 5)
   {
     HSDLed::Color colors[] = {HSDLed::RED, HSDLed::GREEN, HSDLed::BLUE};
 
