@@ -4,13 +4,14 @@
 #include <ESP8266HTTPUpdateServer.h>
 #include "HSDConfig.h"
 #include "HSDLeds.h"
+#include "HSDMqtt.h"
 
 class HSDWebserver
 {
   
 public:
 
-  HSDWebserver(HSDConfig& config, const HSDLeds& leds);
+  HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt);
 
   void begin();
   void handleClient();
@@ -34,6 +35,7 @@ private:
 
   String ip2String(IPAddress ip);
   String color2String(HSDLed::Color color);
+  String color2htmlColor(HSDLed::Color color);
   String behavior2String(HSDLed::Behavior behavior);
   
   bool updateMainConfig();
@@ -44,4 +46,5 @@ private:
   ESP8266HTTPUpdateServer m_updateServer;
   HSDConfig& m_config;
   const HSDLeds& m_leds;
+  const HSDMqtt& m_mqtt;
 };

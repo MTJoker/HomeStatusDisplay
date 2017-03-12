@@ -12,7 +12,7 @@ int getFreeRamSize();
 
 HomeStatusDisplay::HomeStatusDisplay()
 :
-m_webServer(m_config, m_leds),
+m_webServer(m_config, m_leds, m_mqttHandler),
 m_wifi(m_config),
 m_mqttHandler(m_config, std::bind(&HomeStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
 m_leds(m_config),

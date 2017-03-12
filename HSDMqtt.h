@@ -17,7 +17,7 @@ public:
   void publish(String topic, String msg);
   bool reconnect(); 
   bool addTopic(const char* topic);
-  bool connected();
+  bool connected() const;
 
 private:
 
@@ -25,7 +25,7 @@ private:
   void subscribe(const char* topic);
 
   WiFiClient m_wifiClient;
-  PubSubClient m_pubSubClient;
+  mutable PubSubClient m_pubSubClient;
 
   const HSDConfig& m_config;
 

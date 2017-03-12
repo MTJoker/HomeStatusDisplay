@@ -4,11 +4,12 @@
 #define CHECKED_STRING  (F("checked='checked'")) 
 #define EMPTY_STRING    (F(""))
 
-HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds)
+HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt)
 :
 m_server(80),
 m_config(config),
-m_leds(leds)
+m_leds(leds),
+m_mqtt(mqtt)
 {
   m_updateServer.setup(&m_server);
 }
@@ -327,12 +328,25 @@ void HSDWebserver::deliverStatusPage()
     html += F("<p>Device is not connected to local network<p>");
   }
 
+  if(m_mqtt.connected())
+  {
+    html += F("<p>Device is connected to  MQTT broker <b>");
+    html += m_config.getMqttServer();
+    html += F("</b><p>");
+  }
+  else
+  {
+    html += F("<p>Device is not connected to an MQTT broker<p>");
+  }
+
   if(m_config.getNumberOfLeds() == 0)
   {
     html += F("<p>No LEDs configured yet<p>");
   }
   else
   {
+    int ledOnCount = 0;
+    
     html += F("<p>");
     
     for(int ledNr = 0; ledNr < m_config.getNumberOfLeds(); ledNr++)
@@ -342,14 +356,24 @@ void HSDWebserver::deliverStatusPage()
 
       if( (HSDLed::NONE != color) && (HSDLed::OFF != behavior) )
       {
-        html += F("LED number ");
+        html += F("<p><div style='background-color:");
+        html += color2htmlColor(color);
+        html += F(";width:15px;height:15px;border:1px black solid;float:left;margin-right:5px'></div>"); 
+        html += F("LED number <b>");
         html += ledNr;
-        html += F(" is ");
+        html += F("</b> is <b>");
         html += behavior2String(behavior);
-        html += F(" with color ");
-        html += color2String(color);
-        html += F("<br/>");
+        html += F("</b> with color <b>");
+        html += color2String(color);      
+        html += F("</b><br/></p>");
+
+        ledOnCount++;
       }
+    }
+
+    if(ledOnCount == 0)
+    {
+      html += F("<p>All LEDs are <b>off</b><p>");
     }
 
     html += F("</p>");
@@ -515,6 +539,23 @@ String HSDWebserver::color2String(HSDLed::Color color)
   }
 
   return colorString;
+}
+
+String HSDWebserver::color2htmlColor(HSDLed::Color color)
+{
+  String htmlcolor = F("#000000");
+
+  switch(color)
+  {
+    case HSDLed::RED:    htmlcolor = F("#FF0000"); break;
+    case HSDLed::GREEN:  htmlcolor = F("#00FF00"); break;
+    case HSDLed::BLUE:   htmlcolor = F("#0000FF"); break;
+    case HSDLed::YELLOW: htmlcolor = F("#FFFF00"); break;
+    case HSDLed::WHITE:  htmlcolor = F("#FFFFFF"); break;
+    default: break;
+  }
+
+  return htmlcolor;
 }
 
 String HSDWebserver::behavior2String(HSDLed::Behavior behavior)

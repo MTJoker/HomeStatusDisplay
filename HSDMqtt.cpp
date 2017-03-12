@@ -53,7 +53,7 @@ void HSDMqtt::handle()
   }
 }
 
-bool HSDMqtt::connected()
+bool HSDMqtt::connected() const
 {
   return m_pubSubClient.connected();
 }
