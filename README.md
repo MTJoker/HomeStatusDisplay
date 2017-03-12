@@ -1,11 +1,12 @@
 # HomeStatusDisplay
 
 Show status information sent via MQTT (e.g. from FHEM or any other MQTT-speaking system) using RGB LEDs.
-![alt tag](http://www.bernd-schubart.de/downloads/fhem/fhemstatusdisplay/fhemstatusdisplay_20.jpg)
+![alt tag](http://www.bernd-schubart.de/downloads/fhem/fhemstatusdisplay/homestatusdisplay_37.jpg)
 
 ## Requirements
 ### Hardware
-This code was tested on a wemos D1 mini ESP8266 board. It <i>should</i> run on any ESP8266 board. You need a number of WS2812B LEDs (e.g. a NeoPixel stripe) connected to 5V and GND and a data pin of the ESP. Please notice the wiring tips from Adafruit- use a large capacitor (around 1000uF) between the 5V and GND of the LEDs and put a 300-500 ohm resistor into the data line connection to the LEDs.<br>
+This code was tested on a wemos D1 mini ESP8266 board. It <i>should</i> run on any ESP8266 board. You need a number of WS2812B LEDs (e.g. a NeoPixel stripe) connected to 5V and GND and a data pin of the ESP. Please notice the wiring tips from Adafruit- use a large capacitor (around 1000uF) between the 5V and GND of the LEDs and put a 300-500 ohm resistor into the data line connection to the LEDs. Here is a overwiew of the wiring - it is the standard wiring recommended for WS2812B stripes. The board can be powered via a 5V power supply via the USB port. Of course it should be powerful enough to drive all the LEDs used:<br>
+![alt tag](http://www.bernd-schubart.de/downloads/fhem/fhemstatusdisplay/homestatusdisplay_board.png)
 
 ### Software
 The code was developed using the Arduino IDE and the ESP8266 library. You need to install the following additional libraries to compile the code:<br>
