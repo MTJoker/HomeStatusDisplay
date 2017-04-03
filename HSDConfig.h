@@ -1,6 +1,5 @@
 #pragma once
 
-#include "HSDLed.h"
 #include "HSDConfigFile.h"
 
 #define JSON_KEY_HOST                  (F("host"))
@@ -43,6 +42,25 @@ public:
     TYPE_UNKNOWN
   };
 
+  enum Behavior
+  {
+    OFF,
+    ON,
+    BLINKING,
+    FLASHING,
+    FLICKERING
+  };
+
+  enum Color
+  {
+    NONE   = 0x000000,
+    RED    = 0x0F0000,
+    GREEN  = 0x000F00,
+    BLUE   = 0x00000F,
+    YELLOW = 0x0F0F00,
+    WHITE  = 0x0F0F0F
+  };
+
   /*
    * This struct is used for mapping a device of a specific device type 
    * to a led number, that means a specific position on the led stripe
@@ -62,8 +80,8 @@ public:
   {
     char msg[MAX_COLOR_MAPPING_MSG_LEN+1];  // message 
     deviceType type;                        // type of the device
-    HSDLed::Color color;                    // led color for message from device type
-    HSDLed::Behavior behavior;              // led behavior for message from device type
+    Color color;                   // led color for message from device type
+    Behavior behavior;             // led behavior for message from device type
   };
 
   HSDConfig();
@@ -112,7 +130,7 @@ public:
   int getNumberOfColorMappingEntries() const;
   
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
-  bool addColorMappingEntry(String msg, deviceType type, HSDLed::Color color, HSDLed::Behavior behavior);
+  bool addColorMappingEntry(String msg, deviceType type, Color color, Behavior behavior);
 
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index) const; 
@@ -122,8 +140,8 @@ public:
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
-  HSDLed::Behavior getLedBehavior(int colorMapIndex);
-  HSDLed::Color getLedColor(int colorMapIndex);
+  Behavior getLedBehavior(int colorMapIndex);
+  Color getLedColor(int colorMapIndex);
 
 private:
 

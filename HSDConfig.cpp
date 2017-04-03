@@ -167,8 +167,8 @@ bool HSDConfig::readColorMappingConfigFile()
         {
           addColorMappingEntry(entry[JSON_KEY_COLORMAPPING_MSG].as<char*>(), 
                                (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
-                               (HSDLed::Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
-                               (HSDLed::Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
+                               (Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
+                               (Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
         }
       }
     }
@@ -345,7 +345,7 @@ bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumbe
   return success;
 }
 
-bool HSDConfig::addColorMappingEntry(String msg, deviceType type, HSDLed::Color color, HSDLed::Behavior behavior)
+bool HSDConfig::addColorMappingEntry(String msg, deviceType type, Color color, Behavior behavior)
 {
   bool success = false;
 
@@ -566,12 +566,12 @@ int HSDConfig::getColorMapIndex(deviceType deviceType, String msg)
   return index;
 }
 
-HSDLed::Behavior HSDConfig::getLedBehavior(int colorMapIndex)
+HSDConfig::Behavior HSDConfig::getLedBehavior(int colorMapIndex)
 {
   return m_cfgColorMapping[colorMapIndex].behavior;
 }
 
-HSDLed::Color HSDConfig::getLedColor(int colorMapIndex)
+HSDConfig::Color HSDConfig::getLedColor(int colorMapIndex)
 {
   return m_cfgColorMapping[colorMapIndex].color;
 }

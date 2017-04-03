@@ -27,16 +27,16 @@ private:
   void checkReboot();
   String htmlHeader(const char* title);
   String htmlSaveButton();
-  String htmlColorOptions(HSDLed::Color selectedColor);
+  String htmlColorOptions(HSDConfig::Color selectedColor);
   String htmlTypeOptions(HSDConfig::deviceType selectedType);
-  String htmlBehaviorOptions(HSDLed::Behavior selectedBehavior);
+  String htmlBehaviorOptions(HSDConfig::Behavior selectedBehavior);
   String htmlColorMappingEntry(int entryNum, const HSDConfig::colorMapping* mapping);
   String htmlDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping);
 
   String ip2String(IPAddress ip);
-  String color2String(HSDLed::Color color);
-  String color2htmlColor(HSDLed::Color color);
-  String behavior2String(HSDLed::Behavior behavior);
+  String color2String(HSDConfig::Color color);
+  String color2htmlColor(HSDConfig::Color color);
+  String behavior2String(HSDConfig::Behavior behavior);
   
   bool updateMainConfig();
   bool updateColorMappingConfig();

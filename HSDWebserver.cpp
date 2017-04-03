@@ -71,23 +71,23 @@ String HSDWebserver::htmlSaveButton()
   return F("<input type='submit' class='button' value='Save'>");
 }
 
-String HSDWebserver::htmlColorOptions(HSDLed::Color selectedColor)
+String HSDWebserver::htmlColorOptions(HSDConfig::Color selectedColor)
 {
-  String noneSelect   = (selectedColor == HSDLed::NONE)   ? SELECTED_STRING : EMPTY_STRING;
-  String redSelect    = (selectedColor == HSDLed::RED)    ? SELECTED_STRING : EMPTY_STRING;
-  String greenSelect  = (selectedColor == HSDLed::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
-  String blueSelect   = (selectedColor == HSDLed::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
-  String yellowSelect = (selectedColor == HSDLed::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
-  String whiteSelect  = (selectedColor == HSDLed::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
+  String noneSelect   = (selectedColor == HSDConfig::NONE)   ? SELECTED_STRING : EMPTY_STRING;
+  String redSelect    = (selectedColor == HSDConfig::RED)    ? SELECTED_STRING : EMPTY_STRING;
+  String greenSelect  = (selectedColor == HSDConfig::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
+  String blueSelect   = (selectedColor == HSDConfig::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
+  String yellowSelect = (selectedColor == HSDConfig::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
+  String whiteSelect  = (selectedColor == HSDConfig::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
 
   String html;
   
-  html += F("<option "); html += noneSelect;   html += F(" value='"); html += HSDLed::NONE;   html += F("'>None</option>");
-  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDLed::RED;    html += F("'>Red</option>");
-  html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDLed::GREEN;  html += F("'>Green</option>");
-  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDLed::BLUE;   html += F("'>Blue</option>");
-  html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDLed::YELLOW; html += F("'>Yellow</option>");
-  html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDLed::WHITE;  html += F("'>White</option>");
+  html += F("<option "); html += noneSelect;   html += F(" value='"); html += HSDConfig::NONE;   html += F("'>None</option>");
+  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDConfig::RED;    html += F("'>Red</option>");
+  html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDConfig::GREEN;  html += F("'>Green</option>");
+  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDConfig::BLUE;   html += F("'>Blue</option>");
+  html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDConfig::YELLOW; html += F("'>Yellow</option>");
+  html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDConfig::WHITE;  html += F("'>White</option>");
 
   return html;
 }
@@ -109,21 +109,21 @@ String HSDWebserver::htmlTypeOptions(HSDConfig::deviceType selectedType)
   return html;
 }
 
-String HSDWebserver::htmlBehaviorOptions(HSDLed::Behavior selectedBehavior)
+String HSDWebserver::htmlBehaviorOptions(HSDConfig::Behavior selectedBehavior)
 {
-  String onSelect       =   (selectedBehavior == HSDLed::ON)         ? SELECTED_STRING : EMPTY_STRING;
-  String offSelect      =   (selectedBehavior == HSDLed::OFF)        ? SELECTED_STRING : EMPTY_STRING;
-  String blinkingSelect =   (selectedBehavior == HSDLed::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
-  String flashingSelect =   (selectedBehavior == HSDLed::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
-  String flickeringSelect = (selectedBehavior == HSDLed::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
+  String onSelect       =   (selectedBehavior == HSDConfig::ON)         ? SELECTED_STRING : EMPTY_STRING;
+  String offSelect      =   (selectedBehavior == HSDConfig::OFF)        ? SELECTED_STRING : EMPTY_STRING;
+  String blinkingSelect =   (selectedBehavior == HSDConfig::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
+  String flashingSelect =   (selectedBehavior == HSDConfig::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
+  String flickeringSelect = (selectedBehavior == HSDConfig::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
   
   String html;
 
-  html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDLed::ON;         html += F("'>On</option>");
-  html += F("<option "); html += offSelect ;       html += F(" value='"); html += HSDLed::OFF;        html += F("'>Off</option>");
-  html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDLed::BLINKING;   html += F("'>Blinking</option>");
-  html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDLed::FLASHING;   html += F("'>Flashing</option>");
-  html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDLed::FLICKERING; html += F("'>Flickering</option>");
+  html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDConfig::ON;         html += F("'>On</option>");
+  html += F("<option "); html += offSelect ;       html += F(" value='"); html += HSDConfig::OFF;        html += F("'>Off</option>");
+  html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDConfig::BLINKING;   html += F("'>Blinking</option>");
+  html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDConfig::FLASHING;   html += F("'>Flashing</option>");
+  html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDConfig::FLICKERING; html += F("'>Flickering</option>");
   
   return html;
 }
@@ -136,7 +136,7 @@ String HSDWebserver::htmlColorMappingEntry(int entryNum, const HSDConfig::colorM
   String behavior = "b" + String(entryNum);
 
   const HSDConfig::colorMapping* mappingInternal = mapping;
-  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDLed::NONE, HSDLed::OFF};
+  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDConfig::NONE, HSDConfig::OFF};
 
   if(!mapping)
   {
@@ -351,10 +351,10 @@ void HSDWebserver::deliverStatusPage()
     
     for(int ledNr = 0; ledNr < m_config.getNumberOfLeds(); ledNr++)
     {
-      HSDLed::Color color = m_leds.getColor(ledNr);
-      HSDLed::Behavior behavior = m_leds.getBehavior(ledNr);
+      HSDConfig::Color color = m_leds.getColor(ledNr);
+      HSDConfig::Behavior behavior = m_leds.getBehavior(ledNr);
 
-      if( (HSDLed::NONE != color) && (HSDLed::OFF != behavior) )
+      if( (HSDConfig::NONE != color) && (HSDConfig::OFF != behavior) )
       {
         html += F("<p><div style='background-color:");
         html += color2htmlColor(color);
@@ -524,50 +524,50 @@ String HSDWebserver::ip2String(IPAddress ip)
   return String(buffer);
 }
 
-String HSDWebserver::color2String(HSDLed::Color color)
+String HSDWebserver::color2String(HSDConfig::Color color)
 {
   String colorString = F("none");
 
   switch(color)
   {
-    case HSDLed::RED:    colorString = F("red"); break;
-    case HSDLed::GREEN:  colorString = F("green"); break;
-    case HSDLed::BLUE:   colorString = F("blue"); break;
-    case HSDLed::YELLOW: colorString = F("yellow"); break;
-    case HSDLed::WHITE:  colorString = F("white"); break;
+    case HSDConfig::RED:    colorString = F("red"); break;
+    case HSDConfig::GREEN:  colorString = F("green"); break;
+    case HSDConfig::BLUE:   colorString = F("blue"); break;
+    case HSDConfig::YELLOW: colorString = F("yellow"); break;
+    case HSDConfig::WHITE:  colorString = F("white"); break;
     default: break;
   }
 
   return colorString;
 }
 
-String HSDWebserver::color2htmlColor(HSDLed::Color color)
+String HSDWebserver::color2htmlColor(HSDConfig::Color color)
 {
   String htmlcolor = F("#000000");
 
   switch(color)
   {
-    case HSDLed::RED:    htmlcolor = F("#FF0000"); break;
-    case HSDLed::GREEN:  htmlcolor = F("#00FF00"); break;
-    case HSDLed::BLUE:   htmlcolor = F("#0000FF"); break;
-    case HSDLed::YELLOW: htmlcolor = F("#FFFF00"); break;
-    case HSDLed::WHITE:  htmlcolor = F("#FFFFFF"); break;
+    case HSDConfig::RED:    htmlcolor = F("#FF0000"); break;
+    case HSDConfig::GREEN:  htmlcolor = F("#00FF00"); break;
+    case HSDConfig::BLUE:   htmlcolor = F("#0000FF"); break;
+    case HSDConfig::YELLOW: htmlcolor = F("#FFFF00"); break;
+    case HSDConfig::WHITE:  htmlcolor = F("#FFFFFF"); break;
     default: break;
   }
 
   return htmlcolor;
 }
 
-String HSDWebserver::behavior2String(HSDLed::Behavior behavior)
+String HSDWebserver::behavior2String(HSDConfig::Behavior behavior)
 {
   String behaviorString = F("off");
   
   switch(behavior)
   {
-    case HSDLed::ON:         behaviorString = F("on"); break;
-    case HSDLed::BLINKING:   behaviorString = F("blinking"); break;
-    case HSDLed::FLASHING:   behaviorString = F("flashing"); break;
-    case HSDLed::FLICKERING: behaviorString = F("flickering"); break;
+    case HSDConfig::ON:         behaviorString = F("on"); break;
+    case HSDConfig::BLINKING:   behaviorString = F("blinking"); break;
+    case HSDConfig::FLASHING:   behaviorString = F("flashing"); break;
+    case HSDConfig::FLICKERING: behaviorString = F("flickering"); break;
     default: break;
   }
 
@@ -681,8 +681,8 @@ bool HSDWebserver::updateColorMappingConfig()
           {
             m_config.addColorMappingEntry(m_server.arg(name), 
                                           (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                          (HSDLed::Color)(m_server.arg(color).toInt()), 
-                                          (HSDLed::Behavior)(m_server.arg(behavior).toInt()));
+                                          (HSDConfig::Color)(m_server.arg(color).toInt()), 
+                                          (HSDConfig::Behavior)(m_server.arg(behavior).toInt()));
           }
           else
           {

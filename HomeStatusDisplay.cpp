@@ -145,8 +145,8 @@ void HomeStatusDisplay::handleStatus(String device, HSDConfig::deviceType type, 
     
     if(colorMapIndex != -1)
     {
-      HSDLed::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
-      HSDLed::Color color = m_config.getLedColor(colorMapIndex);
+      HSDConfig::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
+      HSDConfig::Color color = m_config.getLedColor(colorMapIndex);
 
       Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
       m_leds.set(ledNumber, behavior, color);
@@ -154,7 +154,7 @@ void HomeStatusDisplay::handleStatus(String device, HSDConfig::deviceType type, 
     else if(m_config.isSwitchLedOffIfUnknownMessage())
     {
       Serial.println("Unknown message " + msg + " for led number " + String(ledNumber) + ", set to OFF");
-      m_leds.set(ledNumber, HSDLed::OFF, HSDLed::NONE);
+      m_leds.set(ledNumber, HSDConfig::OFF, HSDConfig::NONE);
     }
   }
   else
@@ -178,7 +178,7 @@ void HomeStatusDisplay::checkConnections()
 
   if(!m_mqttHandler.connected() && m_wifi.connected())
   {
-    m_leds.setAll(HSDLed::ON, HSDLed::YELLOW);
+    m_leds.setAll(HSDConfig::ON, HSDConfig::YELLOW);
   }
   
   if(!m_lastWifiConnectionState && m_wifi.connected())
@@ -187,7 +187,7 @@ void HomeStatusDisplay::checkConnections()
 
     if(!m_mqttHandler.connected())
     {
-      m_leds.setAll(HSDLed::ON, HSDLed::YELLOW);
+      m_leds.setAll(HSDConfig::ON, HSDConfig::YELLOW);
     }
     
     m_lastWifiConnectionState = true;
@@ -200,7 +200,7 @@ void HomeStatusDisplay::checkConnections()
 
   if(!m_wifi.connected())
   {
-    m_leds.setAll(HSDLed::ON, HSDLed::RED);
+    m_leds.setAll(HSDConfig::ON, HSDConfig::RED);
   }
 }
 
