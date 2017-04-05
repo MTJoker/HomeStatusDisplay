@@ -57,28 +57,21 @@ bool HSDConfigFile::write(JsonObject* data)
   Serial.print(F("Writing config file ")); 
   Serial.println(m_fileName); 
 
-  if(SPIFFS.exists(m_fileName)) 
-  {
-    File configFile = SPIFFS.open(m_fileName, "w");
+  File configFile = SPIFFS.open(m_fileName, "w");
 
-    if(configFile)
-    {
-      data->prettyPrintTo(Serial);
-      Serial.println(F(""));
+  if(configFile)
+  {
+    data->prettyPrintTo(Serial);
+    Serial.println(F(""));
+  
+    data->printTo(configFile);
+    configFile.close();
     
-      data->printTo(configFile);
-      configFile.close();
-      
-      success = true;
-    }
-    else
-    {
-      Serial.println(F("File open failed"));
-    }
+    success = true;
   }
   else
   {
-    Serial.println(F("File does not exist"));
+    Serial.println(F("File open failed"));
   }
 
   return success;

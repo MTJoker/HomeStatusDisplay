@@ -23,6 +23,7 @@ private:
 
   void initTopics();
   void subscribe(const char* topic);
+  bool isTopicValid(const char* topic);
 
   WiFiClient m_wifiClient;
   mutable PubSubClient m_pubSubClient;

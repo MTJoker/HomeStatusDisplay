@@ -4,17 +4,14 @@ HSDMqtt::HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE)
 :
 m_config(config),
 m_pubSubClient(m_wifiClient),
-m_lastReconnectAttempt(0)
+m_lastReconnectAttempt(0),
+m_numberOfInTopics(0)
 {
   m_pubSubClient.setCallback(callback);
 }
 
 void HSDMqtt::begin()
-{
-  Serial.println("");
-  Serial.print(F("Initializing MQTT connection to "));
-  Serial.println(m_config.getMqttServer());
-  
+{  
   initTopics();
   addTopic(m_config.getMqttStatusTopic());
   addTopic(m_config.getMqttTestTopic());
@@ -65,13 +62,29 @@ bool HSDMqtt::reconnect()
   clientId += String(random(0xffff), HEX);
 
   Serial.print(F("Connecting to MQTT broker "));
+  Serial.print(String(m_config.getMqttServer()));
   Serial.print(" with client id " + clientId + "... ");
+
+  const char* willTopic = m_config.getMqttWillTopic();
+  bool connected = false;
   
-  if(m_pubSubClient.connect(clientId.c_str(), m_config.getMqttWillTopic(), 0, false, "off")) 
+  if(isTopicValid(willTopic))
+  {
+    connected = m_pubSubClient.connect(clientId.c_str(), willTopic, 0, false, "off");
+  }
+  else
+  {
+    connected = m_pubSubClient.connect(clientId.c_str());
+  }
+  
+  if(connected) 
   {
     Serial.println(F("connected"));
 
-    publish(m_config.getMqttWillTopic(), "on");
+    if(isTopicValid(willTopic))
+    {
+      publish(m_config.getMqttWillTopic(), "on");
+    }
 
     for(uint32_t index = 0; index < m_numberOfInTopics; index++)
     {
@@ -89,7 +102,7 @@ bool HSDMqtt::reconnect()
 
 void HSDMqtt::subscribe(const char* topic)
 {
-  if(topic)
+  if(isTopicValid(topic))
   {
     Serial.print(F("Subscribing to topic "));
     Serial.println(topic);
@@ -117,14 +130,22 @@ void HSDMqtt::publish(String topic, String msg)
 bool HSDMqtt::addTopic(const char* topic)
 {
   bool success = false;
-  
-  if(m_numberOfInTopics < (MAX_IN_TOPICS - 1))
-  {
-    m_inTopics[m_numberOfInTopics] = topic;
-    m_numberOfInTopics++;
-    success = true;
+
+  if(isTopicValid(topic))
+  {  
+    if(m_numberOfInTopics < (MAX_IN_TOPICS - 1))
+    {
+      m_inTopics[m_numberOfInTopics] = topic;
+      m_numberOfInTopics++;
+      success = true;
+    }
   }
 
   return success;
+}
+
+bool HSDMqtt::isTopicValid(const char* topic)
+{
+  return (strlen(topic) > 0);
 }
 

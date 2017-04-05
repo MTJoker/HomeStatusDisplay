@@ -12,7 +12,8 @@ m_maxConnectRetries(20),
 m_numConnectRetriesDone(0),
 m_retryDelay(500),
 m_millisLastConnectTry(0),
-m_accessPointActive(false)
+m_accessPointActive(false),
+m_lastConnectStatus(false)
 {
   
 }
@@ -24,7 +25,27 @@ void HSDWifi::begin()
 
 void HSDWifi::handleConnection()
 {
-  if(!connected() && !m_accessPointActive)
+  bool isConnected = connected();
+
+  if(isConnected != m_lastConnectStatus)
+  {
+    if(isConnected)
+    {
+      Serial.print(F("WiFi connected with IP "));
+      Serial.print(WiFi.localIP());
+      Serial.println(F("."));
+      
+      m_numConnectRetriesDone = 0;
+    }
+    else
+    {
+      Serial.print(F("WiFi connection lost."));
+    }
+    
+    m_lastConnectStatus = isConnected;
+  }
+  
+  if(!isConnected && !m_accessPointActive)
   {  
     if(m_connectFailure)
     {
@@ -41,7 +62,8 @@ void HSDWifi::handleConnection()
         if(m_numConnectRetriesDone == 0)
         {
           Serial.print(F("Starting Wifi connection to "));
-          Serial.println(m_config.getWifiSSID());
+          Serial.print(m_config.getWifiSSID());
+          Serial.println(F("..."));
       
           WiFi.mode(WIFI_STA);
           WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
@@ -50,18 +72,7 @@ void HSDWifi::handleConnection()
         }
         else if(m_numConnectRetriesDone < m_maxConnectRetries)
         {
-          if(WiFi.status() != WL_CONNECTED)
-          {
-            m_numConnectRetriesDone++;
-          }
-          else
-          {
-            Serial.print(F("WiFi connected with IP "));
-            Serial.print(WiFi.localIP());
-            Serial.println(F("."));
-      
-            m_numConnectRetriesDone = 0;
-          }
+          m_numConnectRetriesDone++;
         }
         else
         {

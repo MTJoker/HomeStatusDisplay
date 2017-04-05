@@ -51,6 +51,8 @@ void HSDConfig::begin(const char* version, const char* defaultIdentifier)
 
 void HSDConfig::resetMainConfigData()
 {
+  Serial.println(F("Deleting main config data."));
+    
   setWifiSSID("");
   setWifiPSK("");
 

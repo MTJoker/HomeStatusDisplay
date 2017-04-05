@@ -23,5 +23,6 @@ private:
   int m_retryDelay;
   unsigned long m_millisLastConnectTry;
   bool m_accessPointActive;
+  bool m_lastConnectStatus;
 };
 
