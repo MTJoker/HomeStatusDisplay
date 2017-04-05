@@ -15,8 +15,19 @@ void HSDMqtt::begin()
   initTopics();
   addTopic(m_config.getMqttStatusTopic());
   addTopic(m_config.getMqttTestTopic());
-  
-  m_pubSubClient.setServer(m_config.getMqttServer(), 1883);  
+
+  IPAddress mqttIpAddr;
+
+  if(mqttIpAddr.fromString(m_config.getMqttServer()))
+  {
+    // valid ip address entered 
+    m_pubSubClient.setServer(mqttIpAddr, 1883); 
+  }
+  else
+  {
+    // invalid ip address, try as hostname
+    m_pubSubClient.setServer(m_config.getMqttServer(), 1883);  
+  }
 }
 
 void HSDMqtt::initTopics()

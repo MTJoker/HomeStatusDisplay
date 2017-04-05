@@ -255,7 +255,7 @@ void HSDWebserver::deliverRootPage()
   "  <td>Server</td>");
   html += F("  <td><input type='text' id='mqttServer' name='mqttServer' value='");
   html += String(m_config.getMqttServer());
-  html += F("' size='30' maxlength='40' placeholder='Name'></td></tr><tr><td>Status topic</td>");
+  html += F("' size='30' maxlength='40' placeholder='IP or hostname'></td></tr><tr><td>Status topic</td>");
   
   html += F("  <td><input type='text' id='mqttStatusTopic' name='mqttStatusTopic' value='");
   html += String(m_config.getMqttStatusTopic());
