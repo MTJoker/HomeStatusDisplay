@@ -32,6 +32,11 @@ private:
 
   const char* m_inTopics[MAX_IN_TOPICS];
   uint32_t m_numberOfInTopics;
-  long m_lastReconnectAttempt;
+  
+  bool m_connectFailure;
+  int m_maxConnectRetries;
+  int m_numConnectRetriesDone;
+  int m_retryDelay;
+  unsigned long m_millisLastConnectTry;
 };
 

@@ -4,7 +4,10 @@ HSDMqtt::HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE)
 :
 m_config(config),
 m_pubSubClient(m_wifiClient),
-m_lastReconnectAttempt(0),
+m_maxConnectRetries(3),
+m_numConnectRetriesDone(0),
+m_retryDelay(5000),
+m_millisLastConnectTry(0),
 m_numberOfInTopics(0)
 {
   m_pubSubClient.setCallback(callback);
@@ -42,22 +45,37 @@ void HSDMqtt::initTopics()
 
 void HSDMqtt::handle()
 {
-  if (!m_pubSubClient.connected()) 
-  {
-    long now = millis();
-    if (now - m_lastReconnectAttempt > 5000) 
-    {
-      m_lastReconnectAttempt = now;
-      // Attempt to reconnect
-      if (reconnect()) 
-      {
-        m_lastReconnectAttempt = 0;
-      }
-    }
-  }
-  else
+  if(connected())
   {
     m_pubSubClient.loop();
+  }
+  else if(!m_connectFailure) 
+  {
+    unsigned long currentMillis = millis();
+
+    if( (currentMillis - m_millisLastConnectTry) >= m_retryDelay)
+    {
+      m_millisLastConnectTry = currentMillis; 
+
+      if(m_numConnectRetriesDone < m_maxConnectRetries)
+      {
+        if(reconnect())
+        {
+          Serial.println("DEBUG: Reconnect successful");
+          m_numConnectRetriesDone = 0;
+        }
+        else
+        {
+          m_numConnectRetriesDone++;
+          Serial.println("DEBUG: Reconnect unsuccessful, m_numConnectRetriesDone = " + String(m_numConnectRetriesDone));
+        }
+      }
+      else
+      {
+        Serial.println(F("Failed to connect Mqtt."));      
+        m_connectFailure = true;
+      } 
+    }
   }
 }
 
@@ -68,6 +86,8 @@ bool HSDMqtt::connected() const
 
 bool HSDMqtt::reconnect()
 {
+  bool retval = false;
+  
   // Create a random client ID
   String clientId = "ESP8266Client-";
   clientId += String(random(0xffff), HEX);
@@ -101,6 +121,8 @@ bool HSDMqtt::reconnect()
     {
       subscribe(m_inTopics[index]);
     }
+
+    retval = true;
   } 
   else 
   {
@@ -108,7 +130,7 @@ bool HSDMqtt::reconnect()
     Serial.println(m_pubSubClient.state());
   }
 
-  return m_pubSubClient.connected();
+  return retval;
 }
 
 void HSDMqtt::subscribe(const char* topic)
