@@ -8,6 +8,8 @@ void handleMqttMessage(String topic, String msg);
 #define LIGHT_STRING (F("/light/"))
 #define ALARM_STRING (F("/alarm/"))
 
+#define ONE_MINUTE_MILLIS (60000)
+
 int getFreeRamSize();
 
 HomeStatusDisplay::HomeStatusDisplay()
@@ -17,7 +19,9 @@ m_wifi(m_config),
 m_mqttHandler(m_config, std::bind(&HomeStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
 m_leds(m_config),
 m_lastWifiConnectionState(false),
-m_lastMqttConnectionState(false)
+m_lastMqttConnectionState(false),
+m_oneMinuteTimerLast(0),
+m_uptime(0)
 {
 }
 
@@ -38,10 +42,12 @@ void HomeStatusDisplay::begin(const char* version, const char* identifier)
 
 void HomeStatusDisplay::work()
 {
+  unsigned long uptime = calcUptime();
+    
   checkConnections();
 
   m_wifi.handleConnection();
-  m_webServer.handleClient();
+  m_webServer.handleClient(uptime);
 
   if(m_wifi.connected())
   {
@@ -51,6 +57,21 @@ void HomeStatusDisplay::work()
   m_leds.update();
 
   delay(50);
+}
+
+unsigned long HomeStatusDisplay::calcUptime()
+{
+  unsigned long currentMillis = millis();
+
+  if(currentMillis - m_oneMinuteTimerLast >= ONE_MINUTE_MILLIS)
+  {
+    m_uptime++;
+    m_oneMinuteTimerLast = currentMillis;
+
+    Serial.println("Uptime: " + String(m_uptime) + "min");
+  }
+
+  return m_uptime;
 }
 
 void HomeStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int length)

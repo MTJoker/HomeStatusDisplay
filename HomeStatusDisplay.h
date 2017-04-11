@@ -17,6 +17,8 @@ public:
   
 private:
 
+  unsigned long calcUptime();
+
   static const int MQTT_MSG_MAX_LEN = 50;
   
   void mqttCallback(char* topic, byte* payload, unsigned int length);
@@ -40,5 +42,7 @@ private:
 
   bool m_lastWifiConnectionState;
   bool m_lastMqttConnectionState;
+  unsigned long m_oneMinuteTimerLast;
+  unsigned long m_uptime;
 };
 

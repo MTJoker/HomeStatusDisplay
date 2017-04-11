@@ -9,7 +9,8 @@ HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt
 m_server(80),
 m_config(config),
 m_leds(leds),
-m_mqtt(mqtt)
+m_mqtt(mqtt),
+m_deviceUptimeMinutes(0)
 {
   m_updateServer.setup(&m_server);
 }
@@ -28,8 +29,9 @@ void HSDWebserver::begin()
   m_server.onNotFound(std::bind(&HSDWebserver::deliverNotFoundPage, this));
 }
 
-void HSDWebserver::handleClient()
+void HSDWebserver::handleClient(unsigned long deviceUptime)
 {
+  m_deviceUptimeMinutes = deviceUptime;
   m_server.handleClient();
 }
 
@@ -315,6 +317,10 @@ void HSDWebserver::deliverStatusPage()
   
   html = htmlHeader("Status");
 
+  html += F("<p>Device uptime: ");
+  html += minutes2Uptime(m_deviceUptimeMinutes);
+  html += F("</p>");
+
   if (WiFi.status() == WL_CONNECTED)
   {
     html += F("<p>Device is connected to WLAN <b>");
@@ -572,6 +578,20 @@ String HSDWebserver::behavior2String(HSDConfig::Behavior behavior)
   }
 
   return behaviorString;
+}
+
+String HSDWebserver::minutes2Uptime(unsigned long minutes)
+{
+  char buffer[100];
+  memset(buffer, 0, sizeof(buffer));
+  
+  unsigned long days  = minutes / 60 / 24;
+  unsigned long hours = (minutes / 60) % 24;
+  unsigned long mins  = minutes % 60;
+
+  sprintf(buffer, "%lu days, %lu hours, %lu minutes", days, hours, mins);
+  
+  return String(buffer);
 }
 
 void HSDWebserver::checkReboot()

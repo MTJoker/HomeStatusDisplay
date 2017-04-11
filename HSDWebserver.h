@@ -14,7 +14,7 @@ public:
   HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt);
 
   void begin();
-  void handleClient();
+  void handleClient(unsigned long deviceUptime);
 
 private:
 
@@ -37,6 +37,7 @@ private:
   String color2String(HSDConfig::Color color);
   String color2htmlColor(HSDConfig::Color color);
   String behavior2String(HSDConfig::Behavior behavior);
+  String minutes2Uptime(unsigned long minutes);
   
   bool updateMainConfig();
   bool updateColorMappingConfig();
@@ -47,4 +48,5 @@ private:
   HSDConfig& m_config;
   const HSDLeds& m_leds;
   const HSDMqtt& m_mqtt;
+  unsigned long m_deviceUptimeMinutes;
 };
