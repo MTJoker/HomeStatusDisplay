@@ -10,7 +10,9 @@ static const int JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE = 3000;
 
 static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 2000;
 static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 4000;
-  
+
+static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
+ 
 HSDConfig::HSDConfig()
 :
 m_mainConfigFile(String("/config.json")),
@@ -63,6 +65,7 @@ void HSDConfig::resetMainConfigData()
 
   setNumberOfLeds(0);
   setLedDataPin(0);
+  setLedBrightness(DEFAULT_LED_BRIGHTNESS);
 }
 
 void HSDConfig::resetColorMappingConfigData()
@@ -116,6 +119,7 @@ bool HSDConfig::readMainConfigFile()
         setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC]);
         setNumberOfLeds(json[JSON_KEY_LED_COUNT]);
         setLedDataPin(json[JSON_KEY_LED_PIN]);
+        setLedBrightness(json[JSON_KEY_LED_BRIGHTNESS]);
 
         success = true;
       }
@@ -247,6 +251,7 @@ void HSDConfig::writeMainConfigFile()
   json[JSON_KEY_MQTT_WILL_TOPIC] = m_cfgMqttWillTopic;
   json[JSON_KEY_LED_COUNT] = m_cfgNumberOfLeds;
   json[JSON_KEY_LED_PIN] = m_cfgLedDataPin;
+  json[JSON_KEY_LED_BRIGHTNESS] = m_cfgLedBrightness;
 
   if(!m_mainConfigFile.write(&json))
   {
@@ -499,6 +504,17 @@ int HSDConfig::getLedDataPin() const
 bool HSDConfig::setLedDataPin(int dataPin)
 {
   m_cfgLedDataPin = dataPin;
+  return true;
+}
+
+uint8_t HSDConfig::getLedBrightness() const
+{
+  return m_cfgLedBrightness;
+}
+
+bool HSDConfig::setLedBrightness(uint8_t brightness)
+{
+  m_cfgLedBrightness = brightness;
   return true;
 }
 

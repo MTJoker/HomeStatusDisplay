@@ -30,6 +30,7 @@ void HSDLeds::begin()
   m_stripe.setPin(m_config.getLedDataPin());
   m_stripe.updateLength(m_numLeds);
   m_stripe.updateType(NEO_GRB + NEO_KHZ800);
+  m_stripe.setBrightness(m_config.getLedBrightness());
   
   clear();
   m_stripe.begin();

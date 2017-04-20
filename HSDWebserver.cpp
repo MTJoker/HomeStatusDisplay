@@ -282,14 +282,17 @@ void HSDWebserver::deliverRootPage()
   " </tr>"
   " <tr>"
   "  <td>Number of LEDs</td>");
-  html += "  <td><input type='text' id='ledCount' name='ledCount' value='" + String(m_config.getNumberOfLeds()) + "' size='30' maxlength='40' placeholder='0'></td>";
-  html += F(" </tr>"
-  " <tr>"
-  "  <td>LED pin</td>");
-  html += F("  <td><input type='text' id='ledPin' name='ledPin' value='");
+  html += "  <td><input type='text' id='ledCount' name='ledCount' value='" + String(m_config.getNumberOfLeds()) + "' size='30' maxlength='40' placeholder='0'></td></tr>";
+  html += F("<tr><td>LED pin</td>");
+  html += F("<td><input type='text' id='ledPin' name='ledPin' value='");
   html += String(m_config.getLedDataPin());
-  html += F("' size='30' maxlength='40' placeholder='0'></td></tr></table>");
+  html += F("' size='30' maxlength='40' placeholder='0'></td></tr>");
 
+  html += F("<tr><td>Brightness</td>");
+  html += F("<td><input type='text' id='ledBrightness' name='ledBrightness' value='");
+  html += String(m_config.getLedBrightness());
+  html += F("' size='30' maxlength='5' placeholder='0-255'></td></tr></table>"); 
+  
   html += htmlSaveButton();
 
   html += F("</form></font></body></html>");
@@ -582,7 +585,7 @@ String HSDWebserver::behavior2String(HSDConfig::Behavior behavior)
 
 String HSDWebserver::minutes2Uptime(unsigned long minutes)
 {
-  char buffer[100];
+  char buffer[50];
   memset(buffer, 0, sizeof(buffer));
   
   unsigned long days  = minutes / 60 / 24;
@@ -659,6 +662,16 @@ bool HSDWebserver::updateMainConfig()
     if(ledPin > 0)
     {
       needSave |= m_config.setLedDataPin(ledPin);
+    }
+  }
+
+  if (m_server.hasArg(JSON_KEY_LED_BRIGHTNESS)) 
+  {
+    uint8_t ledBrightness = m_server.arg(JSON_KEY_LED_BRIGHTNESS).toInt();
+    
+    if(ledBrightness > 0)
+    {
+      needSave |= m_config.setLedBrightness(ledBrightness);
     }
   }
 

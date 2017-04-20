@@ -11,6 +11,7 @@
 #define JSON_KEY_MQTT_WILL_TOPIC       (F("mqttWillTopic"))
 #define JSON_KEY_LED_COUNT             (F("ledCount"))
 #define JSON_KEY_LED_PIN               (F("ledPin"))
+#define JSON_KEY_LED_BRIGHTNESS        (F("ledBrightness"))
 #define JSON_KEY_COLORMAPPING_OIU      (F("oiu"))
 #define JSON_KEY_COLORMAPPING_MSG      (F("msg"))
 #define JSON_KEY_COLORMAPPING_TYPE     (F("type"))
@@ -54,11 +55,11 @@ public:
   enum Color
   {
     NONE   = 0x000000,
-    RED    = 0x0F0000,
-    GREEN  = 0x000F00,
-    BLUE   = 0x00000F,
-    YELLOW = 0x0F0F00,
-    WHITE  = 0x0F0F0F
+    RED    = 0xFF0000,
+    GREEN  = 0x00FF00,
+    BLUE   = 0x0000FF,
+    YELLOW = 0xFFFF00,
+    WHITE  = 0xFFFFFF
   };
 
   /*
@@ -121,6 +122,9 @@ public:
 
   int getLedDataPin() const;
   bool setLedDataPin(int dataPin);
+
+  uint8_t getLedBrightness() const;
+  bool setLedBrightness(uint8_t brightness);
 
   void resetMainConfigData();
   void resetDeviceMappingConfigData();
@@ -186,6 +190,7 @@ private:
   
   int m_cfgNumberOfLeds;
   int m_cfgLedDataPin;
+  uint8_t m_cfgLedBrightness;
 
   HSDConfigFile m_mainConfigFile;
   HSDConfigFile m_colorMappingConfigFile;
