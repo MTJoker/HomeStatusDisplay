@@ -56,7 +56,7 @@ void HomeStatusDisplay::work()
   
   m_leds.update();
 
-  delay(50);
+  delay(100);
 }
 
 unsigned long HomeStatusDisplay::calcUptime()
