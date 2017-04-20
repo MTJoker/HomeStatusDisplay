@@ -8,7 +8,7 @@ HSDWifi::HSDWifi(const HSDConfig& config)
 :
 m_config(config),
 m_connectFailure(false),
-m_maxConnectRetries(20),
+m_maxConnectRetries(100),
 m_numConnectRetriesDone(0),
 m_retryDelay(500),
 m_millisLastConnectTry(0),
@@ -39,7 +39,7 @@ void HSDWifi::handleConnection()
     }
     else
     {
-      Serial.print(F("WiFi connection lost."));
+      Serial.println(F("WiFi connection lost."));
     }
     
     m_lastConnectStatus = isConnected;
