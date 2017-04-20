@@ -101,7 +101,7 @@ bool HSDMqtt::reconnect()
   
   if(isTopicValid(willTopic))
   {
-    connected = m_pubSubClient.connect(clientId.c_str(), willTopic, 0, false, "off");
+    connected = m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "off");
   }
   else
   {
@@ -114,7 +114,7 @@ bool HSDMqtt::reconnect()
 
     if(isTopicValid(willTopic))
     {
-      publish(m_config.getMqttWillTopic(), "on");
+      publish(willTopic, "on");
     }
 
     for(uint32_t index = 0; index < m_numberOfInTopics; index++)
@@ -126,7 +126,7 @@ bool HSDMqtt::reconnect()
   } 
   else 
   {
-    Serial.print(F("failed, rc="));
+    Serial.print(F("failed, rc = "));
     Serial.println(m_pubSubClient.state());
   }
 
