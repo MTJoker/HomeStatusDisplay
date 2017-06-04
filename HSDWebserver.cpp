@@ -75,20 +75,22 @@ String HSDWebserver::htmlSaveButton()
 
 String HSDWebserver::htmlColorOptions(HSDConfig::Color selectedColor)
 {
-  String noneSelect   = (selectedColor == HSDConfig::NONE)   ? SELECTED_STRING : EMPTY_STRING;
-  String redSelect    = (selectedColor == HSDConfig::RED)    ? SELECTED_STRING : EMPTY_STRING;
   String greenSelect  = (selectedColor == HSDConfig::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
-  String blueSelect   = (selectedColor == HSDConfig::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
   String yellowSelect = (selectedColor == HSDConfig::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
+  String orangeSelect = (selectedColor == HSDConfig::ORANGE) ? SELECTED_STRING : EMPTY_STRING;
+  String redSelect    = (selectedColor == HSDConfig::RED)    ? SELECTED_STRING : EMPTY_STRING;
+  String purpleSelect = (selectedColor == HSDConfig::PURPLE) ? SELECTED_STRING : EMPTY_STRING;
+  String blueSelect   = (selectedColor == HSDConfig::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
   String whiteSelect  = (selectedColor == HSDConfig::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
 
   String html;
-  
-  html += F("<option "); html += noneSelect;   html += F(" value='"); html += HSDConfig::NONE;   html += F("'>None</option>");
-  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDConfig::RED;    html += F("'>Red</option>");
+
   html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDConfig::GREEN;  html += F("'>Green</option>");
-  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDConfig::BLUE;   html += F("'>Blue</option>");
   html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDConfig::YELLOW; html += F("'>Yellow</option>");
+  html += F("<option "); html += orangeSelect; html += F(" value='"); html += HSDConfig::ORANGE; html += F("'>Orange</option>");
+  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDConfig::RED;    html += F("'>Red</option>");
+  html += F("<option "); html += purpleSelect; html += F(" value='"); html += HSDConfig::PURPLE; html += F("'>Purple</option>");
+  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDConfig::BLUE;   html += F("'>Blue</option>");
   html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDConfig::WHITE;  html += F("'>White</option>");
 
   return html;
@@ -103,10 +105,10 @@ String HSDWebserver::htmlTypeOptions(HSDConfig::deviceType selectedType)
 
   String html;
   
-  html += F("<option "); html += windowSelect; html += F(" value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
-  html += F("<option "); html += doorSelect;   html += F("value='");  html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
-  html += F("<option "); html += lightSelect;  html += F("value='");  html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
-  html += F("<option "); html += alarmSelect;  html += F("value='");  html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
+  html += F("<option "); html += windowSelect; html += F("value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
+  html += F("<option "); html += doorSelect;   html += F("value='"); html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
+  html += F("<option "); html += lightSelect;  html += F("value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
+  html += F("<option "); html += alarmSelect;  html += F("value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
   
   return html;
 }
@@ -114,7 +116,6 @@ String HSDWebserver::htmlTypeOptions(HSDConfig::deviceType selectedType)
 String HSDWebserver::htmlBehaviorOptions(HSDConfig::Behavior selectedBehavior)
 {
   String onSelect       =   (selectedBehavior == HSDConfig::ON)         ? SELECTED_STRING : EMPTY_STRING;
-  String offSelect      =   (selectedBehavior == HSDConfig::OFF)        ? SELECTED_STRING : EMPTY_STRING;
   String blinkingSelect =   (selectedBehavior == HSDConfig::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
   String flashingSelect =   (selectedBehavior == HSDConfig::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
   String flickeringSelect = (selectedBehavior == HSDConfig::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
@@ -122,7 +123,6 @@ String HSDWebserver::htmlBehaviorOptions(HSDConfig::Behavior selectedBehavior)
   String html;
 
   html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDConfig::ON;         html += F("'>On</option>");
-  html += F("<option "); html += offSelect ;       html += F(" value='"); html += HSDConfig::OFF;        html += F("'>Off</option>");
   html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDConfig::BLINKING;   html += F("'>Blinking</option>");
   html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDConfig::FLASHING;   html += F("'>Flashing</option>");
   html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDConfig::FLICKERING; html += F("'>Flickering</option>");
@@ -138,7 +138,7 @@ String HSDWebserver::htmlColorMappingEntry(int entryNum, const HSDConfig::colorM
   String behavior = "b" + String(entryNum);
 
   const HSDConfig::colorMapping* mappingInternal = mapping;
-  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDConfig::NONE, HSDConfig::OFF};
+  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDConfig::WHITE, HSDConfig::ON};
 
   if(!mapping)
   {
@@ -152,7 +152,7 @@ String HSDWebserver::htmlColorMappingEntry(int entryNum, const HSDConfig::colorM
   html += name;
   html += F("' value='");
   html += mappingInternal->msg;
-  html += F("' size='20' maxlength='20' placeholder='name'></td>");
+  html += F("' size='20' maxlength='15' placeholder='name'></td>");
   html += F("<td><select name='");
   html += type;
   html += F("'>");
@@ -193,7 +193,7 @@ String HSDWebserver::htmlDeviceMappingEntry(int entryNum, const HSDConfig::devic
   html += name;
   html += F("' value='");
   html += mappingInternal->name;
-  html += F("' size='30' maxlength='30' placeholder='name'></td>");
+  html += F("' size='30' maxlength='25' placeholder='name'></td>");
   html += F("<td><select name='");
   html += type;
   html += F("'>");
@@ -203,7 +203,7 @@ String HSDWebserver::htmlDeviceMappingEntry(int entryNum, const HSDConfig::devic
   html += led;
   html += F("' value='");
   html += mappingInternal->ledNumber;
-  html += F("' size='5' maxlength='5' placeholder='nr'></td></tr>");
+  html += F("' size='5' maxlength='3' placeholder='nr'></td></tr>");
 
   return html;
 }
@@ -401,17 +401,11 @@ void HSDWebserver::deliverColorMappingPage()
   bool needSave = updateColorMappingConfig();
   
   String html;
-  html.reserve(17000);
+  html.reserve(19500);
   
   html = htmlHeader("Color mapping configuration");
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
-
-  String checkBoxChecked = (m_config.isSwitchLedOffIfUnknownMessage()) ? CHECKED_STRING : EMPTY_STRING;
-
-  html += F("<p><input type='checkbox' name='oiu' value='1' ");
-  html += checkBoxChecked;
-  html += F(">Behavior 'Off' if message is undefined</p>");
 
   html += F(""
   "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
@@ -539,10 +533,12 @@ String HSDWebserver::color2String(HSDConfig::Color color)
 
   switch(color)
   {
-    case HSDConfig::RED:    colorString = F("red"); break;
     case HSDConfig::GREEN:  colorString = F("green"); break;
-    case HSDConfig::BLUE:   colorString = F("blue"); break;
     case HSDConfig::YELLOW: colorString = F("yellow"); break;
+    case HSDConfig::ORANGE: colorString = F("orange"); break;
+    case HSDConfig::RED:    colorString = F("red"); break;
+    case HSDConfig::PURPLE: colorString = F("purple"); break;
+    case HSDConfig::BLUE:   colorString = F("blue"); break;
     case HSDConfig::WHITE:  colorString = F("white"); break;
     default: break;
   }
@@ -556,10 +552,12 @@ String HSDWebserver::color2htmlColor(HSDConfig::Color color)
 
   switch(color)
   {
-    case HSDConfig::RED:    htmlcolor = F("#FF0000"); break;
     case HSDConfig::GREEN:  htmlcolor = F("#00FF00"); break;
-    case HSDConfig::BLUE:   htmlcolor = F("#0000FF"); break;
     case HSDConfig::YELLOW: htmlcolor = F("#FFFF00"); break;
+    case HSDConfig::ORANGE: htmlcolor = F("#FF5500"); break;
+    case HSDConfig::RED:    htmlcolor = F("#FF0000"); break;
+    case HSDConfig::PURPLE: htmlcolor = F("#FF00FF"); break;
+    case HSDConfig::BLUE:   htmlcolor = F("#0000FF"); break;
     case HSDConfig::WHITE:  htmlcolor = F("#FFFFFF"); break;
     default: break;
   }
@@ -686,20 +684,11 @@ bool HSDWebserver::updateColorMappingConfig()
 
   if(numArgs != 0)    // when page is initially loaded, do nothing because no args
   {
-    if( (numArgs % 4 == 0) || ((numArgs % 4 == 1)  && m_server.hasArg(JSON_KEY_COLORMAPPING_OIU)) )   // one more if checkbox is checked
+    if(numArgs % 4 == 0)
     {
       Serial.println(F("Number of arguments seems reasonable"));
       
       m_config.resetColorMappingConfigData();
-
-      if(m_server.hasArg("oiu"))
-      {
-        m_config.setSwitchLedOffIfUnknownMessage(true);
-      }
-      else
-      {
-        m_config.setSwitchLedOffIfUnknownMessage(false);
-      }
   
       for(int i = 0; i < (numArgs/4); i++)
       {

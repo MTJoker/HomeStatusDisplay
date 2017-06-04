@@ -12,22 +12,21 @@
 #define JSON_KEY_LED_COUNT             (F("ledCount"))
 #define JSON_KEY_LED_PIN               (F("ledPin"))
 #define JSON_KEY_LED_BRIGHTNESS        (F("ledBrightness"))
-#define JSON_KEY_COLORMAPPING_OIU      (F("oiu"))
-#define JSON_KEY_COLORMAPPING_MSG      (F("msg"))
-#define JSON_KEY_COLORMAPPING_TYPE     (F("type"))
-#define JSON_KEY_COLORMAPPING_COLOR    (F("color"))
-#define JSON_KEY_COLORMAPPING_BEHAVIOR (F("behavior"))
-#define JSON_KEY_DEVICEMAPPING_NAME    (F("name"))
-#define JSON_KEY_DEVICEMAPPING_TYPE    (F("type"))
-#define JSON_KEY_DEVICEMAPPING_LED     (F("led"))
+#define JSON_KEY_COLORMAPPING_MSG      (F("m"))
+#define JSON_KEY_COLORMAPPING_TYPE     (F("t"))
+#define JSON_KEY_COLORMAPPING_COLOR    (F("c"))
+#define JSON_KEY_COLORMAPPING_BEHAVIOR (F("b"))
+#define JSON_KEY_DEVICEMAPPING_NAME    (F("n"))
+#define JSON_KEY_DEVICEMAPPING_TYPE    (F("t"))
+#define JSON_KEY_DEVICEMAPPING_LED     (F("l"))
 
 class HSDConfig
 {
   
 public:
 
-  static const int MAX_DEVICE_MAPPING_NAME_LEN = 30;
-  static const int MAX_COLOR_MAPPING_MSG_LEN = 20;
+  static const int MAX_DEVICE_MAPPING_NAME_LEN = 25;
+  static const int MAX_COLOR_MAPPING_MSG_LEN = 15;
   
   /*
    * Enum which defines the types of devices which can send messages.
@@ -55,10 +54,12 @@ public:
   enum Color
   {
     NONE   = 0x000000,
-    RED    = 0xFF0000,
     GREEN  = 0x00FF00,
-    BLUE   = 0x0000FF,
     YELLOW = 0xFFFF00,
+    ORANGE = 0xFF5500,
+    RED    = 0xFF0000,
+    PURPLE = 0xFF00FF,
+    BLUE   = 0x0000FF,
     WHITE  = 0xFFFFFF
   };
 
@@ -138,9 +139,6 @@ public:
 
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index) const; 
-
-  void setSwitchLedOffIfUnknownMessage(bool switchOff);
-  bool isSwitchLedOffIfUnknownMessage() const;
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
@@ -174,7 +172,6 @@ private:
 
   colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
   int m_numColorMappingEntries;
-  bool m_cfgSwitchLedOffIfUnknownMessage;
   
   deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
   int m_numDeviceMappingEntries;

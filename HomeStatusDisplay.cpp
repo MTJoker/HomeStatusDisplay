@@ -172,7 +172,7 @@ void HomeStatusDisplay::handleStatus(String device, HSDConfig::deviceType type, 
       Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
       m_leds.set(ledNumber, behavior, color);
     }
-    else if(m_config.isSwitchLedOffIfUnknownMessage())
+    else
     {
       Serial.println("Unknown message " + msg + " for led number " + String(ledNumber) + ", set to OFF");
       m_leds.set(ledNumber, HSDConfig::OFF, HSDConfig::NONE);

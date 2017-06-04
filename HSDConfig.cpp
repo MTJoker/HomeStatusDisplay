@@ -5,11 +5,11 @@
 static const int MAX_SIZE_MAIN_CONFIG_FILE = 400;
 static const int JSON_BUFFER_MAIN_CONFIG_FILE = 500;
 
-static const int MAX_SIZE_COLOR_MAPPING_CONFIG_FILE = 1500;
-static const int JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE = 3000;
+static const int MAX_SIZE_COLOR_MAPPING_CONFIG_FILE = 1000;
+static const int JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE = 2800;
 
-static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 2000;
-static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 4000;
+static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 1300;
+static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 3100;
 
 static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
  
@@ -74,8 +74,6 @@ void HSDConfig::resetColorMappingConfigData()
   
   memset(m_cfgColorMapping, 0, sizeof(m_cfgColorMapping));
   m_numColorMappingEntries = 0;
-
-  m_cfgSwitchLedOffIfUnknownMessage = false;
 }
 
 void HSDConfig::resetDeviceMappingConfigData()
@@ -158,11 +156,6 @@ bool HSDConfig::readColorMappingConfigFile()
       Serial.println(F(""));
 
       success = true;
-
-      if(json.containsKey(JSON_KEY_COLORMAPPING_OIU))
-      {
-        setSwitchLedOffIfUnknownMessage(json[JSON_KEY_COLORMAPPING_OIU].as<bool>());
-      }
       
       for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
       {
@@ -264,10 +257,11 @@ void HSDConfig::writeColorMappingConfigFile()
   DynamicJsonBuffer jsonBuffer(JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE);
   JsonObject& json = jsonBuffer.createObject();
 
-  json[JSON_KEY_COLORMAPPING_OIU] = m_cfgSwitchLedOffIfUnknownMessage;
-
   for(int index = 0; index < m_numColorMappingEntries; index++)
   {
+    Serial.print(F("Preparing to write color mapping config file index "));
+    Serial.println(String(index));
+    
     JsonObject& colorMappingEntry = json.createNestedObject(String(index));
 
     colorMappingEntry[JSON_KEY_COLORMAPPING_MSG] = m_cfgColorMapping[index].msg ;
@@ -378,16 +372,6 @@ bool HSDConfig::addColorMappingEntry(String msg, deviceType type, Color color, B
   
   return success;  
 }
-
-void HSDConfig::setSwitchLedOffIfUnknownMessage(bool switchOff)
-{
-  m_cfgSwitchLedOffIfUnknownMessage = switchOff;
-}
-
-bool HSDConfig::isSwitchLedOffIfUnknownMessage() const
-{
-  return m_cfgSwitchLedOffIfUnknownMessage;
-} 
 
 const char* HSDConfig::getHost() const
 {

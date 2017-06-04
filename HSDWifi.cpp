@@ -21,6 +21,7 @@ m_lastConnectStatus(false)
 void HSDWifi::begin()
 {
   // nothing to do right now
+  WiFi.persistent(false);
 }
 
 void HSDWifi::handleConnection()
