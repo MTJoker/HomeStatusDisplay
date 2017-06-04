@@ -23,4 +23,7 @@ There you will find a configuration page in which you have to enter your setting
 - WLAN credentials
 - MQTT setup
 - LED setup<br>
-More detailed information will follow.
+
+You can find more detailed information in the tutorial on my website (it's german, unfortunately...):
+http://www.bernd-schubart.de/homestatusdisplay-smart-home-status-immer-im-blick/
+
