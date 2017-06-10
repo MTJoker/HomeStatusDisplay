@@ -244,7 +244,7 @@ void HSDWebserver::deliverColorMappingPage()
   }
   
   String html;
-  html.reserve(10000);
+  html.reserve(8000);
   
   html = m_html.getHeader("Color mapping configuration", m_config.getHost(), m_config.getVersion());
 

@@ -12,7 +12,7 @@ HSDHtmlHelper::HSDHtmlHelper()
 String HSDHtmlHelper::getHeader(const char* title, const char* host, const char* version) const
 {
   String header;
-  header.reserve(1000);
+  header.reserve(1500);
 
   header  = F("<!doctype html> <html>");
   header += F("<head><meta charset='utf-8'>");
@@ -20,6 +20,9 @@ String HSDHtmlHelper::getHeader(const char* title, const char* host, const char*
   header += String(host);
   header += F("</title>");
   header += F("<style>.button {border-radius:0;height:30px;width:100px;border:0;background-color:black;color:#fff;margin:5px;cursor:pointer;}</style>");
+  header += F("<style>.hsdcolor {width:15px;height:15px;border:1px black solid;float:left;margin-right:5px';}</style>");
+  header += F("<style>.rdark {background-color:#f9f9f9;}</style>");
+  header += F("<style>.rlight {background-color:#e5e5e5;}</style>");
   header += F("</head>");
   header += F("<body bgcolor='#e5e5e5'><font face='Verdana,Arial,Helvetica'>");
   header += F("<font size='+3'>");
@@ -38,6 +41,9 @@ String HSDHtmlHelper::getHeader(const char* title, const char* host, const char*
   header += F("<h4>"); 
   header += title;
   header += F("</h4>");
+
+  Serial.print(F("Header size: "));
+  Serial.println(header.length());
   
   return header;  
 }
@@ -65,11 +71,11 @@ String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::c
   String html;
   if(entryNum % 2 == 0)
   {
-    html += F("<tr style='background-color:#f9f9f9'><td>");
+    html += F("<tr class='rlight'><td>");
   }
   else
   {
-    html += F("<tr style='background-color:#e5e5e5'><td>");
+    html += F("<tr class='rdark'><td>");
   }
   html += entryNum;
   html += F("</td><td>");
@@ -77,11 +83,12 @@ String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::c
   html += F("</td><td>");
   html += type2String(mapping->type);
   html += F("</td><td>");
-  html += color2String(mapping->color);
-  html += F("</td><td>");
+  html += F("<div class='hsdcolor' style='background-color:");
+  html += color2htmlColor(mapping->color);
+  html += F("';></div></td><td>"); 
   html += behavior2String(mapping->behavior);
   html += F("</td></tr>");
-
+  
   return html;
 }
 
@@ -128,11 +135,11 @@ String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::
     
   if(entryNum % 2 == 0)
   {
-    html += F("<tr style='background-color:#f9f9f9'><td>");
+    html += F("<tr class='rlight'><td>");
   }
   else
   {
-    html += F("<tr style='background-color:#e5e5e5'><td>");
+    html += F("<tr class='rdark'><td>");
   }
   html += entryNum;
   html += F("</td><td>");
