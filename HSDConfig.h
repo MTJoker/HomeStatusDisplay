@@ -91,8 +91,12 @@ public:
   void begin(const char* version, const char* defaultIdentifier);
 
   void saveMain();
+  
   void saveColorMapping();
+  void updateColorMapping();
+  
   void saveDeviceMapping();
+  void updateDeviceMapping();
 
   const char* getVersion() const;
   bool setVersion(const char* version);
@@ -135,8 +139,11 @@ public:
   int getNumberOfColorMappingEntries() const;
   
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
+  bool deleteColorMappingEntry(int entryNum);
+  
   bool addColorMappingEntry(String msg, deviceType type, Color color, Behavior behavior);
-
+  bool deleteDeviceMappingEntry(int entryNum);
+  
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index) const; 
     

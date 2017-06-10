@@ -42,9 +42,140 @@ String HSDHtmlHelper::getHeader(const char* title, const char* host, const char*
   return header;  
 }
 
-String HSDHtmlHelper::getSaveButton() const
+String HSDHtmlHelper::getFooter() const
 {
-  return F("<input type='submit' class='button' value='Save'>");
+  return F("</font></body></html>");
+}
+
+String HSDHtmlHelper::getColorMappingTableHeader() const
+{
+  return F(""
+  "<table width='40%' border='1' cellpadding='1' cellspacing='2'>"
+  " <tr style='background-color:#828282'>"
+  "  <td><b><font size='+1'>Nr</font></b></td>"
+  "  <td><b><font size='+1'>Message</font></b></td>"
+  "  <td><b><font size='+1'>Type</font></b></td>"
+  "  <td><b><font size='+1'>Color</font></b></td>"
+  "  <td><b><font size='+1'>Behavior</font></b></td>"
+  " </tr>");
+}
+
+String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::colorMapping* mapping) const
+{
+  String html;
+  if(entryNum % 2 == 0)
+  {
+    html += F("<tr style='background-color:#f9f9f9'><td>");
+  }
+  else
+  {
+    html += F("<tr style='background-color:#e5e5e5'><td>");
+  }
+  html += entryNum;
+  html += F("</td><td>");
+  html += mapping->msg;
+  html += F("</td><td>");
+  html += type2String(mapping->type);
+  html += F("</td><td>");
+  html += color2String(mapping->color);
+  html += F("</td><td>");
+  html += behavior2String(mapping->behavior);
+  html += F("</td></tr>");
+
+  return html;
+}
+
+String HSDHtmlHelper::getColorMappingTableFooter() const
+{
+  return F("</table>");
+}
+
+String HSDHtmlHelper::getColorMappingTableAddEntryForm(int entryNum) const
+{
+  String html;
+  
+  html += F("<form><table><tr>");
+  html += F("<td><input type='text' id='name' name='n' value='' size='20' maxlength='15' placeholder='name'></td>");
+  html += F("<td><select name='t'>");
+  html += getTypeOptions(HSDConfig::TYPE_WINDOW);
+  html += F("</select></td>");
+  html += F("<td><select name='c'>");
+  html += getColorOptions(HSDConfig::WHITE);
+  html += F("</select></td>");
+  html += F("<td><select name='b'>");
+  html += getBehaviorOptions(HSDConfig::ON);
+  html += F("</select></td></tr></table>");  
+  html += F("<input type='submit' class='button' value='Add' id='add' name='add'></form>");
+
+  return html;
+}
+
+String HSDHtmlHelper::getDeviceMappingTableHeader() const
+{
+  return F(""
+  "<table width='30%' border='1' cellpadding='1' cellspacing='2'>"
+  " <tr style='background-color:#828282'>"
+  "  <td><b><font size='+1'>Nr</font></b></td>"  
+  "  <td><b><font size='+1'>Device</font></b></td>"
+  "  <td><b><font size='+1'>Type</font></b></td>"
+  "  <td><b><font size='+1'>Led</font></b></td>"
+  " </tr>");
+}
+
+String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::deviceMapping* mapping) const
+{
+  String html;
+    
+  if(entryNum % 2 == 0)
+  {
+    html += F("<tr style='background-color:#f9f9f9'><td>");
+  }
+  else
+  {
+    html += F("<tr style='background-color:#e5e5e5'><td>");
+  }
+  html += entryNum;
+  html += F("</td><td>");
+  html += mapping->name;
+  html += F("</td><td>");
+  html += type2String(mapping->type);
+  html += F("</td><td>");
+  html += mapping->ledNumber;
+  html += F("</td></tr>");
+
+  return html;
+}
+
+String HSDHtmlHelper::getDeviceMappingTableFooter() const
+{
+  return F("</table>");
+}
+
+String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int entryNum) const
+{
+  String html;
+  
+  html += F("<form><table><tr>");
+  html += F("<td><input type='text' id='name' name='n' value='' size='30' maxlength='25' placeholder='name'></td>");
+  html += F("<td><select name='t'>");
+  html += getTypeOptions(HSDConfig::TYPE_WINDOW);
+  html += F("</select></td>");
+  html += F("<td><input type='text' id='led' name='l' value='");
+  html += entryNum;
+  html += F("' size='6' maxlength='3' placeholder='led nr'></td></tr></table>");
+  html += F("<input type='submit' class='button' value='Add' id='add' name='add'></form>");
+
+  return html;
+}
+
+String HSDHtmlHelper::getDeleteEntryForm() const
+{
+  String html;
+  
+  html += F("<form><input type='text' id='number' name='i' value='' size='5' maxlength='3' placeholder='nr'><br/>");
+  html += F("<input type='submit' class='button' value='Delete' id='delete' name='delete'></form>");
+
+  return html;  
 }
 
 String HSDHtmlHelper::getColorOptions(HSDConfig::Color selectedColor) const
@@ -101,84 +232,6 @@ String HSDHtmlHelper::getTypeOptions(HSDConfig::deviceType selectedType) const
   html += F("<option "); html += lightSelect;  html += F("value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
   html += F("<option "); html += alarmSelect;  html += F("value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
   
-  return html;
-}
-
-String HSDHtmlHelper::getDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping) const
-{
-  String name = "n" + String(entryNum);
-  String type = "t" + String(entryNum);
-  String led  = "l" + String(entryNum);
-
-  const HSDConfig::deviceMapping* mappingInternal = mapping;
-  HSDConfig::deviceMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, entryNum};
-
-  if(!mapping)
-  {
-    mappingInternal = &mappingDefault;
-  }
-  
-  String html;
-    
-  html += F("<tr>");
-  html += F("<td><input type='text' id='name' name='");
-  html += name;
-  html += F("' value='");
-  html += mappingInternal->name;
-  html += F("' size='30' maxlength='25' placeholder='name'></td>");
-  html += F("<td><select name='");
-  html += type;
-  html += F("'>");
-  html += getTypeOptions(mappingInternal->type);
-  html += F("</select></td>");
-  html += F("<td><input type='text' id='led' name='");
-  html += led;
-  html += F("' value='");
-  html += mappingInternal->ledNumber;
-  html += F("' size='5' maxlength='3' placeholder='nr'></td></tr>");
-
-  return html;
-}
-
-String HSDHtmlHelper::getColorMappingEntry(int entryNum, const HSDConfig::colorMapping* mapping) const
-{
-  String name     = "n" + String(entryNum);
-  String type     = "t" + String(entryNum);
-  String color    = "c" + String(entryNum);
-  String behavior = "b" + String(entryNum);
-
-  const HSDConfig::colorMapping* mappingInternal = mapping;
-  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDConfig::WHITE, HSDConfig::ON};
-
-  if(!mapping)
-  {
-    mappingInternal = &mappingDefault;
-  }
-  
-  String html;
-  
-  html += F("<tr>");
-  html += F("<td><input type='text' id='name' name='");
-  html += name;
-  html += F("' value='");
-  html += mappingInternal->msg;
-  html += F("' size='20' maxlength='15' placeholder='name'></td>");
-  html += F("<td><select name='");
-  html += type;
-  html += F("'>");
-  html += getTypeOptions(mappingInternal->type);
-  html += F("</select></td>");
-  html += F("<td><select name='");
-  html += color;
-  html += F("'>");
-  html += getColorOptions(mappingInternal->color);
-  html += F("</select></td>");
-  html += F("<td><select name='");
-  html += behavior;
-  html += F("'>");
-  html += getBehaviorOptions(mappingInternal->behavior);
-  html += F("</select></td></tr>");
-
   return html;
 }
 
@@ -245,6 +298,23 @@ String HSDHtmlHelper::behavior2String(HSDConfig::Behavior behavior) const
 
   return behaviorString;
 }
+
+String HSDHtmlHelper::type2String(HSDConfig::deviceType type) const
+{
+  String typeString = F("Window");
+
+  switch(type)
+  {
+    case HSDConfig::TYPE_WINDOW: typeString = F("Window"); break;
+    case HSDConfig::TYPE_DOOR:   typeString = F("Door"); break;
+    case HSDConfig::TYPE_LIGHT:  typeString = F("Light"); break;
+    case HSDConfig::TYPE_ALARM:  typeString = F("Alarm"); break;
+    default: break;
+  }
+
+  return typeString; 
+}
+
 
 String HSDHtmlHelper::minutes2Uptime(unsigned long minutes) const
 {

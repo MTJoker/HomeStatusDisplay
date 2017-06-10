@@ -26,9 +26,18 @@ private:
   void deliverNotFoundPage();
 
   void checkReboot();
-  
+
   bool updateMainConfig();
-  bool updateColorMappingConfig();
+
+  bool needAdd();
+  bool needDelete();
+    
+  bool addColorMappingEntry();
+  bool deleteColorMappingEntry();
+
+  bool addDeviceMappingEntry();
+  bool deleteDeviceMappingEntry();
+  
   bool updateDeviceMappingConfig();
 
   ESP8266WebServer m_server;

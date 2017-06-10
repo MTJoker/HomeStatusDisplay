@@ -117,7 +117,7 @@ void HSDWebserver::deliverRootPage()
   html += String(m_config.getLedBrightness());
   html += F("' size='30' maxlength='5' placeholder='0-255'></td></tr></table>"); 
   
-  html += m_html.getSaveButton();
+  html += F("<input type='submit' class='button' value='Save'>");
 
   html += F("</form></font></body></html>");
   
@@ -222,23 +222,33 @@ void HSDWebserver::deliverStatusPage()
 
 void HSDWebserver::deliverColorMappingPage()
 {
-  bool needSave = updateColorMappingConfig();
+  bool dirty = false;
+  
+  if(needAdd())
+  {
+    Serial.println(F("Need to add color mapping config entry"));
+    addColorMappingEntry();
+    dirty = true;
+  }
+  else if(needDelete())
+  {
+    Serial.println(F("Need to delete color mapping config entry"));
+    deleteColorMappingEntry();
+    dirty = true;
+  }
+
+  //if(dirty)
+  {
+    Serial.println(F("Need to update color mapping config"));
+    m_config.updateColorMapping();
+  }
   
   String html;
-  html.reserve(19500);
+  html.reserve(10000);
   
   html = m_html.getHeader("Color mapping configuration", m_config.getHost(), m_config.getVersion());
 
-  html += F("<form><font face='Verdana,Arial,Helvetica'>");
-
-  html += F(""
-  "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
-  " <tr>"
-  "  <td><b><font size='+1'>Message</font></b></td>"
-  "  <td><b><font size='+1'>Type</font></b></td>"
-  "  <td><b><font size='+1'>Color</font></b></td>"
-  "  <td><b><font size='+1'>Behavior</font></b></td>"
-  " </tr>");
+  html += m_html.getColorMappingTableHeader();
 
   for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
   {
@@ -246,48 +256,118 @@ void HSDWebserver::deliverColorMappingPage()
 
     if(mapping)
     {
-      html += m_html.getColorMappingEntry(i, mapping);
+      html += m_html.getColorMappingTableEntry(i+1, mapping);
     }
   }
+
+  html += m_html.getColorMappingTableFooter();
+
+  html += F("</table><br/>Add new entry:<br/>");
+  html += m_html.getColorMappingTableAddEntryForm(m_config.getNumberOfColorMappingEntries());
+
+  html += F("<br/>Delete Entry:<br/>");
+  html += m_html.getDeleteEntryForm();
   
-  // one additional for adding an entry
-  html += m_html.getColorMappingEntry(m_config.getNumberOfColorMappingEntries(), NULL);
-  html += F("</table>");
-  
-  html += m_html.getSaveButton();
-  html += F("</form></font></body></html>");
+  html += m_html.getFooter();
 
   Serial.print(F("Page size: "));
   Serial.println(html.length());
   
   m_server.send(200, F("text/html"), html);
 
-  if(needSave)
-  {
-    Serial.println(F("Color mapping config has changed, storing it."));
-    m_config.saveColorMapping();
-  }
-
   checkReboot();
 
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
 }
 
+bool HSDWebserver::needAdd()
+{
+   return (m_server.hasArg("add"));
+}
+
+bool HSDWebserver::needDelete()
+{
+   return (m_server.hasArg("delete"));
+}
+
+bool HSDWebserver::addColorMappingEntry()
+{
+  bool success = false;
+  
+  if(m_server.hasArg("n") && m_server.hasArg("t") && m_server.hasArg("c") && m_server.hasArg("b"))
+  {
+    if(m_server.arg("n") != "")
+    {
+      success = m_config.addColorMappingEntry(m_server.arg("n"), 
+                                              (HSDConfig::deviceType)(m_server.arg("t").toInt()), 
+                                              (HSDConfig::Color)(m_server.arg("c").toInt()), 
+                                              (HSDConfig::Behavior)(m_server.arg("b").toInt()));
+
+      if(success)
+      {
+        m_config.saveColorMapping();                                        
+      } 
+    }
+    else
+    {
+      Serial.print(F("Skipping empty entry"));
+    }
+  }
+
+  return success;
+}
+
+bool HSDWebserver::deleteColorMappingEntry()
+{
+  bool success = false;
+  int entryNum = 0;
+  
+  if(m_server.hasArg("i"))
+  {
+    entryNum = m_server.arg("i").toInt();
+    if(entryNum != 0)
+    {
+      success = m_config.deleteColorMappingEntry(entryNum-1);
+
+      if(success)
+      {
+        m_config.saveColorMapping();                                        
+      }                                      
+    }
+  }
+
+  return success;
+}
+
 void HSDWebserver::deliverDeviceMappingPage()
 {
-  bool needSave = updateDeviceMappingConfig();
+  bool dirty = false;
   
-  String html = m_html.getHeader("Device mapping configuration", m_config.getHost(), m_config.getVersion());
-  
-  html += F("<form><font face='Verdana,Arial,Helvetica'>");
+  if(needAdd())
+  {
+    Serial.println(F("Need to add device mapping config entry"));
+    addDeviceMappingEntry();
+    dirty = true;
+  }
+  else if(needDelete())
+  {
+    Serial.println(F("Need to delete device mapping config entry"));
+    deleteDeviceMappingEntry();
+    dirty = true;
+  }
 
-  html += F(""
-  "<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
-  " <tr>"
-  "  <td><b><font size='+1'>Device</font></b></td>"
-  "  <td><b><font size='+1'>Type</font></b></td>"
-  "  <td><b><font size='+1'>Led</font></b></td>"
-  " </tr>");
+  //if(dirty)
+  {
+    Serial.println(F("Need to update device mapping config"));
+    m_config.updateDeviceMapping();
+  }
+
+  String html;
+  html.reserve(10000);
+    
+  html = m_html.getHeader("Device mapping configuration", m_config.getHost(), m_config.getVersion());
+
+  html += m_html.getDeviceMappingTableHeader();
   
   for(uint32_t i = 0; i < m_config.getNumberOfDeviceMappingEntries(); i++)
   {
@@ -295,31 +375,76 @@ void HSDWebserver::deliverDeviceMappingPage()
 
     if(mapping)
     {
-      html += m_html.getDeviceMappingEntry(i, mapping);
+      html += m_html.getDeviceMappingTableEntry(i+1, mapping);
     }
   }
 
-  // one additional for adding an entry
-  html += m_html.getDeviceMappingEntry(m_config.getNumberOfDeviceMappingEntries(), NULL);     
-  html += F("</table>");
-     
-  html += m_html.getSaveButton();
-  html += F("</form></font></body></html>");
+  html += m_html.getDeviceMappingTableFooter();
+
+  html += F("</table><br/>Add new entry:<br/>");
+  html += m_html.getDeviceMappingTableAddEntryForm(m_config.getNumberOfDeviceMappingEntries());
+
+  html += F("<br/>Delete Entry:<br/>");
+  html += m_html.getDeleteEntryForm();
+  
+  html += m_html.getFooter();
 
   Serial.print(F("Page size: "));
   Serial.println(html.length());
   
   m_server.send(200, F("text/html"), html);
-
-  if(needSave)
-  {
-    Serial.println(F("Device mapping config has changed, storing it."));
-    m_config.saveDeviceMapping();
-  }
-
+  
   checkReboot();
 
   Serial.print(F("Free RAM: ")); Serial.println(ESP.getFreeHeap());
+}
+
+bool HSDWebserver::addDeviceMappingEntry()
+{
+  bool success = false;
+
+  if(m_server.hasArg("n") && m_server.hasArg("t") && m_server.hasArg("l"))
+  {
+    if(m_server.arg("n") != "")
+    {
+      success = m_config.addDeviceMappingEntry(m_server.arg("n"), 
+                                               (HSDConfig::deviceType)(m_server.arg("t").toInt()), 
+                                               m_server.arg("l").toInt());
+
+      if(success)
+      {
+        m_config.saveDeviceMapping();                                        
+      }                                    
+    }
+    else
+    {
+      Serial.print(F("Skipping empty entry"));
+    }
+  }
+  
+  return success;
+}
+
+bool HSDWebserver::deleteDeviceMappingEntry()
+{
+  bool success = false;
+  int entryNum = 0;
+  
+  if(m_server.hasArg("i"))
+  {
+    entryNum = m_server.arg("i").toInt();
+    if(entryNum != 0)
+    {
+      success = m_config.deleteDeviceMappingEntry(entryNum-1);
+
+      if(success)
+      {
+        m_config.saveDeviceMapping();                                        
+      }                                      
+    }
+  }
+
+  return success;
 }
 
 void HSDWebserver::deliverNotFoundPage()
@@ -416,102 +541,6 @@ bool HSDWebserver::updateMainConfig()
     if(ledBrightness > 0)
     {
       needSave |= m_config.setLedBrightness(ledBrightness);
-    }
-  }
-
-  return needSave;
-}
-
-bool HSDWebserver::updateColorMappingConfig()
-{
-  bool needSave = false;
-
-  int numArgs = m_server.args();
-
-  if(numArgs != 0)    // when page is initially loaded, do nothing because no args
-  {
-    if(numArgs % 4 == 0)
-    {
-      Serial.println(F("Number of arguments seems reasonable"));
-      
-      m_config.resetColorMappingConfigData();
-  
-      for(int i = 0; i < (numArgs/4); i++)
-      {
-        String name     = "n" + String(i);
-        String type     = "t" + String(i);
-        String color    = "c" + String(i);
-        String behavior = "b" + String(i);
-
-        if(m_server.hasArg(name) && m_server.hasArg(type) && m_server.hasArg(color) && m_server.hasArg(behavior))
-        {
-          if(m_server.arg(name) != "")
-          {
-            m_config.addColorMappingEntry(m_server.arg(name), 
-                                          (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                          (HSDConfig::Color)(m_server.arg(color).toInt()), 
-                                          (HSDConfig::Behavior)(m_server.arg(behavior).toInt()));
-          }
-          else
-          {
-            Serial.print(F("Skipping entry number ")); Serial.println(String(i));
-          }
-        }
-      }
-  
-      needSave = true;
-    }
-    else
-    {
-      Serial.println(F("Number of Arguments seems wrong!"));
-    }
-  }
-
-  return needSave;
-}
-
-bool HSDWebserver::updateDeviceMappingConfig()
-{
-  bool needSave = false;
-
-  int numArgs = m_server.args();
-
-  Serial.println("Got " + String(numArgs)  + " args");
-
-  if(numArgs != 0)    // when page is initially loaded, do nothing because no args
-  {
-    if((numArgs % 3) == 0)
-    {
-      Serial.println(F("Number of arguments seems reasonable"));
-  
-      m_config.resetDeviceMappingConfigData();
-  
-      for(int i = 0; i < (numArgs/3); i++)
-      {
-        String name = "n" + String(i);
-        String type = "t" + String(i);
-        String led  = "l" + String(i);
-
-        if(m_server.hasArg(name) && m_server.hasArg(type) && m_server.hasArg(led))
-        {
-          if(m_server.arg(name) != "")
-          {
-            m_config.addDeviceMappingEntry(m_server.arg(name), 
-                                          (HSDConfig::deviceType)(m_server.arg(type).toInt()), 
-                                          m_server.arg(led).toInt());
-          }
-          else
-          {
-            Serial.print(F("Skipping entry number ")); Serial.println(String(i));
-          }
-        }
-      }
-  
-      needSave = true;
-    }
-    else
-    {
-      Serial.println(F("Number of Arguments seems wrong!"));
     }
   }
 
