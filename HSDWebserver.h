@@ -5,6 +5,7 @@
 #include "HSDConfig.h"
 #include "HSDLeds.h"
 #include "HSDMqtt.h"
+#include "HSDHtmlHelper.hpp"
 
 class HSDWebserver
 {
@@ -25,19 +26,6 @@ private:
   void deliverNotFoundPage();
 
   void checkReboot();
-  String htmlHeader(const char* title);
-  String htmlSaveButton();
-  String htmlColorOptions(HSDConfig::Color selectedColor);
-  String htmlTypeOptions(HSDConfig::deviceType selectedType);
-  String htmlBehaviorOptions(HSDConfig::Behavior selectedBehavior);
-  String htmlColorMappingEntry(int entryNum, const HSDConfig::colorMapping* mapping);
-  String htmlDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping);
-
-  String ip2String(IPAddress ip);
-  String color2String(HSDConfig::Color color);
-  String color2htmlColor(HSDConfig::Color color);
-  String behavior2String(HSDConfig::Behavior behavior);
-  String minutes2Uptime(unsigned long minutes);
   
   bool updateMainConfig();
   bool updateColorMappingConfig();
@@ -49,4 +37,5 @@ private:
   const HSDLeds& m_leds;
   const HSDMqtt& m_mqtt;
   unsigned long m_deviceUptimeMinutes;
+  const HSDHtmlHelper m_html;
 };

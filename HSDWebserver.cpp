@@ -1,15 +1,12 @@
 #include "HSDWebserver.h"
 
-#define SELECTED_STRING (F("selected='selected'"))
-#define CHECKED_STRING  (F("checked='checked'")) 
-#define EMPTY_STRING    (F(""))
-
 HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt)
 :
 m_server(80),
 m_config(config),
 m_leds(leds),
 m_mqtt(mqtt),
+m_html(),
 m_deviceUptimeMinutes(0)
 {
   m_updateServer.setup(&m_server);
@@ -35,179 +32,6 @@ void HSDWebserver::handleClient(unsigned long deviceUptime)
   m_server.handleClient();
 }
 
-String HSDWebserver::htmlHeader(const char* title)
-{
-  String header;
-  header.reserve(1000);
-
-  header  = F("<!doctype html> <html>");
-  header += F("<head><meta charset='utf-8'>");
-  header += F("<title>");
-  header += String(m_config.getHost());
-  header += F("</title>");
-  header += F("<style>.button {border-radius:0;height:30px;width:100px;border:0;background-color:black;color:#fff;margin:5px;cursor:pointer;}</style>");
-  header += F("</head>");
-  header += F("<body bgcolor='#e5e5e5'><font face='Verdana,Arial,Helvetica'>");
-  header += F("<font size='+3'>");
-  header += String(m_config.getHost());
-  header += F("</font><font size='-3'>V");
-  header += String(m_config.getVersion());
-  header += F("</font>");
-  header += F("<form><p><input type='button' class='button' onclick=\"location.href='./'\"  value='Status'>");
-  header += F("<input type='submit' class='button'value='Reboot' id='reset' name='reset'>");
-  header += F("<input type='button' class='button'onclick=\"location.href='./update'\"  value='Update Firmware'></p>");
-  
-  header += F("<p><input type='button' class='button'onclick=\"location.href='./cfgmain'\"  value='General'>");
-  header += F("<input type='button' class='button'onclick=\"location.href='./cfgcolormapping'\"  value='Color mapping'>");
-  header += F("<input type='button' class='button'onclick=\"location.href='./cfgdevicemapping'\"  value='Device mapping'></p></form>");
-  
-  header += F("<h4>"); 
-  header += title;
-  header += F("</h4>");
-  
-  return header;
-}
-
-String HSDWebserver::htmlSaveButton()
-{
-  return F("<input type='submit' class='button' value='Save'>");
-}
-
-String HSDWebserver::htmlColorOptions(HSDConfig::Color selectedColor)
-{
-  String greenSelect  = (selectedColor == HSDConfig::GREEN)  ? SELECTED_STRING : EMPTY_STRING;
-  String yellowSelect = (selectedColor == HSDConfig::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
-  String orangeSelect = (selectedColor == HSDConfig::ORANGE) ? SELECTED_STRING : EMPTY_STRING;
-  String redSelect    = (selectedColor == HSDConfig::RED)    ? SELECTED_STRING : EMPTY_STRING;
-  String purpleSelect = (selectedColor == HSDConfig::PURPLE) ? SELECTED_STRING : EMPTY_STRING;
-  String blueSelect   = (selectedColor == HSDConfig::BLUE)   ? SELECTED_STRING : EMPTY_STRING;
-  String whiteSelect  = (selectedColor == HSDConfig::WHITE)  ? SELECTED_STRING : EMPTY_STRING;
-
-  String html;
-
-  html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDConfig::GREEN;  html += F("'>Green</option>");
-  html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDConfig::YELLOW; html += F("'>Yellow</option>");
-  html += F("<option "); html += orangeSelect; html += F(" value='"); html += HSDConfig::ORANGE; html += F("'>Orange</option>");
-  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDConfig::RED;    html += F("'>Red</option>");
-  html += F("<option "); html += purpleSelect; html += F(" value='"); html += HSDConfig::PURPLE; html += F("'>Purple</option>");
-  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDConfig::BLUE;   html += F("'>Blue</option>");
-  html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDConfig::WHITE;  html += F("'>White</option>");
-
-  return html;
-}
-
-String HSDWebserver::htmlTypeOptions(HSDConfig::deviceType selectedType)
-{
-  String windowSelect = (selectedType == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
-  String doorSelect   = (selectedType == HSDConfig::TYPE_DOOR)   ? SELECTED_STRING : EMPTY_STRING;
-  String lightSelect  = (selectedType == HSDConfig::TYPE_LIGHT)  ? SELECTED_STRING : EMPTY_STRING;
-  String alarmSelect  = (selectedType == HSDConfig::TYPE_ALARM)  ? SELECTED_STRING : EMPTY_STRING;
-
-  String html;
-  
-  html += F("<option "); html += windowSelect; html += F("value='"); html += HSDConfig::TYPE_WINDOW; html += F("'>Window</option>");
-  html += F("<option "); html += doorSelect;   html += F("value='"); html += HSDConfig::TYPE_DOOR;   html += F("'>Door</option>");
-  html += F("<option "); html += lightSelect;  html += F("value='"); html += HSDConfig::TYPE_LIGHT;  html += F("'>Light</option>");
-  html += F("<option "); html += alarmSelect;  html += F("value='"); html += HSDConfig::TYPE_ALARM;  html += F("'>Alarm</option>");
-  
-  return html;
-}
-
-String HSDWebserver::htmlBehaviorOptions(HSDConfig::Behavior selectedBehavior)
-{
-  String onSelect       =   (selectedBehavior == HSDConfig::ON)         ? SELECTED_STRING : EMPTY_STRING;
-  String blinkingSelect =   (selectedBehavior == HSDConfig::BLINKING)   ? SELECTED_STRING : EMPTY_STRING;
-  String flashingSelect =   (selectedBehavior == HSDConfig::FLASHING)   ? SELECTED_STRING : EMPTY_STRING;
-  String flickeringSelect = (selectedBehavior == HSDConfig::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
-  
-  String html;
-
-  html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDConfig::ON;         html += F("'>On</option>");
-  html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDConfig::BLINKING;   html += F("'>Blinking</option>");
-  html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDConfig::FLASHING;   html += F("'>Flashing</option>");
-  html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDConfig::FLICKERING; html += F("'>Flickering</option>");
-  
-  return html;
-}
-
-String HSDWebserver::htmlColorMappingEntry(int entryNum, const HSDConfig::colorMapping* mapping)
-{
-  String name     = "n" + String(entryNum);
-  String type     = "t" + String(entryNum);
-  String color    = "c" + String(entryNum);
-  String behavior = "b" + String(entryNum);
-
-  const HSDConfig::colorMapping* mappingInternal = mapping;
-  HSDConfig::colorMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, HSDConfig::WHITE, HSDConfig::ON};
-
-  if(!mapping)
-  {
-    mappingInternal = &mappingDefault;
-  }
-  
-  String html;
-  
-  html += F("<tr>");
-  html += F("<td><input type='text' id='name' name='");
-  html += name;
-  html += F("' value='");
-  html += mappingInternal->msg;
-  html += F("' size='20' maxlength='15' placeholder='name'></td>");
-  html += F("<td><select name='");
-  html += type;
-  html += F("'>");
-  html += htmlTypeOptions(mappingInternal->type);
-  html += F("</select></td>");
-  html += F("<td><select name='");
-  html += color;
-  html += F("'>");
-  html += htmlColorOptions(mappingInternal->color);
-  html += F("</select></td>");
-  html += F("<td><select name='");
-  html += behavior;
-  html += F("'>");
-  html += htmlBehaviorOptions(mappingInternal->behavior);
-  html += F("</select></td></tr>");
-
-  return html;
-}
-
-String HSDWebserver::htmlDeviceMappingEntry(int entryNum, const HSDConfig::deviceMapping* mapping)
-{
-  String name = "n" + String(entryNum);
-  String type = "t" + String(entryNum);
-  String led  = "l" + String(entryNum);
-
-  const HSDConfig::deviceMapping* mappingInternal = mapping;
-  HSDConfig::deviceMapping mappingDefault = {"", HSDConfig::TYPE_WINDOW, m_config.getNumberOfDeviceMappingEntries()};
-
-  if(!mapping)
-  {
-    mappingInternal = &mappingDefault;
-  }
-  
-  String html;
-    
-  html += F("<tr>");
-  html += F("<td><input type='text' id='name' name='");
-  html += name;
-  html += F("' value='");
-  html += mappingInternal->name;
-  html += F("' size='30' maxlength='25' placeholder='name'></td>");
-  html += F("<td><select name='");
-  html += type;
-  html += F("'>");
-  html += htmlTypeOptions(mappingInternal->type);
-  html += F("</select></td>");
-  html += F("<td><input type='text' id='led' name='");
-  html += led;
-  html += F("' value='");
-  html += mappingInternal->ledNumber;
-  html += F("' size='5' maxlength='3' placeholder='nr'></td></tr>");
-
-  return html;
-}
-
 void HSDWebserver::deliverRootPage()
 {
   bool needSave = updateMainConfig();
@@ -215,7 +39,7 @@ void HSDWebserver::deliverRootPage()
   String html;
   html.reserve(3000);
   
-  html = htmlHeader("General configuration");
+  html = m_html.getHeader("General configuration", m_config.getHost(), m_config.getVersion());
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
   
@@ -293,7 +117,7 @@ void HSDWebserver::deliverRootPage()
   html += String(m_config.getLedBrightness());
   html += F("' size='30' maxlength='5' placeholder='0-255'></td></tr></table>"); 
   
-  html += htmlSaveButton();
+  html += m_html.getSaveButton();
 
   html += F("</form></font></body></html>");
   
@@ -318,10 +142,10 @@ void HSDWebserver::deliverStatusPage()
   String html;
   html.reserve(3000);
   
-  html = htmlHeader("Status");
+  html = m_html.getHeader("Status", m_config.getHost(), m_config.getVersion());
 
   html += F("<p>Device uptime: ");
-  html += minutes2Uptime(m_deviceUptimeMinutes);
+  html += m_html.minutes2Uptime(m_deviceUptimeMinutes);
   html += F("</p>");
 
   if (WiFi.status() == WL_CONNECTED)
@@ -329,7 +153,7 @@ void HSDWebserver::deliverStatusPage()
     html += F("<p>Device is connected to WLAN <b>");
     html += WiFi.SSID();
     html += F("</b><br/>IP address is <b>");
-    html += ip2String(WiFi.localIP());
+    html += m_html.ip2String(WiFi.localIP());
     html += F("</b><br/><p>");
   }
   else
@@ -366,14 +190,14 @@ void HSDWebserver::deliverStatusPage()
       if( (HSDConfig::NONE != color) && (HSDConfig::OFF != behavior) )
       {
         html += F("<p><div style='background-color:");
-        html += color2htmlColor(color);
+        html += m_html.color2htmlColor(color);
         html += F(";width:15px;height:15px;border:1px black solid;float:left;margin-right:5px'></div>"); 
         html += F("LED number <b>");
         html += ledNr;
         html += F("</b> is <b>");
-        html += behavior2String(behavior);
+        html += m_html.behavior2String(behavior);
         html += F("</b> with color <b>");
-        html += color2String(color);      
+        html += m_html.color2String(color);      
         html += F("</b><br/></p>");
 
         ledOnCount++;
@@ -403,7 +227,7 @@ void HSDWebserver::deliverColorMappingPage()
   String html;
   html.reserve(19500);
   
-  html = htmlHeader("Color mapping configuration");
+  html = m_html.getHeader("Color mapping configuration", m_config.getHost(), m_config.getVersion());
 
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -422,15 +246,15 @@ void HSDWebserver::deliverColorMappingPage()
 
     if(mapping)
     {
-      html += htmlColorMappingEntry(i, mapping);
+      html += m_html.getColorMappingEntry(i, mapping);
     }
   }
   
   // one additional for adding an entry
-  html += htmlColorMappingEntry(m_config.getNumberOfColorMappingEntries(), NULL);
+  html += m_html.getColorMappingEntry(m_config.getNumberOfColorMappingEntries(), NULL);
   html += F("</table>");
   
-  html += htmlSaveButton();
+  html += m_html.getSaveButton();
   html += F("</form></font></body></html>");
 
   Serial.print(F("Page size: "));
@@ -453,7 +277,7 @@ void HSDWebserver::deliverDeviceMappingPage()
 {
   bool needSave = updateDeviceMappingConfig();
   
-  String html = htmlHeader("Device mapping configuration");
+  String html = m_html.getHeader("Device mapping configuration", m_config.getHost(), m_config.getVersion());
   
   html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -471,15 +295,15 @@ void HSDWebserver::deliverDeviceMappingPage()
 
     if(mapping)
     {
-      html += htmlDeviceMappingEntry(i, mapping);
+      html += m_html.getDeviceMappingEntry(i, mapping);
     }
   }
 
   // one additional for adding an entry
-  html += htmlDeviceMappingEntry(m_config.getNumberOfDeviceMappingEntries(), NULL);     
+  html += m_html.getDeviceMappingEntry(m_config.getNumberOfDeviceMappingEntries(), NULL);     
   html += F("</table>");
      
-  html += htmlSaveButton();
+  html += m_html.getSaveButton();
   html += F("</form></font></body></html>");
 
   Serial.print(F("Page size: "));
@@ -515,84 +339,6 @@ void HSDWebserver::deliverNotFoundPage()
   }
   
   m_server.send(404, F("text/plain"), html);
-}
-
-String HSDWebserver::ip2String(IPAddress ip)
-{
-  char buffer[20];
-  memset(buffer, 0, sizeof(buffer));
-
-  sprintf(buffer, "%d.%d.%d.%d", ip[0],ip[1],ip[2],ip[3]);
-  
-  return String(buffer);
-}
-
-String HSDWebserver::color2String(HSDConfig::Color color)
-{
-  String colorString = F("none");
-
-  switch(color)
-  {
-    case HSDConfig::GREEN:  colorString = F("green"); break;
-    case HSDConfig::YELLOW: colorString = F("yellow"); break;
-    case HSDConfig::ORANGE: colorString = F("orange"); break;
-    case HSDConfig::RED:    colorString = F("red"); break;
-    case HSDConfig::PURPLE: colorString = F("purple"); break;
-    case HSDConfig::BLUE:   colorString = F("blue"); break;
-    case HSDConfig::WHITE:  colorString = F("white"); break;
-    default: break;
-  }
-
-  return colorString;
-}
-
-String HSDWebserver::color2htmlColor(HSDConfig::Color color)
-{
-  String htmlcolor = F("#000000");
-
-  switch(color)
-  {
-    case HSDConfig::GREEN:  htmlcolor = F("#00FF00"); break;
-    case HSDConfig::YELLOW: htmlcolor = F("#FFFF00"); break;
-    case HSDConfig::ORANGE: htmlcolor = F("#FF5500"); break;
-    case HSDConfig::RED:    htmlcolor = F("#FF0000"); break;
-    case HSDConfig::PURPLE: htmlcolor = F("#FF00FF"); break;
-    case HSDConfig::BLUE:   htmlcolor = F("#0000FF"); break;
-    case HSDConfig::WHITE:  htmlcolor = F("#FFFFFF"); break;
-    default: break;
-  }
-
-  return htmlcolor;
-}
-
-String HSDWebserver::behavior2String(HSDConfig::Behavior behavior)
-{
-  String behaviorString = F("off");
-  
-  switch(behavior)
-  {
-    case HSDConfig::ON:         behaviorString = F("on"); break;
-    case HSDConfig::BLINKING:   behaviorString = F("blinking"); break;
-    case HSDConfig::FLASHING:   behaviorString = F("flashing"); break;
-    case HSDConfig::FLICKERING: behaviorString = F("flickering"); break;
-    default: break;
-  }
-
-  return behaviorString;
-}
-
-String HSDWebserver::minutes2Uptime(unsigned long minutes)
-{
-  char buffer[50];
-  memset(buffer, 0, sizeof(buffer));
-  
-  unsigned long days  = minutes / 60 / 24;
-  unsigned long hours = (minutes / 60) % 24;
-  unsigned long mins  = minutes % 60;
-
-  sprintf(buffer, "%lu days, %lu hours, %lu minutes", days, hours, mins);
-  
-  return String(buffer);
 }
 
 void HSDWebserver::checkReboot()
