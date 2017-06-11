@@ -141,8 +141,9 @@ public:
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool deleteColorMappingEntry(int entryNum);
   
-  bool addColorMappingEntry(String msg, deviceType type, Color color, Behavior behavior);
+  bool addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   bool deleteDeviceMappingEntry(int entryNum);
+  bool editColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index) const; 
@@ -174,7 +175,7 @@ private:
   static const int MAX_MQTT_TEST_TOPIC_LEN   = 50;
   static const int MAX_MQTT_WILL_TOPIC_LEN   = 50;
 
-  static const int MAX_COLOR_MAP_ENTRIES  = 50;
+  static const int MAX_COLOR_MAP_ENTRIES  = 30;
   static const int MAX_DEVICE_MAP_ENTRIES = 50;
 
   colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];

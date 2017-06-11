@@ -17,7 +17,7 @@ public:
   String getColorMappingTableHeader() const;
   String getColorMappingTableEntry(int entryNum, const HSDConfig::colorMapping* mapping) const;
   String getColorMappingTableFooter() const;
-  String getColorMappingTableAddEntryForm(int entryNum) const;
+  String getColorMappingTableAddEntryForm(int newEntryNum) const;
 
   String getDeviceMappingTableHeader() const;
   String getDeviceMappingTableEntry(int entryNum, const HSDConfig::deviceMapping* mapping) const;

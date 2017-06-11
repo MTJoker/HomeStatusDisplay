@@ -97,11 +97,14 @@ String HSDHtmlHelper::getColorMappingTableFooter() const
   return F("</table>");
 }
 
-String HSDHtmlHelper::getColorMappingTableAddEntryForm(int entryNum) const
+String HSDHtmlHelper::getColorMappingTableAddEntryForm(int newEntryNum) const
 {
   String html;
   
   html += F("<form><table><tr>");
+  html += F("<td><input type='text' id='number' name='i' value='");
+  html += newEntryNum;
+  html += F("' size='5' maxlength='3' placeholder='Nr'</td>");
   html += F("<td><input type='text' id='name' name='n' value='' size='20' maxlength='15' placeholder='name'></td>");
   html += F("<td><select name='t'>");
   html += getTypeOptions(HSDConfig::TYPE_WINDOW);
@@ -112,7 +115,7 @@ String HSDHtmlHelper::getColorMappingTableAddEntryForm(int entryNum) const
   html += F("<td><select name='b'>");
   html += getBehaviorOptions(HSDConfig::ON);
   html += F("</select></td></tr></table>");  
-  html += F("<input type='submit' class='button' value='Add' id='add' name='add'></form>");
+  html += F("<input type='submit' class='button' value='Add/Edit' id='add' name='add'></form>");
 
   return html;
 }
@@ -179,7 +182,7 @@ String HSDHtmlHelper::getDeleteEntryForm() const
 {
   String html;
   
-  html += F("<form><input type='text' id='number' name='i' value='' size='5' maxlength='3' placeholder='nr'><br/>");
+  html += F("<form><input type='text' id='number' name='i' value='' size='5' maxlength='3' placeholder='Nr'><br/>");
   html += F("<input type='submit' class='button' value='Delete' id='delete' name='delete'></form>");
 
   return html;  
