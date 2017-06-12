@@ -143,7 +143,6 @@ public:
   
   bool addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   bool deleteDeviceMappingEntry(int entryNum);
-  bool editColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index) const; 

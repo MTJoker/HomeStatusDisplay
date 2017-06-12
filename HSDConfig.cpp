@@ -464,25 +464,6 @@ bool HSDConfig::deleteColorMappingEntry(int entryNum)
   return success;
 }
 
-bool HSDConfig::editColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior)
-{
-  bool success = false;
-
-  if( (entryNum >= 0) && (entryNum < m_numColorMappingEntries) )
-  {
-    strncpy(m_cfgColorMapping[entryNum].msg, msg.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
-    m_cfgColorMapping[entryNum].msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
-
-    m_cfgColorMapping[entryNum].type = type;
-    m_cfgColorMapping[entryNum].color = color;
-    m_cfgColorMapping[entryNum].behavior = behavior;
- 
-    success = true;
-  }
-
-  return success;
-}
-
 const char* HSDConfig::getHost() const
 {
   return m_cfgHost;
