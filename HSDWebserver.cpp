@@ -222,23 +222,21 @@ void HSDWebserver::deliverStatusPage()
 
 void HSDWebserver::deliverColorMappingPage()
 {
-  bool dirty = false;
+  if(needSave())
+  {
+    Serial.println(F("Saving color mapping config"));
+    m_config.saveColorMapping();
+  }
   
   if(needAdd())
   {
     Serial.println(F("Need to add color mapping config entry"));
-    dirty = addColorMappingEntry();
+    addColorMappingEntry();
   }
   else if(needDelete())
   {
     Serial.println(F("Need to delete color mapping config entry"));
-    dirty = deleteColorMappingEntry();
-  }
-
-  if(dirty)
-  {
-    Serial.println(F("Need to update color mapping config"));
-    m_config.updateColorMapping();
+    deleteColorMappingEntry();
   }
   
   String html;
@@ -251,21 +249,23 @@ void HSDWebserver::deliverColorMappingPage()
   for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
   {
     const HSDConfig::colorMapping* mapping = m_config.getColorMapping(i);
-
-    if(mapping)
-    {
-      html += m_html.getColorMappingTableEntry(i, mapping);
-    }
+    html += m_html.getColorMappingTableEntry(i, mapping);
   }
 
   html += m_html.getColorMappingTableFooter();
 
-  html += F("</table><br/>Add/edit entry:<br/>");
+  html += F("</table><p>Add/edit entry:</p>");
   html += m_html.getColorMappingTableAddEntryForm(m_config.getNumberOfColorMappingEntries());
 
-  html += F("<br/>Delete Entry:<br/>");
+  html += F("<p>Delete Entry:</p>");
   html += m_html.getDeleteEntryForm();
-  
+
+  if(m_config.isColorMappingDirty())
+  {
+    html += F("<p style='color:red'>Unsaved changes! Press ""Save"" to make them permanent, or they will be lost on next reboot!</p>");
+    html += m_html.getSaveForm();
+  }
+
   html += m_html.getFooter();
 
   Serial.print(F("Page size: "));
@@ -288,6 +288,11 @@ bool HSDWebserver::needDelete()
    return (m_server.hasArg("delete"));
 }
 
+bool HSDWebserver::needSave()
+{
+   return (m_server.hasArg("save"));
+}
+
 bool HSDWebserver::addColorMappingEntry()
 {
   bool success = false;
@@ -301,11 +306,6 @@ bool HSDWebserver::addColorMappingEntry()
                                               (HSDConfig::deviceType)(m_server.arg("t").toInt()), 
                                               (HSDConfig::Color)(m_server.arg("c").toInt()), 
                                               (HSDConfig::Behavior)(m_server.arg("b").toInt()));
-
-      if(success)
-      {
-        m_config.saveColorMapping();                                        
-      } 
     }
     else
     {
@@ -325,12 +325,7 @@ bool HSDWebserver::deleteColorMappingEntry()
   {
     entryNum = m_server.arg("i").toInt();
 // TODO check conversion status
-    success = m_config.deleteColorMappingEntry(entryNum);
-
-    if(success)
-    {
-      m_config.saveColorMapping();                                        
-    }                                    
+    success = m_config.deleteColorMappingEntry(entryNum);                                  
   }
 
   return success;
@@ -381,7 +376,7 @@ void HSDWebserver::deliverDeviceMappingPage()
 
   html += F("<br/>Delete Entry:<br/>");
   html += m_html.getDeleteEntryForm();
-  
+
   html += m_html.getFooter();
 
   Serial.print(F("Page size: "));

@@ -25,6 +25,7 @@ public:
   String getDeviceMappingTableAddEntryForm(int entryNum) const;
 
   String getDeleteEntryForm() const;
+  String getSaveForm() const;
 
   String minutes2Uptime(unsigned long minutes) const;
   String ip2String(IPAddress ip) const;

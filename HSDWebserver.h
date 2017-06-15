@@ -31,6 +31,7 @@ private:
 
   bool needAdd();
   bool needDelete();
+  bool needSave();
     
   bool addColorMappingEntry();
   bool deleteColorMappingEntry();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDConfigFile.h"
+#include "lib/LinkedList.h"
 
 #define JSON_KEY_HOST                  (F("host"))
 #define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
@@ -84,6 +85,18 @@ public:
     deviceType type;                        // type of the device
     Color color;                   // led color for message from device type
     Behavior behavior;             // led behavior for message from device type
+/*
+    colorMapping& operator = (const colorMapping& src)
+    {
+      strncpy(msg, src.msg, MAX_COLOR_MAPPING_MSG_LEN);
+      msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
+  
+      type = src.type;
+      color = src.color;
+      behavior = src.behavior;
+
+      return *this;
+    };*/
   };
 
   HSDConfig();
@@ -136,16 +149,17 @@ public:
   void resetColorMappingConfigData();
 
   int getNumberOfDeviceMappingEntries() const;
-  int getNumberOfColorMappingEntries() const;
+  int getNumberOfColorMappingEntries();
   
   bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
   bool deleteColorMappingEntry(int entryNum);
+  bool isColorMappingDirty() const;
   
   bool addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   bool deleteDeviceMappingEntry(int entryNum);
   
   const deviceMapping* getDeviceMapping(int index) const;
-  const colorMapping* getColorMapping(int index) const; 
+  const colorMapping* getColorMapping(int index); 
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
@@ -177,8 +191,10 @@ private:
   static const int MAX_COLOR_MAP_ENTRIES  = 30;
   static const int MAX_DEVICE_MAP_ENTRIES = 50;
 
-  colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
-  int m_numColorMappingEntries;
+  LinkedList<colorMapping> m_cfgColorMapping;
+  bool m_cfgColorMappingDirty;
+  //colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
+  //int m_numColorMappingEntries;
   
   deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
   int m_numDeviceMappingEntries;
