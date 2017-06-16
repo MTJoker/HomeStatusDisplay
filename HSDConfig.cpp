@@ -403,9 +403,14 @@ bool HSDConfig::addDeviceMappingEntry(int entryNum, String name, deviceType type
 
 bool HSDConfig::deleteDeviceMappingEntry(int entryNum)
 {
-  m_cfgDeviceMapping.remove(entryNum);
-  m_cfgDeviceMappingDirty = true;
-  return true;
+  bool removed = m_cfgDeviceMapping.remove(entryNum);
+  
+  if(removed)
+  {
+    m_cfgDeviceMappingDirty = true;
+  }
+  
+  return removed;
 }
 
 bool HSDConfig::deleteAllDeviceMappingEntries()
@@ -449,9 +454,14 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
 
 bool HSDConfig::deleteColorMappingEntry(int entryNum)
 {
-  m_cfgColorMapping.remove(entryNum);
-  m_cfgColorMappingDirty = true;
-  return true;
+  bool removed = m_cfgColorMapping.remove(entryNum);
+  
+  if(removed)
+  {
+    m_cfgColorMappingDirty = true;
+  }
+  
+  return removed;
 }
 
 bool HSDConfig::deleteAllColorMappingEntries()

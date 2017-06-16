@@ -49,9 +49,10 @@ public:
   bool set(int index, T& data);
 
 	/*
-	 * Clear the entire list
+	 * Clear the entire list. Return false if
+   * nothing to clear (list empty).
 	 */
-	void clear();
+	bool clear();
 
   /*
    * Check if list is full. If true, no adding
@@ -191,9 +192,17 @@ bool PreAllocatedLinkedList<T>::set(int index, T& entry)
 }
 
 template<typename T>
-void PreAllocatedLinkedList<T>::clear()
+bool PreAllocatedLinkedList<T>::clear()
 {
-  m_size = 0;
+  bool ret = false;
+
+  if(m_size > 0)
+  {
+    m_size = 0;
+    ret = true;
+  }
+
+  return ret;
 }
 
 template<typename T>
