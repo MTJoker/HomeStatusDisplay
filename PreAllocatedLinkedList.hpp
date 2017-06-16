@@ -41,7 +41,7 @@ public:
 	/*
 	 * Get the element at index (for writing to it)
 	 */
-	T* get(int index) const;
+	const T* const get(int index) const;
 
   /*
    * Set element at index to data
@@ -139,7 +139,7 @@ bool PreAllocatedLinkedList<T>::remove(int index)
 }
 
 template<typename T>
-T* PreAllocatedLinkedList<T>::get(int index) const
+const T* const PreAllocatedLinkedList<T>::get(int index) const
 {
   ListNode<T>* tmp = NULL;
 
@@ -167,7 +167,7 @@ bool PreAllocatedLinkedList<T>::set(int index, T& entry)
 {
   bool ret = false;
   
-  T* data = get(index);
+  T* data = const_cast<T*>(get(index));
 
   if(data)
   {

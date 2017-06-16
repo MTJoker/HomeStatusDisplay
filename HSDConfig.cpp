@@ -277,7 +277,7 @@ void HSDConfig::writeColorMappingConfigFile()
 
   for(int index = 0; index < m_cfgColorMapping.size(); index++)
   { 
-    ColorMapping* mapping = m_cfgColorMapping.get(index);
+    const ColorMapping* mapping = m_cfgColorMapping.get(index);
     
     if(strlen(mapping->msg) != 0)
     {
@@ -317,7 +317,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
 
   for(int index = 0; index < m_cfgDeviceMapping.size(); index++)
   {
-    DeviceMapping* mapping = m_cfgDeviceMapping.get(index);
+    const DeviceMapping* mapping = m_cfgDeviceMapping.get(index);
         
     if(strlen(mapping->name) != 0)
     {
@@ -616,7 +616,7 @@ int HSDConfig::getLedNumber(String deviceName, deviceType deviceType)
 
   for(int i = 0; i < m_cfgDeviceMapping.size(); i++)
   {
-    DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
+    const DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
     
     if(deviceName.equals(mapping->name) && (deviceType == mapping->type))
     {
@@ -634,7 +634,7 @@ int HSDConfig::getColorMapIndex(deviceType deviceType, String msg)
 
   for(int i = 0; i < m_cfgColorMapping.size(); i++)
   {
-    ColorMapping* mapping = m_cfgColorMapping.get(i);
+    const ColorMapping* mapping = m_cfgColorMapping.get(i);
     
     if(msg.equals(mapping->msg) && (deviceType == mapping->type))
     {
