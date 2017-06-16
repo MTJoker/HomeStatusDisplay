@@ -192,7 +192,12 @@ String HSDHtmlHelper::getDeleteForm() const
 
 String HSDHtmlHelper::getSaveForm() const
 {
-  return F("<form><input type='submit' class='buttonr' value='Save' id='save' name='save'></form>");   
+  String html;
+  
+  html += F("<form><input type='submit' class='buttonr' value='Save' id='save' name='save'>");   
+  html += F("<form><input type='submit' class='buttonr' value='Undo' id='undo' name='undo'></form>");   
+
+  return html;
 }
 
 String HSDHtmlHelper::getColorOptions(HSDConfig::Color selectedColor) const

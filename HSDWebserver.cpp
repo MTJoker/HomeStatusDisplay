@@ -222,10 +222,10 @@ void HSDWebserver::deliverStatusPage()
 
 void HSDWebserver::deliverColorMappingPage()
 {
-  if(needSave())
+  if(needUndo())
   {
-    Serial.println(F("Saving color mapping config"));
-    m_config.saveColorMapping();
+    Serial.println(F("Need to undo changes to color mapping config"));
+    m_config.updateColorMapping();
   }
   else if(needAdd())
   {
@@ -241,6 +241,11 @@ void HSDWebserver::deliverColorMappingPage()
   {
     Serial.println(F("Need to delete all color mapping config entries"));
     m_config.deleteAllColorMappingEntries();
+  }
+  else if(needSave())
+  {
+    Serial.println(F("Need o save color mapping config"));
+    m_config.saveColorMapping();
   }
     
   String html;
@@ -300,6 +305,11 @@ bool HSDWebserver::needDeleteAll()
 bool HSDWebserver::needSave()
 {
    return (m_server.hasArg("save"));
+}
+
+bool HSDWebserver::needUndo()
+{
+   return (m_server.hasArg("undo"));
 }
 
 bool HSDWebserver::addColorMappingEntry()

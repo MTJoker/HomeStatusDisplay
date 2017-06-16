@@ -33,6 +33,7 @@ private:
   bool needDelete();
   bool needDeleteAll();
   bool needSave();
+  bool needUndo();
     
   bool addColorMappingEntry();
   bool deleteColorMappingEntry();
