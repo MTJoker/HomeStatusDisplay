@@ -85,18 +85,6 @@ public:
     deviceType type;                        // type of the device
     Color color;                   // led color for message from device type
     Behavior behavior;             // led behavior for message from device type
-/*
-    colorMapping& operator = (const colorMapping& src)
-    {
-      strncpy(msg, src.msg, MAX_COLOR_MAPPING_MSG_LEN);
-      msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
-  
-      type = src.type;
-      color = src.color;
-      behavior = src.behavior;
-
-      return *this;
-    };*/
   };
 
   HSDConfig();
@@ -194,8 +182,6 @@ private:
 
   LinkedList<colorMapping> m_cfgColorMapping;
   bool m_cfgColorMappingDirty;
-  //colorMapping m_cfgColorMapping[MAX_COLOR_MAP_ENTRIES];
-  //int m_numColorMappingEntries;
   
   deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
   int m_numDeviceMappingEntries;

@@ -1,7 +1,6 @@
+#pragma once
 
-#ifndef LinkedList_h
-#define LinkedList_h
-
+#include <stdint.h>
 #include <stddef.h>
 
 template<class T>
@@ -215,4 +214,3 @@ ListNode<T>* LinkedList<T>::getLast() const
   return tmp;
 }
 
-#endif
