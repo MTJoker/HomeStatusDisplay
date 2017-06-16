@@ -118,10 +118,12 @@ bool LinkedList<T>::remove(int index)
     {
       previous = getNode(index - 1);
       current = previous->next;
-      previous->next = previous->next->next;
+      previous->next =current->next;
     }
 
+    ListNode<T>* next = last->next;
     last->next = current;
+    current->next = next;
     m_size--;
     ret = true;
   }
