@@ -227,8 +227,7 @@ void HSDWebserver::deliverColorMappingPage()
     Serial.println(F("Saving color mapping config"));
     m_config.saveColorMapping();
   }
-  
-  if(needAdd())
+  else if(needAdd())
   {
     Serial.println(F("Need to add color mapping config entry"));
     addColorMappingEntry();
@@ -238,7 +237,12 @@ void HSDWebserver::deliverColorMappingPage()
     Serial.println(F("Need to delete color mapping config entry"));
     deleteColorMappingEntry();
   }
-  
+  else if(needDeleteAll())
+  {
+    Serial.println(F("Need to delete all color mapping config entries"));
+    m_config.deleteAllColorMappingEntries();
+  }
+    
   String html;
   html.reserve(8000);
   
@@ -258,7 +262,7 @@ void HSDWebserver::deliverColorMappingPage()
   html += m_html.getColorMappingTableAddEntryForm(m_config.getNumberOfColorMappingEntries());
 
   html += F("<p>Delete Entry:</p>");
-  html += m_html.getDeleteEntryForm();
+  html += m_html.getDeleteForm();
 
   if(m_config.isColorMappingDirty())
   {
@@ -286,6 +290,11 @@ bool HSDWebserver::needAdd()
 bool HSDWebserver::needDelete()
 {
    return (m_server.hasArg("delete"));
+}
+
+bool HSDWebserver::needDeleteAll()
+{
+  return (m_server.hasArg("deleteall"));
 }
 
 bool HSDWebserver::needSave()
@@ -375,7 +384,7 @@ void HSDWebserver::deliverDeviceMappingPage()
   html += m_html.getDeviceMappingTableAddEntryForm(m_config.getNumberOfDeviceMappingEntries());
 
   html += F("<br/>Delete Entry:<br/>");
-  html += m_html.getDeleteEntryForm();
+  html += m_html.getDeleteForm();
 
   html += m_html.getFooter();
 

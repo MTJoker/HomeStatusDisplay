@@ -179,13 +179,14 @@ String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int entryNum) const
   return html;
 }
 
-String HSDHtmlHelper::getDeleteEntryForm() const
+String HSDHtmlHelper::getDeleteForm() const
 {
   String html;
   
   html += F("<form><input type='text' id='number' name='i' value='' size='5' maxlength='3' placeholder='Nr'><br/>");
-  html += F("<input type='submit' class='button' value='Delete' id='delete' name='delete'></form>");
-
+  html += F("<input type='submit' class='button' value='Delete' id='delete' name='delete'>");
+  html += F("<input type='submit' class='button' value='Delete all' id='deleteall' name='deleteall'></form>");
+  
   return html;  
 }
 

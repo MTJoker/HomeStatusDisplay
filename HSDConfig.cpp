@@ -17,7 +17,8 @@ HSDConfig::HSDConfig()
 :
 m_mainConfigFile(String("/config.json")),
 m_colorMappingConfigFile(String("/colormapping.json")),
-m_deviceMappingConfigFile(String("/devicemapping.json"))
+m_deviceMappingConfigFile(String("/devicemapping.json")),
+m_cfgColorMapping(MAX_COLOR_MAP_ENTRIES)
 {  
   // reset non-configurable members
   setVersion("");
@@ -412,33 +413,13 @@ bool HSDConfig::deleteDeviceMappingEntry(int entryNum)
 bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior)
 {
   bool success = false;
-  bool add = false;
-  bool edit = false;
-  colorMapping* mapping = new colorMapping();
 
-  if(entryNum >= m_cfgColorMapping.size())
-  {
-    // new entry, ignore if entrynum (= index) is higher than next index, use this next index then -
-    // but only if it is allowed to add further entries
-    if(m_cfgColorMapping.size() < MAX_COLOR_MAP_ENTRIES)
-    {
-      add = true;
+  Serial.print(F("Adding or editing color mapping entry at index ")); 
+  Serial.println(String(entryNum) + ", new values: name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
+  
+  colorMapping* mapping = m_cfgColorMapping.get(entryNum);
 
-      Serial.print(F("Adding color mapping entry at index ")); 
-      Serial.println(String(entryNum) + ", values: name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
-    }
-  }
-  else if(entryNum >= 0 && entryNum < m_cfgColorMapping.size())
-  {
-    edit = true;
-    
-    m_cfgColorMapping.remove(entryNum);
-    
-    Serial.print(F("Editing color mapping entry at index ")); 
-    Serial.println(String(entryNum) + ", values: name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
-  }
-
-  if(add || edit)
+  if(mapping)
   {
     strncpy(mapping->msg, msg.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
     mapping->msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
@@ -447,7 +428,6 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
     mapping->color = color;
     mapping->behavior = behavior;
 
-    m_cfgColorMapping.add(entryNum, *mapping);
     m_cfgColorMappingDirty = true;
     
     success = true;
@@ -456,7 +436,13 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
   {
     Serial.println(F("Cannot add/edit device mapping entry")); 
   }
-  
+
+  // TODO: find better solution for this
+  if(entryNum >= m_cfgColorMapping.size())
+  {
+    m_cfgColorMapping.added();
+  }
+
   return success;  
 }
 
@@ -468,6 +454,14 @@ bool HSDConfig::deleteColorMappingEntry(int entryNum)
   m_cfgColorMappingDirty = true;
 
   return success;
+}
+
+bool HSDConfig::deleteAllColorMappingEntries()
+{
+  m_cfgColorMapping.clear();
+  m_cfgColorMappingDirty = true; 
+
+  return true;
 }
 
 bool HSDConfig::isColorMappingDirty() const
@@ -667,7 +661,7 @@ int HSDConfig::getColorMapIndex(deviceType deviceType, String msg)
 
 HSDConfig::Behavior HSDConfig::getLedBehavior(int colorMapIndex)
 {
-    return m_cfgColorMapping.get(colorMapIndex)->behavior;
+  return m_cfgColorMapping.get(colorMapIndex)->behavior;
 }
 
 HSDConfig::Color HSDConfig::getLedColor(int colorMapIndex)

@@ -24,7 +24,7 @@ public:
   String getDeviceMappingTableFooter() const;
   String getDeviceMappingTableAddEntryForm(int entryNum) const;
 
-  String getDeleteEntryForm() const;
+  String getDeleteForm() const;
   String getSaveForm() const;
 
   String minutes2Uptime(unsigned long minutes) const;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HSDConfigFile.h"
-#include "lib/LinkedList.h"
+#include "LinkedList.h"
 
 #define JSON_KEY_HOST                  (F("host"))
 #define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
@@ -157,6 +157,7 @@ public:
   
   bool addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   bool deleteDeviceMappingEntry(int entryNum);
+  bool deleteAllColorMappingEntries();
   
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index); 
