@@ -53,13 +53,18 @@ public:
 	 */
 	void clear();
 
+  /*
+   * Check if list is full. If true, no adding
+   * of further elements is possible.
+   */
+  bool isFull() const;
+  
 private:
 
   int m_size;
   ListNode<T>* m_root;
   uint32_t m_maxCount;
 
-  bool isFull() const;
   ListNode<T>* getLast() const;
   ListNode<T>* getNode(int index) const;
 };
@@ -192,6 +197,12 @@ void PreAllocatedLinkedList<T>::clear()
 }
 
 template<typename T>
+bool PreAllocatedLinkedList<T>::isFull() const
+{
+  return (m_size >= m_maxCount) ? true : false;
+}
+
+template<typename T>
 ListNode<T>* PreAllocatedLinkedList<T>::getNode(int index) const
 {
   int pos = 0;
@@ -210,12 +221,6 @@ ListNode<T>* PreAllocatedLinkedList<T>::getNode(int index) const
   }
 
   return NULL;
-}
-
-template<typename T>
-bool PreAllocatedLinkedList<T>::isFull() const
-{
-  return (m_size >= m_maxCount) ? true : false;
 }
 
 template<typename T>

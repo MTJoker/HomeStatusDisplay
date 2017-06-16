@@ -98,13 +98,13 @@ String HSDHtmlHelper::getColorMappingTableFooter() const
   return F("</table>");
 }
 
-String HSDHtmlHelper::getColorMappingTableAddEntryForm(int newEntryNum) const
+String HSDHtmlHelper::getColorMappingTableAddEntryForm(int newEntryNum, bool isFull) const
 {
   String html;
   
   html += F("<form><table><tr>");
   html += F("<td><input type='text' id='number' name='i' value='");
-  html += newEntryNum;
+  html += isFull ? newEntryNum - 1 : newEntryNum;
   html += F("' size='5' maxlength='3' placeholder='Nr'</td>");
   html += F("<td><input type='text' id='name' name='n' value='' size='20' maxlength='15' placeholder='name'></td>");
   html += F("<td><select name='t'>");
@@ -116,7 +116,9 @@ String HSDHtmlHelper::getColorMappingTableAddEntryForm(int newEntryNum) const
   html += F("<td><select name='b'>");
   html += getBehaviorOptions(HSDConfig::ON);
   html += F("</select></td></tr></table>");  
-  html += F("<input type='submit' class='button' value='Add/Edit' id='add' name='add'></form>");
+  html += F("<input type='submit' class='button' value='");
+  html += isFull ? F("Edit") : F("Add/Edit");
+  html += F("' id='add' name='add'></form>");
 
   return html;
 }
@@ -162,22 +164,24 @@ String HSDHtmlHelper::getDeviceMappingTableFooter() const
   return F("</table>");
 }
 
-String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int newEntryNum) const
+String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int newEntryNum, bool isFull) const
 {
   String html;
   
   html += F("<form><table><tr>");
   html += F("<td><input type='text' id='number' name='i' value='");
-  html += newEntryNum;
+  html += isFull ? newEntryNum - 1 : newEntryNum;
   html += F("' size='5' maxlength='3' placeholder='Nr'</td>");
   html += F("<td><input type='text' id='name' name='n' value='' size='30' maxlength='25' placeholder='name'></td>");
   html += F("<td><select name='t'>");
   html += getTypeOptions(HSDConfig::TYPE_WINDOW);
   html += F("</select></td>");
   html += F("<td><input type='text' id='led' name='l' value='");
-  html += newEntryNum;
+  html += isFull ? newEntryNum - 1 : newEntryNum;
   html += F("' size='6' maxlength='3' placeholder='led nr'></td></tr></table>");
-  html += F("<input type='submit' class='button' value='Add' id='add' name='add'></form>");
+  html += F("<input type='submit' class='button' value='");
+  html += isFull ? F("Edit") : F("Add/Edit");
+  html += F("' id='add' name='add'></form>");
 
   return html;
 }

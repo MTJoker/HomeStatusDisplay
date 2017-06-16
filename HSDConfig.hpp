@@ -175,11 +175,13 @@ public:
   bool deleteColorMappingEntry(int entryNum);
   bool deleteAllDeviceMappingEntries();
   bool isDeviceMappingDirty() const;
+  bool isDeviceMappingFull() const;
   
   bool addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   bool deleteDeviceMappingEntry(int entryNum);
   bool deleteAllColorMappingEntries();
   bool isColorMappingDirty() const;
+  bool isColorMappingFull() const;
   
   const DeviceMapping* getDeviceMapping(int index) const;
   const ColorMapping* getColorMapping(int index); 

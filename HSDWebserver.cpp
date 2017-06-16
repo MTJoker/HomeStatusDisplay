@@ -263,15 +263,23 @@ void HSDWebserver::deliverColorMappingPage()
 
   html += m_html.getColorMappingTableFooter();
 
-  html += F("</table><p>Add/edit entry:</p>");
-  html += m_html.getColorMappingTableAddEntryForm(m_config.getNumberOfColorMappingEntries());
+  if(m_config.isColorMappingFull())
+  {
+    html += F("</table><p>Edit entry (add not possible, entry limit reached):</p>");
+    html += m_html.getColorMappingTableAddEntryForm(m_config.getNumberOfColorMappingEntries(), true);
+  }
+  else
+  {
+    html += F("</table><p>Add/edit entry:</p>");    
+    html += m_html.getColorMappingTableAddEntryForm(m_config.getNumberOfColorMappingEntries(), false);
+  }
 
   html += F("<p>Delete Entry:</p>");
   html += m_html.getDeleteForm();
 
   if(m_config.isColorMappingDirty())
   {
-    html += F("<p style='color:red'>Unsaved changes! Press ""Save"" to make them permanent, or they will be lost on next reboot!</p>");
+    html += F("<p style='color:red'>Unsaved changes! Press Save to make them permanent, <br/>or Undo to revert to last saved version!</p>");
     html += m_html.getSaveForm();
   }
 
@@ -393,8 +401,16 @@ void HSDWebserver::deliverDeviceMappingPage()
 
   html += m_html.getDeviceMappingTableFooter();
 
-  html += F("</table><br/>Add/edit entry:<br/>");
-  html += m_html.getDeviceMappingTableAddEntryForm(m_config.getNumberOfDeviceMappingEntries());
+  if(m_config.isDeviceMappingFull())
+  {
+    html += F("</table><p>Edit entry (add not possible, entry limit reached):</p>");
+    html += m_html.getDeviceMappingTableAddEntryForm(m_config.getNumberOfDeviceMappingEntries(), true);
+  }
+  else
+  {
+    html += F("</table><p>Add/edit entry:</p>");    
+    html += m_html.getDeviceMappingTableAddEntryForm(m_config.getNumberOfDeviceMappingEntries(), false);
+  }
 
   html += F("<br/>Delete Entry:<br/>");
   html += m_html.getDeleteForm();

@@ -420,6 +420,11 @@ bool HSDConfig::isDeviceMappingDirty() const
   return m_cfgDeviceMappingDirty;
 }
 
+bool HSDConfig::isDeviceMappingFull() const
+{
+  return m_cfgDeviceMapping.isFull();
+}
+
 bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior)
 {
   bool success = false;
@@ -459,6 +464,11 @@ bool HSDConfig::deleteAllColorMappingEntries()
 bool HSDConfig::isColorMappingDirty() const
 {
   return m_cfgColorMappingDirty;
+}
+
+bool HSDConfig::isColorMappingFull() const
+{
+  return m_cfgColorMapping.isFull();
 }
 
 const char* HSDConfig::getHost() const
