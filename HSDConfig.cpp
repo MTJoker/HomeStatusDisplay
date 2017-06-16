@@ -18,6 +18,7 @@ HSDConfig::HSDConfig()
 m_mainConfigFile(String("/config.json")),
 m_colorMappingConfigFile(String("/colormapping.json")),
 m_deviceMappingConfigFile(String("/devicemapping.json")),
+m_cfgDeviceMapping(MAX_DEVICE_MAP_ENTRIES),
 m_cfgColorMapping(MAX_COLOR_MAP_ENTRIES)
 {  
   // reset non-configurable members
@@ -81,8 +82,8 @@ void HSDConfig::resetDeviceMappingConfigData()
 {
   Serial.println(F("Deleting device mapping config data."));
   
-  memset(m_cfgDeviceMapping, 0, sizeof(m_cfgDeviceMapping));
-  m_numDeviceMappingEntries = 0;  
+  m_cfgDeviceMapping.clear();
+  m_cfgDeviceMappingDirty = true;
 }
 
 bool HSDConfig::readMainConfigFile()
@@ -214,6 +215,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
       Serial.println(F(""));
 
       success = true;
+      int index = 0;
       
       for(JsonObject::iterator it = json.begin(); it != json.end(); ++it)
       {
@@ -222,9 +224,12 @@ bool HSDConfig::readDeviceMappingConfigFile()
         if(entry.containsKey(JSON_KEY_DEVICEMAPPING_NAME) && entry.containsKey(JSON_KEY_DEVICEMAPPING_TYPE) &&
            entry.containsKey(JSON_KEY_DEVICEMAPPING_LED) )
         {
-          addDeviceMappingEntry(entry[JSON_KEY_DEVICEMAPPING_NAME].as<char*>(), 
-                               (deviceType)(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()), 
-                               entry[JSON_KEY_DEVICEMAPPING_LED].as<int>()); 
+          addDeviceMappingEntry(index,
+                                entry[JSON_KEY_DEVICEMAPPING_NAME].as<char*>(), 
+                                (deviceType)(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()), 
+                                entry[JSON_KEY_DEVICEMAPPING_LED].as<int>());
+
+           index++;                               
         }
       }
     }
@@ -239,6 +244,8 @@ bool HSDConfig::readDeviceMappingConfigFile()
     resetDeviceMappingConfigData();
     writeDeviceMappingConfigFile();
   }
+
+  m_cfgDeviceMappingDirty = false;
 }
 
 void HSDConfig::writeMainConfigFile()
@@ -308,22 +315,20 @@ void HSDConfig::writeDeviceMappingConfigFile()
   DynamicJsonBuffer jsonBuffer(JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE);
   JsonObject& json = jsonBuffer.createObject();
 
-  int numEntries = 0; // needed for skipping empty entries
-  
-  for(int index = 0; index < m_numDeviceMappingEntries; index++)
+  for(int index = 0; index < m_cfgDeviceMapping.size(); index++)
   {
-    if(strlen(m_cfgDeviceMapping[index].name) != 0)
+    deviceMapping* mapping = m_cfgDeviceMapping.get(index);
+        
+    if(strlen(mapping->name) != 0)
     {
       Serial.print(F("Preparing to write device mapping config file index "));
       Serial.println(String(index));
         
       JsonObject& deviceMappingEntry = json.createNestedObject(String(index));
   
-      deviceMappingEntry[JSON_KEY_DEVICEMAPPING_NAME] = m_cfgDeviceMapping[index].name;
-      deviceMappingEntry[JSON_KEY_DEVICEMAPPING_TYPE] = (int)m_cfgDeviceMapping[index].type;
-      deviceMappingEntry[JSON_KEY_DEVICEMAPPING_LED]  = (int)m_cfgDeviceMapping[index].ledNumber;
-  
-      numEntries++;
+      deviceMappingEntry[JSON_KEY_DEVICEMAPPING_NAME] = mapping->name;
+      deviceMappingEntry[JSON_KEY_DEVICEMAPPING_TYPE] = (int)mapping->type;
+      deviceMappingEntry[JSON_KEY_DEVICEMAPPING_LED]  = (int)mapping->ledNumber;
     }
     else
     {
@@ -336,6 +341,10 @@ void HSDConfig::writeDeviceMappingConfigFile()
   {
     onFileWriteError();
   } 
+  else
+  {
+    m_cfgDeviceMappingDirty = false;
+  }
 }
 
 void HSDConfig::saveMain()
@@ -370,27 +379,36 @@ void HSDConfig::onFileWriteError()
   Serial.println(F("Done.")); 
 }
 
-bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumber)
+bool HSDConfig::addDeviceMappingEntry(int entryNum, String name, deviceType type, int ledNumber)
 {
   bool success = false;
 
-  if(m_numDeviceMappingEntries < (MAX_DEVICE_MAP_ENTRIES - 1))
+  Serial.print(F("Adding or editing device mapping entry at index ")); 
+  Serial.println(String(entryNum) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
+
+  deviceMapping* mapping = m_cfgDeviceMapping.get(entryNum);
+
+  if(mapping)
   {
-    Serial.print(F("Adding device mapping entry at index ")); 
-    Serial.println(String(m_numDeviceMappingEntries) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
-  
-    strncpy(m_cfgDeviceMapping[m_numDeviceMappingEntries].name, name.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
-    m_cfgDeviceMapping[m_numDeviceMappingEntries].name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
+    strncpy(mapping->name, name.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
+    mapping->name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
     
-    m_cfgDeviceMapping[m_numDeviceMappingEntries].type = type;
-    m_cfgDeviceMapping[m_numDeviceMappingEntries].ledNumber = ledNumber;
-    m_numDeviceMappingEntries++;
+    mapping->type = type;
+    mapping->ledNumber = ledNumber;
+
+    m_cfgDeviceMappingDirty = true;
+
+    // TODO: find better solution for this
+    if(entryNum >= m_cfgDeviceMapping.size())
+    {
+      m_cfgDeviceMapping.added();
+    }
+    
     success = true;
   }
   else
   {
-    Serial.print(F("Cannot add device mapping entry at index ")); 
-    Serial.println(String(m_numDeviceMappingEntries));
+    Serial.println(F("Cannot add/edit device mapping entry")); 
   }
 
   return success;
@@ -398,16 +416,21 @@ bool HSDConfig::addDeviceMappingEntry(String name, deviceType type, int ledNumbe
 
 bool HSDConfig::deleteDeviceMappingEntry(int entryNum)
 {
-  bool success = false;
+  m_cfgDeviceMapping.remove(entryNum);
+  m_cfgDeviceMappingDirty = true;
+  return true;
+}
 
-  if( (entryNum >= 0) && (entryNum < m_numDeviceMappingEntries) )
-  {
-    memset(m_cfgDeviceMapping[entryNum].name, 0, MAX_DEVICE_MAPPING_NAME_LEN);
- 
-    success = true;
-  }
+bool HSDConfig::deleteAllDeviceMappingEntries()
+{
+  m_cfgDeviceMapping.clear();
+  m_cfgDeviceMappingDirty = true; 
+  return true;
+}
 
-  return success;  
+bool HSDConfig::isDeviceMappingDirty() const
+{
+  return m_cfgDeviceMappingDirty;
 }
 
 bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior)
@@ -448,19 +471,15 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
 
 bool HSDConfig::deleteColorMappingEntry(int entryNum)
 {
-  bool success = true;
-
   m_cfgColorMapping.remove(entryNum);
   m_cfgColorMappingDirty = true;
-
-  return success;
+  return true;
 }
 
 bool HSDConfig::deleteAllColorMappingEntries()
 {
   m_cfgColorMapping.clear();
   m_cfgColorMappingDirty = true; 
-
   return true;
 }
 
@@ -610,30 +629,25 @@ const HSDConfig::colorMapping* HSDConfig::getColorMapping(int index)
 
 int HSDConfig::getNumberOfDeviceMappingEntries() const
 {
-  return m_numDeviceMappingEntries;
+  return m_cfgDeviceMapping.size();
 }
 
 const HSDConfig::deviceMapping* HSDConfig::getDeviceMapping(int index) const
 {
-  const deviceMapping* mapping = NULL;
-
-  if(index < m_numDeviceMappingEntries)
-  {
-    mapping = &m_cfgDeviceMapping[index];
-  }
-
-  return mapping;
+    return m_cfgDeviceMapping.get(index);
 }
 
 int HSDConfig::getLedNumber(String deviceName, deviceType deviceType)
 {
   int number = -1;
 
-  for(int i = 0; i < m_numDeviceMappingEntries; i++)
+  for(int i = 0; i < m_cfgDeviceMapping.size(); i++)
   {
-    if(deviceName.equals(m_cfgDeviceMapping[i].name) && (deviceType == m_cfgDeviceMapping[i].type))
+    deviceMapping* mapping = m_cfgDeviceMapping.get(i);
+    
+    if(deviceName.equals(mapping->name) && (deviceType == mapping->type))
     {
-      number = m_cfgDeviceMapping[i].ledNumber;
+      number = mapping->ledNumber;
       break;
     }
   }

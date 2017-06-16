@@ -139,13 +139,15 @@ public:
   int getNumberOfDeviceMappingEntries() const;
   int getNumberOfColorMappingEntries();
   
-  bool addDeviceMappingEntry(String name, deviceType type, int ledNumber);
+  bool addDeviceMappingEntry(int entryNum, String name, deviceType type, int ledNumber);
   bool deleteColorMappingEntry(int entryNum);
-  bool isColorMappingDirty() const;
+  bool deleteAllDeviceMappingEntries();
+  bool isDeviceMappingDirty() const;
   
   bool addColorMappingEntry(int entryNum, String msg, deviceType type, Color color, Behavior behavior);
   bool deleteDeviceMappingEntry(int entryNum);
   bool deleteAllColorMappingEntries();
+  bool isColorMappingDirty() const;
   
   const deviceMapping* getDeviceMapping(int index) const;
   const colorMapping* getColorMapping(int index); 
@@ -182,9 +184,9 @@ private:
 
   LinkedList<colorMapping> m_cfgColorMapping;
   bool m_cfgColorMappingDirty;
-  
-  deviceMapping m_cfgDeviceMapping[MAX_DEVICE_MAP_ENTRIES];
-  int m_numDeviceMappingEntries;
+
+  LinkedList<deviceMapping> m_cfgDeviceMapping;
+  bool m_cfgDeviceMappingDirty;
   
   char m_cfgVersion[MAX_VERSION_LEN + 1];
   char m_cfgHost[MAX_HOST_LEN + 1];

@@ -22,7 +22,7 @@ public:
   String getDeviceMappingTableHeader() const;
   String getDeviceMappingTableEntry(int entryNum, const HSDConfig::deviceMapping* mapping) const;
   String getDeviceMappingTableFooter() const;
-  String getDeviceMappingTableAddEntryForm(int entryNum) const;
+  String getDeviceMappingTableAddEntryForm(int newEntryNum) const;
 
   String getDeleteForm() const;
   String getSaveForm() const;

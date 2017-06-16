@@ -162,17 +162,20 @@ String HSDHtmlHelper::getDeviceMappingTableFooter() const
   return F("</table>");
 }
 
-String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int entryNum) const
+String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int newEntryNum) const
 {
   String html;
   
   html += F("<form><table><tr>");
+  html += F("<td><input type='text' id='number' name='i' value='");
+  html += newEntryNum;
+  html += F("' size='5' maxlength='3' placeholder='Nr'</td>");
   html += F("<td><input type='text' id='name' name='n' value='' size='30' maxlength='25' placeholder='name'></td>");
   html += F("<td><select name='t'>");
   html += getTypeOptions(HSDConfig::TYPE_WINDOW);
   html += F("</select></td>");
   html += F("<td><input type='text' id='led' name='l' value='");
-  html += entryNum;
+  html += newEntryNum;
   html += F("' size='6' maxlength='3' placeholder='led nr'></td></tr></table>");
   html += F("<input type='submit' class='button' value='Add' id='add' name='add'></form>");
 

@@ -244,7 +244,7 @@ void HSDWebserver::deliverColorMappingPage()
   }
   else if(needSave())
   {
-    Serial.println(F("Need o save color mapping config"));
+    Serial.println(F("Need to save color mapping config"));
     m_config.saveColorMapping();
   }
     
@@ -352,23 +352,30 @@ bool HSDWebserver::deleteColorMappingEntry()
 
 void HSDWebserver::deliverDeviceMappingPage()
 {
-  bool dirty = false;
-  
-  if(needAdd())
+  if(needUndo())
+  {
+    Serial.println(F("Need to undo changes to device mapping config"));
+    m_config.updateDeviceMapping();
+  }
+  else if(needAdd())
   {
     Serial.println(F("Need to add device mapping config entry"));
-    dirty = addDeviceMappingEntry();
+    addDeviceMappingEntry();
   }
   else if(needDelete())
   {
     Serial.println(F("Need to delete device mapping config entry"));
-    dirty = deleteDeviceMappingEntry();
+    deleteDeviceMappingEntry();
   }
-
-  if(dirty)
+  else if(needDeleteAll())
   {
-    Serial.println(F("Need to update device mapping config"));
-    m_config.updateDeviceMapping();
+    Serial.println(F("Need to delete all device mapping config entries"));
+    m_config.deleteAllDeviceMappingEntries();
+  }
+  else if(needSave())
+  {
+    Serial.println(F("Need to save device mapping config"));
+    m_config.saveDeviceMapping();
   }
 
   String html;
@@ -381,11 +388,7 @@ void HSDWebserver::deliverDeviceMappingPage()
   for(uint32_t i = 0; i < m_config.getNumberOfDeviceMappingEntries(); i++)
   {
     const HSDConfig::deviceMapping* mapping = m_config.getDeviceMapping(i);
-
-    if(mapping)
-    {
-      html += m_html.getDeviceMappingTableEntry(i+1, mapping);
-    }
+    html += m_html.getDeviceMappingTableEntry(i, mapping);
   }
 
   html += m_html.getDeviceMappingTableFooter();
@@ -395,6 +398,12 @@ void HSDWebserver::deliverDeviceMappingPage()
 
   html += F("<br/>Delete Entry:<br/>");
   html += m_html.getDeleteForm();
+
+  if(m_config.isDeviceMappingDirty())
+  {
+    html += F("<p style='color:red'>Unsaved changes! Press ""Save"" to make them permanent, or they will be lost on next reboot!</p>");
+    html += m_html.getSaveForm();
+  }
 
   html += m_html.getFooter();
 
@@ -412,18 +421,14 @@ bool HSDWebserver::addDeviceMappingEntry()
 {
   bool success = false;
 
-  if(m_server.hasArg("n") && m_server.hasArg("t") && m_server.hasArg("l"))
+  if(m_server.hasArg("i") && m_server.hasArg("n") && m_server.hasArg("t") && m_server.hasArg("l"))
   {
     if(m_server.arg("n") != "")
     {
-      success = m_config.addDeviceMappingEntry(m_server.arg("n"), 
+      success = m_config.addDeviceMappingEntry(m_server.arg("i").toInt(),
+                                               m_server.arg("n"), 
                                                (HSDConfig::deviceType)(m_server.arg("t").toInt()), 
-                                               m_server.arg("l").toInt());
-
-      if(success)
-      {
-        m_config.saveDeviceMapping();                                        
-      }                                    
+                                               m_server.arg("l").toInt());                                   
     }
     else
     {
@@ -442,15 +447,8 @@ bool HSDWebserver::deleteDeviceMappingEntry()
   if(m_server.hasArg("i"))
   {
     entryNum = m_server.arg("i").toInt();
-    if(entryNum != 0)
-    {
-      success = m_config.deleteDeviceMappingEntry(entryNum-1);
-
-      if(success)
-      {
-        m_config.saveDeviceMapping();                                        
-      }                                      
-    }
+// TODO check conversion status
+    success = m_config.deleteDeviceMappingEntry(entryNum);                                    
   }
 
   return success;
