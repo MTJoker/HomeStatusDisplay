@@ -133,7 +133,12 @@ template<typename T>
 T* LinkedList<T>::get(int index) const
 {
   ListNode<T>* tmp = NULL;
-  
+/*
+  Serial.print("LinkedList::get(");
+  Serial.print(String(index));
+  Serial.print("), size is ");
+  Serial.println(String(m_size));
+  */
   if(m_size == 0)
   {
     // no entries added up to now
@@ -150,7 +155,7 @@ T* LinkedList<T>::get(int index) const
     tmp = getNode(m_size);
   }
   
-	return tmp->data;
+	return tmp? tmp->data : NULL;
 }
 
 template<typename T>

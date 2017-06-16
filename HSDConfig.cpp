@@ -429,18 +429,18 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
     mapping->behavior = behavior;
 
     m_cfgColorMappingDirty = true;
+
+    // TODO: find better solution for this
+    if(entryNum >= m_cfgColorMapping.size())
+    {
+      m_cfgColorMapping.added();
+    }
     
     success = true;
   }
   else
   {
     Serial.println(F("Cannot add/edit device mapping entry")); 
-  }
-
-  // TODO: find better solution for this
-  if(entryNum >= m_cfgColorMapping.size())
-  {
-    m_cfgColorMapping.added();
   }
 
   return success;  
