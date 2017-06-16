@@ -68,16 +68,16 @@ public:
    * This struct is used for mapping a device of a specific device type 
    * to a led number, that means a specific position on the led stripe
    */
-  struct deviceMapping
+  struct DeviceMapping
   { 
-    deviceMapping()
+    DeviceMapping()
     {
       memset(name, 0, MAX_DEVICE_MAPPING_NAME_LEN);
       type = TYPE_UNKNOWN;
       ledNumber = 0;       
     }
 
-    deviceMapping(String n, deviceType t, int l)
+    DeviceMapping(String n, deviceType t, int l)
     {
       strncpy(name, n.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
       name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
@@ -94,9 +94,9 @@ public:
    * This struct is used for mapping a message for a specific device
    * type to a led behavior (see LedSwitcher::ledState).
    */
-  struct colorMapping
+  struct ColorMapping
   {
-    colorMapping()
+    ColorMapping()
     {
       memset(msg, 0, MAX_COLOR_MAPPING_MSG_LEN);
       type = TYPE_UNKNOWN;
@@ -104,7 +104,7 @@ public:
       behavior = OFF;
     }
     
-    colorMapping(String m, deviceType t, Color c, Behavior b)
+    ColorMapping(String m, deviceType t, Color c, Behavior b)
     {
       strncpy(msg, m.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
       msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
@@ -181,8 +181,8 @@ public:
   bool deleteAllColorMappingEntries();
   bool isColorMappingDirty() const;
   
-  const deviceMapping* getDeviceMapping(int index) const;
-  const colorMapping* getColorMapping(int index); 
+  const DeviceMapping* getDeviceMapping(int index) const;
+  const ColorMapping* getColorMapping(int index); 
     
   int getLedNumber(String device, deviceType type);
   int getColorMapIndex(deviceType deviceType, String msg);
@@ -214,10 +214,10 @@ private:
   static const int MAX_COLOR_MAP_ENTRIES  = 30;
   static const int MAX_DEVICE_MAP_ENTRIES = 50;
 
-  LinkedList<colorMapping> m_cfgColorMapping;
+  LinkedList<ColorMapping> m_cfgColorMapping;
   bool m_cfgColorMappingDirty;
 
-  LinkedList<deviceMapping> m_cfgDeviceMapping;
+  LinkedList<DeviceMapping> m_cfgDeviceMapping;
   bool m_cfgDeviceMappingDirty;
   
   char m_cfgVersion[MAX_VERSION_LEN + 1];

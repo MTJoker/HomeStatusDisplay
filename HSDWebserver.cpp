@@ -257,7 +257,7 @@ void HSDWebserver::deliverColorMappingPage()
 
   for(uint32_t i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
   {
-    const HSDConfig::colorMapping* mapping = m_config.getColorMapping(i);
+    const HSDConfig::ColorMapping* mapping = m_config.getColorMapping(i);
     html += m_html.getColorMappingTableEntry(i, mapping);
   }
 
@@ -387,7 +387,7 @@ void HSDWebserver::deliverDeviceMappingPage()
   
   for(uint32_t i = 0; i < m_config.getNumberOfDeviceMappingEntries(); i++)
   {
-    const HSDConfig::deviceMapping* mapping = m_config.getDeviceMapping(i);
+    const HSDConfig::DeviceMapping* mapping = m_config.getDeviceMapping(i);
     html += m_html.getDeviceMappingTableEntry(i, mapping);
   }
 

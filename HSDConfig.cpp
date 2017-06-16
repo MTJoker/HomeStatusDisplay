@@ -277,7 +277,7 @@ void HSDConfig::writeColorMappingConfigFile()
 
   for(int index = 0; index < m_cfgColorMapping.size(); index++)
   { 
-    colorMapping* mapping = m_cfgColorMapping.get(index);
+    ColorMapping* mapping = m_cfgColorMapping.get(index);
     
     if(strlen(mapping->msg) != 0)
     {
@@ -317,7 +317,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
 
   for(int index = 0; index < m_cfgDeviceMapping.size(); index++)
   {
-    deviceMapping* mapping = m_cfgDeviceMapping.get(index);
+    DeviceMapping* mapping = m_cfgDeviceMapping.get(index);
         
     if(strlen(mapping->name) != 0)
     {
@@ -386,7 +386,7 @@ bool HSDConfig::addDeviceMappingEntry(int entryNum, String name, deviceType type
   Serial.print(F("Adding or editing device mapping entry at index ")); 
   Serial.println(String(entryNum) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
 
-  deviceMapping mapping(name, type, ledNumber);
+  DeviceMapping mapping(name, type, ledNumber);
 
   if(m_cfgDeviceMapping.set(entryNum, mapping))
   {
@@ -427,7 +427,7 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
   Serial.print(F("Adding or editing color mapping entry at index ")); 
   Serial.println(String(entryNum) + ", new values: name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
 
-  colorMapping mapping(msg, type, color, behavior);
+  ColorMapping mapping(msg, type, color, behavior);
 
   if(m_cfgColorMapping.set(entryNum, mapping))
   {
@@ -595,7 +595,7 @@ int HSDConfig::getNumberOfColorMappingEntries()
   return m_cfgColorMapping.size();
 }
 
-const HSDConfig::colorMapping* HSDConfig::getColorMapping(int index)
+const HSDConfig::ColorMapping* HSDConfig::getColorMapping(int index)
 {
   return m_cfgColorMapping.get(index);
 }
@@ -605,7 +605,7 @@ int HSDConfig::getNumberOfDeviceMappingEntries() const
   return m_cfgDeviceMapping.size();
 }
 
-const HSDConfig::deviceMapping* HSDConfig::getDeviceMapping(int index) const
+const HSDConfig::DeviceMapping* HSDConfig::getDeviceMapping(int index) const
 {
     return m_cfgDeviceMapping.get(index);
 }
@@ -616,7 +616,7 @@ int HSDConfig::getLedNumber(String deviceName, deviceType deviceType)
 
   for(int i = 0; i < m_cfgDeviceMapping.size(); i++)
   {
-    deviceMapping* mapping = m_cfgDeviceMapping.get(i);
+    DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
     
     if(deviceName.equals(mapping->name) && (deviceType == mapping->type))
     {
@@ -634,7 +634,7 @@ int HSDConfig::getColorMapIndex(deviceType deviceType, String msg)
 
   for(int i = 0; i < m_cfgColorMapping.size(); i++)
   {
-    colorMapping* mapping = m_cfgColorMapping.get(i);
+    ColorMapping* mapping = m_cfgColorMapping.get(i);
     
     if(msg.equals(mapping->msg) && (deviceType == mapping->type))
     {

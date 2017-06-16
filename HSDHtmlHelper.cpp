@@ -67,7 +67,7 @@ String HSDHtmlHelper::getColorMappingTableHeader() const
   " </tr>");
 }
 
-String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::colorMapping* mapping) const
+String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::ColorMapping* mapping) const
 {
   String html;
   if(entryNum % 2 == 0)
@@ -133,7 +133,7 @@ String HSDHtmlHelper::getDeviceMappingTableHeader() const
   " </tr>");
 }
 
-String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::deviceMapping* mapping) const
+String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::DeviceMapping* mapping) const
 {
   String html;
     
