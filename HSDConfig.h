@@ -69,7 +69,22 @@ public:
    * to a led number, that means a specific position on the led stripe
    */
   struct deviceMapping
-  {
+  { 
+    deviceMapping()
+    {
+      memset(name, 0, MAX_DEVICE_MAPPING_NAME_LEN);
+      type = TYPE_UNKNOWN;
+      ledNumber = 0;       
+    }
+
+    deviceMapping(String n, deviceType t, int l)
+    {
+      strncpy(name, n.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
+      name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
+      type = t;
+      ledNumber = l;   
+    }
+    
     char name[MAX_DEVICE_MAPPING_NAME_LEN]; // name of the device
     deviceType type;                        // type of the device
     int ledNumber;                          // led number on which reactions for this device are displayed
@@ -81,6 +96,23 @@ public:
    */
   struct colorMapping
   {
+    colorMapping()
+    {
+      memset(msg, 0, MAX_COLOR_MAPPING_MSG_LEN);
+      type = TYPE_UNKNOWN;
+      color = NONE;
+      behavior = OFF;
+    }
+    
+    colorMapping(String m, deviceType t, Color c, Behavior b)
+    {
+      strncpy(msg, m.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
+      msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
+      type = t;
+      color = c;
+      behavior = b;
+    }
+    
     char msg[MAX_COLOR_MAPPING_MSG_LEN+1];  // message 
     deviceType type;                        // type of the device
     Color color;                   // led color for message from device type

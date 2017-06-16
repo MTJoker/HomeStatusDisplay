@@ -36,9 +36,9 @@ public:
 	T* get(int index) const;
 
   /*
-   * Tell the list that an element was added
+   * Set element at index to data
    */
-  void added();
+  bool set(int index, T& data);
 
 	/*
 	 * Clear the entire list
@@ -134,12 +134,7 @@ template<typename T>
 T* LinkedList<T>::get(int index) const
 {
   ListNode<T>* tmp = NULL;
-/*
-  Serial.print("LinkedList::get(");
-  Serial.print(String(index));
-  Serial.print("), size is ");
-  Serial.println(String(m_size));
-  */
+
   if(m_size == 0)
   {
     // no entries added up to now
@@ -160,9 +155,26 @@ T* LinkedList<T>::get(int index) const
 }
 
 template<typename T>
-void LinkedList<T>::added()
+bool LinkedList<T>::set(int index, T& entry)
 {
-  m_size++;
+  bool ret = false;
+  
+  T* data = get(index);
+
+  if(data)
+  {
+    *data = entry;
+
+    if(index >= m_size)
+    {
+      // new element was added
+      m_size++;
+    }
+
+    ret = true;
+  }
+
+  return ret;
 }
 
 template<typename T>

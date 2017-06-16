@@ -386,24 +386,11 @@ bool HSDConfig::addDeviceMappingEntry(int entryNum, String name, deviceType type
   Serial.print(F("Adding or editing device mapping entry at index ")); 
   Serial.println(String(entryNum) + " with name " + name + ", type " + String(type) + ", LED number " + String(ledNumber));
 
-  deviceMapping* mapping = m_cfgDeviceMapping.get(entryNum);
+  deviceMapping mapping(name, type, ledNumber);
 
-  if(mapping)
+  if(m_cfgDeviceMapping.set(entryNum, mapping))
   {
-    strncpy(mapping->name, name.c_str(), MAX_DEVICE_MAPPING_NAME_LEN);
-    mapping->name[MAX_DEVICE_MAPPING_NAME_LEN] = '\0';
-    
-    mapping->type = type;
-    mapping->ledNumber = ledNumber;
-
     m_cfgDeviceMappingDirty = true;
-
-    // TODO: find better solution for this
-    if(entryNum >= m_cfgDeviceMapping.size())
-    {
-      m_cfgDeviceMapping.added();
-    }
-    
     success = true;
   }
   else
@@ -439,26 +426,12 @@ bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type, 
 
   Serial.print(F("Adding or editing color mapping entry at index ")); 
   Serial.println(String(entryNum) + ", new values: name " + msg + ", type " + String(type) + ", color " + String(color) + ", behavior " + String(behavior));
-  
-  colorMapping* mapping = m_cfgColorMapping.get(entryNum);
 
-  if(mapping)
+  colorMapping mapping(msg, type, color, behavior);
+
+  if(m_cfgColorMapping.set(entryNum, mapping))
   {
-    strncpy(mapping->msg, msg.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
-    mapping->msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
-
-    mapping->type = type;
-    mapping->color = color;
-    mapping->behavior = behavior;
-
     m_cfgColorMappingDirty = true;
-
-    // TODO: find better solution for this
-    if(entryNum >= m_cfgColorMapping.size())
-    {
-      m_cfgColorMapping.added();
-    }
-    
     success = true;
   }
   else
