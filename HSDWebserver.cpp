@@ -189,9 +189,9 @@ void HSDWebserver::deliverStatusPage()
 
       if( (HSDConfig::NONE != color) && (HSDConfig::OFF != behavior) )
       {
-        html += F("<p><div style='background-color:");
+        html += F("<p><div class='hsdcolor' style='background-color:");
         html += m_html.color2htmlColor(color);
-        html += F(";width:15px;height:15px;border:1px black solid;float:left;margin-right:5px'></div>"); 
+        html += F("';></div>"); 
         html += F("LED number <b>");
         html += ledNr;
         html += F("</b> is <b>");
