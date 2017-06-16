@@ -1,10 +1,10 @@
 #pragma once
 
-#include "HSDConfig.h"
-#include "HSDWifi.h"
-#include "HSDWebserver.h"
-#include "HSDLeds.h"
-#include "HSDMqtt.h"
+#include "HSDConfig.hpp"
+#include "HSDWifi.hpp"
+#include "HSDWebserver.hpp"
+#include "HSDLeds.hpp"
+#include "HSDMqtt.hpp"
 
 class HomeStatusDisplay
 {

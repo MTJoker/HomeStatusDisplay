@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HSDConfig.h"
+#include "HSDConfig.hpp"
 
 class HSDWifi
 {

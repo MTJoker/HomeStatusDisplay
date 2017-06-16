@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+ * Pre-Allocated SingleLinkedList
+ */
+ 
 #include <stdint.h>
 #include <stddef.h>
 
@@ -11,13 +15,17 @@ struct ListNode
 };
 
 template <class T>
-class LinkedList
+class PreAllocatedLinkedList
 {
 
 public:
 
-	LinkedList(uint32_t maxCount);
-	~LinkedList();
+  /**
+   * Create list with maxCount elements. List node memory as well
+   * as data memory are maintained inside the list.
+   */
+	PreAllocatedLinkedList(uint32_t maxCount);
+	~PreAllocatedLinkedList();
 
 	/*
 	 * Get number of elements in the list
@@ -57,7 +65,7 @@ private:
 };
 
 template<typename T>
-LinkedList<T>::LinkedList(uint32_t maxCount)
+PreAllocatedLinkedList<T>::PreAllocatedLinkedList(uint32_t maxCount)
 :
 m_size(0),
 m_root(NULL),
@@ -75,7 +83,7 @@ m_maxCount(maxCount)
 }
 
 template<typename T>
-LinkedList<T>::~LinkedList()
+PreAllocatedLinkedList<T>::~PreAllocatedLinkedList()
 {
 	ListNode<T>* tmp;
  
@@ -91,13 +99,13 @@ LinkedList<T>::~LinkedList()
 }
 
 template<typename T>
-int LinkedList<T>::size() const
+int PreAllocatedLinkedList<T>::size() const
 {
   return m_size;
 }
 
 template<typename T>
-bool LinkedList<T>::remove(int index)
+bool PreAllocatedLinkedList<T>::remove(int index)
 {
   bool ret = false;
   
@@ -131,7 +139,7 @@ bool LinkedList<T>::remove(int index)
 }
 
 template<typename T>
-T* LinkedList<T>::get(int index) const
+T* PreAllocatedLinkedList<T>::get(int index) const
 {
   ListNode<T>* tmp = NULL;
 
@@ -155,7 +163,7 @@ T* LinkedList<T>::get(int index) const
 }
 
 template<typename T>
-bool LinkedList<T>::set(int index, T& entry)
+bool PreAllocatedLinkedList<T>::set(int index, T& entry)
 {
   bool ret = false;
   
@@ -178,13 +186,13 @@ bool LinkedList<T>::set(int index, T& entry)
 }
 
 template<typename T>
-void LinkedList<T>::clear()
+void PreAllocatedLinkedList<T>::clear()
 {
   m_size = 0;
 }
 
 template<typename T>
-ListNode<T>* LinkedList<T>::getNode(int index) const
+ListNode<T>* PreAllocatedLinkedList<T>::getNode(int index) const
 {
   int pos = 0;
   ListNode<T>* current = m_root;
@@ -205,13 +213,13 @@ ListNode<T>* LinkedList<T>::getNode(int index) const
 }
 
 template<typename T>
-bool LinkedList<T>::isFull() const
+bool PreAllocatedLinkedList<T>::isFull() const
 {
   return (m_size >= m_maxCount) ? true : false;
 }
 
 template<typename T>
-ListNode<T>* LinkedList<T>::getLast() const
+ListNode<T>* PreAllocatedLinkedList<T>::getLast() const
 {
   ListNode<T>* tmp = m_root;
 

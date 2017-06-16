@@ -1,4 +1,4 @@
-#include "HSDWebserver.h"
+#include "HSDWebserver.hpp"
 
 HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt)
 :

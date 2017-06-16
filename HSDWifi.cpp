@@ -1,4 +1,4 @@
-#include "HSDWifi.h"
+#include "HSDWifi.hpp"
 #include <ESP8266WiFi.h>
 
 #define SOFT_AP_SSID  (F("StatusDisplay"))

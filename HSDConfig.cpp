@@ -1,4 +1,4 @@
-#include "HSDConfig.h"
+#include "HSDConfig.hpp"
 #include <FS.h>
 #include <ArduinoJson.h>
 

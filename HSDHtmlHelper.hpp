@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include "HSDConfig.h"
+#include "HSDConfig.hpp"
 #include <ESP8266WebServer.h>
 
 class HSDHtmlHelper

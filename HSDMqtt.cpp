@@ -1,4 +1,4 @@
-#include "HSDMqtt.h"
+#include "HSDMqtt.hpp"
 
 HSDMqtt::HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE)
 :

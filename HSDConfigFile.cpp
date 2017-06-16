@@ -1,4 +1,4 @@
-#include "HSDConfigFile.h"
+#include "HSDConfigFile.hpp"
 #include <FS.h>
 
 HSDConfigFile::HSDConfigFile(String fileName)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HSDConfigFile.h"
-#include "LinkedList.h"
+#include "HSDConfigFile.hpp"
+#include "PreAllocatedLinkedList.hpp"
 
 #define JSON_KEY_HOST                  (F("host"))
 #define JSON_KEY_WIFI_SSID             (F("wifiSSID"))
@@ -214,10 +214,10 @@ private:
   static const int MAX_COLOR_MAP_ENTRIES  = 30;
   static const int MAX_DEVICE_MAP_ENTRIES = 50;
 
-  LinkedList<ColorMapping> m_cfgColorMapping;
+  PreAllocatedLinkedList<ColorMapping> m_cfgColorMapping;
   bool m_cfgColorMappingDirty;
 
-  LinkedList<DeviceMapping> m_cfgDeviceMapping;
+  PreAllocatedLinkedList<DeviceMapping> m_cfgDeviceMapping;
   bool m_cfgDeviceMappingDirty;
   
   char m_cfgVersion[MAX_VERSION_LEN + 1];
