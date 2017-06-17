@@ -62,10 +62,7 @@ bool HSDConfigFile::write(JsonObject* data)
   File configFile = SPIFFS.open(m_fileName, "w+");
 
   if(configFile)
-  {
-    data->prettyPrintTo(Serial);
-    Serial.println(F(""));
-  
+  {  
     data->printTo(configFile);
     configFile.close();
     

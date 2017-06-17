@@ -103,7 +103,7 @@ bool HSDConfig::readMainConfigFile()
     {
       Serial.println(F("Main config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());     
-      json.prettyPrintTo(Serial);
+      printMainConfigFile(json);
       Serial.println(F(""));
 
       if(json.containsKey(JSON_KEY_HOST) && json.containsKey(JSON_KEY_WIFI_SSID) && json.containsKey(JSON_KEY_WIFI_PSK) && 
@@ -141,6 +141,20 @@ bool HSDConfig::readMainConfigFile()
   return success;
 }
 
+void HSDConfig::printMainConfigFile(JsonObject& json)
+{
+  Serial.print  (F("  • host            : ")); Serial.println((const char*)(json[JSON_KEY_HOST]));
+  Serial.print  (F("  • wifiSSID        : ")); Serial.println((const char*)(json[JSON_KEY_WIFI_SSID]));
+  Serial.println(F("  • wifiPSK         : not shown"));
+  Serial.print  (F("  • mqttServer      : ")); Serial.println((const char*)(json[JSON_KEY_MQTT_SERVER]));
+  Serial.print  (F("  • mqttStatusTopic : ")); Serial.println((const char*)(json[JSON_KEY_MQTT_STATUS_TOPIC]));
+  Serial.print  (F("  • mqttTestTopic   : ")); Serial.println((const char*)(json[JSON_KEY_MQTT_TEST_TOPIC]));
+  Serial.print  (F("  • mqttWillTopic   : ")); Serial.println((const char*)(json[JSON_KEY_MQTT_WILL_TOPIC]));
+  Serial.print  (F("  • ledCount        : ")); Serial.println((const char*)(json[JSON_KEY_LED_COUNT]));
+  Serial.print  (F("  • ledPin          : ")); Serial.println((const char*)(json[JSON_KEY_LED_PIN]));
+  Serial.print  (F("  • ledBrightness   : ")); Serial.println((const char*)(json[JSON_KEY_LED_BRIGHTNESS]));
+}
+
 bool HSDConfig::readColorMappingConfigFile()
 {
   bool success = false;
@@ -158,7 +172,7 @@ bool HSDConfig::readColorMappingConfigFile()
     {
       Serial.println(F("Color mapping config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
-      json.prettyPrintTo(Serial);
+      //json.prettyPrintTo(Serial);
       Serial.println(F(""));
 
       success = true;
@@ -213,7 +227,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
     {
       Serial.println(F("Device mapping config data successfully parsed."));
       Serial.print(F("JSON length is ")); Serial.println(json.measureLength());  
-      json.prettyPrintTo(Serial);
+      //json.prettyPrintTo(Serial);
       Serial.println(F(""));
 
       success = true;

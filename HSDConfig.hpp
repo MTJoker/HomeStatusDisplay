@@ -236,6 +236,7 @@ private:
   };
 
   bool readMainConfigFile();
+  void printMainConfigFile(JsonObject& json);
   void writeMainConfigFile();
 
   bool readColorMappingConfigFile();
