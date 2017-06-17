@@ -219,13 +219,13 @@ String HSDHtmlHelper::getColorOptions(HSDConfig::Color selectedColor) const
 
   String html;
 
-  html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDConfig::GREEN;  html += F("'>Green</option>");
-  html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDConfig::YELLOW; html += F("'>Yellow</option>");
-  html += F("<option "); html += orangeSelect; html += F(" value='"); html += HSDConfig::ORANGE; html += F("'>Orange</option>");
-  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDConfig::RED;    html += F("'>Red</option>");
-  html += F("<option "); html += purpleSelect; html += F(" value='"); html += HSDConfig::PURPLE; html += F("'>Purple</option>");
-  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDConfig::BLUE;   html += F("'>Blue</option>");
-  html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDConfig::WHITE;  html += F("'>White</option>");
+  html += F("<option "); html += greenSelect;  html += F(" value='"); html += HSDConfig::color2id(HSDConfig::GREEN);  html += F("'>Green</option>");
+  html += F("<option "); html += yellowSelect; html += F(" value='"); html += HSDConfig::color2id(HSDConfig::YELLOW); html += F("'>Yellow</option>");
+  html += F("<option "); html += orangeSelect; html += F(" value='"); html += HSDConfig::color2id(HSDConfig::ORANGE); html += F("'>Orange</option>");
+  html += F("<option "); html += redSelect;    html += F(" value='"); html += HSDConfig::color2id(HSDConfig::RED);    html += F("'>Red</option>");
+  html += F("<option "); html += purpleSelect; html += F(" value='"); html += HSDConfig::color2id(HSDConfig::PURPLE); html += F("'>Purple</option>");
+  html += F("<option "); html += blueSelect;   html += F(" value='"); html += HSDConfig::color2id(HSDConfig::BLUE);   html += F("'>Blue</option>");
+  html += F("<option "); html += whiteSelect;  html += F(" value='"); html += HSDConfig::color2id(HSDConfig::WHITE);  html += F("'>White</option>");
 
   return html;
 }
@@ -240,9 +240,9 @@ String HSDHtmlHelper::getBehaviorOptions(HSDConfig::Behavior selectedBehavior) c
   String html;
 
   html += F("<option "); html += onSelect;         html += F(" value='"); html += HSDConfig::ON;         html += F("'>On</option>");
-  html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDConfig::BLINKING;   html += F("'>Blinking</option>");
-  html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDConfig::FLASHING;   html += F("'>Flashing</option>");
-  html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDConfig::FLICKERING; html += F("'>Flickering</option>");
+  html += F("<option "); html += blinkingSelect;   html += F(" value='"); html += HSDConfig::BLINKING;   html += F("'>Blink</option>");
+  html += F("<option "); html += flashingSelect;   html += F(" value='"); html += HSDConfig::FLASHING;   html += F("'>Flash</option>");
+  html += F("<option "); html += flickeringSelect; html += F(" value='"); html += HSDConfig::FLICKERING; html += F("'>Flicker</option>");
   
   return html;
 }
@@ -314,14 +314,14 @@ String HSDHtmlHelper::color2htmlColor(HSDConfig::Color color) const
 
 String HSDHtmlHelper::behavior2String(HSDConfig::Behavior behavior) const
 {
-  String behaviorString = F("off");
+  String behaviorString = F("Off");
   
   switch(behavior)
   {
-    case HSDConfig::ON:         behaviorString = F("on"); break;
-    case HSDConfig::BLINKING:   behaviorString = F("blinking"); break;
-    case HSDConfig::FLASHING:   behaviorString = F("flashing"); break;
-    case HSDConfig::FLICKERING: behaviorString = F("flickering"); break;
+    case HSDConfig::ON:         behaviorString = F("On"); break;
+    case HSDConfig::BLINKING:   behaviorString = F("Blink"); break;
+    case HSDConfig::FLASHING:   behaviorString = F("Flash"); break;
+    case HSDConfig::FLICKERING: behaviorString = F("Flicker"); break;
     default: break;
   }
 

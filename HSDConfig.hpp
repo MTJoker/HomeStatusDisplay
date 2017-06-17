@@ -64,6 +64,12 @@ public:
     WHITE  = 0xFFFFFF
   };
 
+  struct ColorTranslator
+  {
+    Color color;
+    uint32_t id; 
+  };
+
   /*
    * This struct is used for mapping a device of a specific device type 
    * to a led number, that means a specific position on the led stripe
@@ -115,8 +121,8 @@ public:
     
     char msg[MAX_COLOR_MAPPING_MSG_LEN+1];  // message 
     deviceType type;                        // type of the device
-    Color color;                   // led color for message from device type
-    Behavior behavior;             // led behavior for message from device type
+    Color color;                            // led color for message from device type
+    Behavior behavior;                      // led behavior for message from device type
   };
 
   HSDConfig();
@@ -191,7 +197,43 @@ public:
   Behavior getLedBehavior(int colorMapIndex);
   Color getLedColor(int colorMapIndex);
 
+  static uint32_t color2id(Color color)
+  {
+    for(uint32_t index = 0; index < 8; index++)
+    {
+      if(colorTranslator[index].color == color)
+      {
+        return colorTranslator[index].id;
+      }
+    }
+    return 0;
+  }
+
+  static Color id2color(uint32_t id)
+  {
+    for(uint32_t index = 0; index < 8; index++)
+    {
+      if(colorTranslator[index].id == id)
+      {
+        return colorTranslator[index].color;
+      }
+    }
+    return NONE;
+  }
+
 private:
+
+  static const constexpr ColorTranslator colorTranslator[8] =
+  {  
+    {NONE,   0}, 
+    {GREEN,  1},
+    {YELLOW, 2},
+    {ORANGE, 3},
+    {RED,    4},
+    {PURPLE, 5},
+    {BLUE,   6},
+    {WHITE,  7},
+  };
 
   bool readMainConfigFile();
   void writeMainConfigFile();
@@ -214,7 +256,7 @@ private:
   static const int MAX_MQTT_WILL_TOPIC_LEN   = 50;
 
   static const int MAX_COLOR_MAP_ENTRIES  = 30;
-  static const int MAX_DEVICE_MAP_ENTRIES = 50;
+  static const int MAX_DEVICE_MAP_ENTRIES = 35;
 
   PreAllocatedLinkedList<ColorMapping> m_cfgColorMapping;
   bool m_cfgColorMappingDirty;

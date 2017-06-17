@@ -331,7 +331,7 @@ bool HSDWebserver::addColorMappingEntry()
       success = m_config.addColorMappingEntry(m_server.arg("i").toInt(),
                                               m_server.arg("n"), 
                                               (HSDConfig::deviceType)(m_server.arg("t").toInt()), 
-                                              (HSDConfig::Color)(m_server.arg("c").toInt()), 
+                                              (HSDConfig::Color)(HSDConfig::id2color(m_server.arg("c").toInt())), 
                                               (HSDConfig::Behavior)(m_server.arg("b").toInt()));
     }
     else
@@ -387,7 +387,7 @@ void HSDWebserver::deliverDeviceMappingPage()
   }
 
   String html;
-  html.reserve(10000);
+  html.reserve(8000);
     
   html = m_html.getHeader("Device mapping configuration", m_config.getHost(), m_config.getVersion());
 

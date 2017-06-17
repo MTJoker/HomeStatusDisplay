@@ -5,14 +5,16 @@
 static const int MAX_SIZE_MAIN_CONFIG_FILE = 400;
 static const int JSON_BUFFER_MAIN_CONFIG_FILE = 500;
 
-static const int MAX_SIZE_COLOR_MAPPING_CONFIG_FILE = 1800;    //1611 exactly
-static const int JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE = 4000; //3838 exactly
+static const int MAX_SIZE_COLOR_MAPPING_CONFIG_FILE = 1500;     // 1401 exactly
+static const int JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE = 3800;  // 3628 exactly
 
-static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 1300;
-static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 3100;
+static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 1900;    // 1801 exactly
+static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 4000; // 3908 exactly
 
 static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
- 
+
+const constexpr HSDConfig::ColorTranslator HSDConfig::colorTranslator[8];
+
 HSDConfig::HSDConfig()
 :
 m_mainConfigFile(String("/config.json")),
@@ -172,7 +174,7 @@ bool HSDConfig::readColorMappingConfigFile()
           addColorMappingEntry(index,
                                entry[JSON_KEY_COLORMAPPING_MSG].as<char*>(), 
                                (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()), 
-                               (Color)(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()), 
+                               (Color)(id2color(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>())), 
                                (Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>())); 
 
           index++;
@@ -290,7 +292,7 @@ void HSDConfig::writeColorMappingConfigFile()
   
       colorMappingEntry[JSON_KEY_COLORMAPPING_MSG] = mapping->msg;
       colorMappingEntry[JSON_KEY_COLORMAPPING_TYPE] = (int)mapping->type;
-      colorMappingEntry[JSON_KEY_COLORMAPPING_COLOR] = (int)mapping->color;
+      colorMappingEntry[JSON_KEY_COLORMAPPING_COLOR] = (int)color2id(mapping->color);
       colorMappingEntry[JSON_KEY_COLORMAPPING_BEHAVIOR] = (int)mapping->behavior;
     }
     else
