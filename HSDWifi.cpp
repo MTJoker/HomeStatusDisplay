@@ -1,30 +1,22 @@
 #include "HSDWifi.hpp"
 #include <ESP8266WiFi.h>
 
-#define SOFT_AP_SSID (F("StatusDisplay"))
-#define SOFT_AP_PSK (F("statusdisplay"))
+inline constexpr char SOFT_AP_SSID[] = "StatusDisplay";
+inline constexpr char SOFT_AP_PSK[] = "statusdisplay";
 
 HSDWifi::HSDWifi(const HSDConfig& config)
     : m_config(config)
-    , m_connectFailure(false)
-    , m_maxConnectRetries(100)
-    , m_numConnectRetriesDone(0)
-    , m_retryDelay(500)
-    , m_millisLastConnectTry(0)
-    , m_accessPointActive(false)
-    , m_lastConnectStatus(false)
 {
 }
 
 void HSDWifi::begin()
 {
-    // nothing to do right now
     WiFi.persistent(false);
 }
 
 void HSDWifi::handleConnection()
 {
-    bool isConnected = connected();
+    const bool isConnected = connected();
 
     if(isConnected != m_lastConnectStatus)
     {
@@ -34,7 +26,7 @@ void HSDWifi::handleConnection()
             Serial.print(WiFi.localIP());
             Serial.println(F("."));
 
-            m_numConnectRetriesDone = 0;
+            m_retryCount = 0;
         }
         else
         {
@@ -44,66 +36,58 @@ void HSDWifi::handleConnection()
         m_lastConnectStatus = isConnected;
     }
 
-    if(!isConnected && !m_accessPointActive)
+    if(isConnected || m_accessPointActive)
     {
-        if(m_connectFailure)
-        {
-            startAccessPoint();
-        }
-        else
-        {
-            unsigned long currentMillis = millis();
+        return;
+    }
 
-            if((currentMillis - m_millisLastConnectTry) >= m_retryDelay)
-            {
-                m_millisLastConnectTry = currentMillis;
+    if(m_connectionFailed)
+    {
+        startAccessPoint();
+        return;
+    }
 
-                if(m_numConnectRetriesDone == 0)
-                {
-                    Serial.print(F("Starting Wifi connection to "));
-                    Serial.print(m_config.getWifiSSID());
-                    Serial.println(F("..."));
+    const unsigned long now = millis();
+    if((now - m_millisLastConnectTry) < RETRY_DELAY_MS)
+        return;
 
-                    WiFi.mode(WIFI_STA);
-                    WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
+    m_millisLastConnectTry = now;
 
-                    m_numConnectRetriesDone++;
-                }
-                else if(m_numConnectRetriesDone < m_maxConnectRetries)
-                {
-                    m_numConnectRetriesDone++;
-                }
-                else
-                {
-                    Serial.println(F("Failed to connect WiFi."));
+    if(m_retryCount == 0)
+    {
+        Serial.print(F("Starting WiFi connection to "));
+        Serial.print(m_config.getWifiSSID());
+        Serial.println(F("..."));
 
-                    m_connectFailure = true;
-                }
-            }
-        }
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
+    }
+
+    if(++m_retryCount >= MAX_CONNECT_RETRIES)
+    {
+        Serial.println(F("Failed to connect WiFi."));
+        m_connectionFailed = true;
     }
 }
 
-bool HSDWifi::connected()
+bool HSDWifi::connected() const
 {
-    return (WiFi.status() == WL_CONNECTED);
+    return WiFi.status() == WL_CONNECTED;
 }
 
 void HSDWifi::startAccessPoint()
 {
-    Serial.println(F(""));
+    Serial.println();
     Serial.println(F("Starting access point."));
 
     WiFi.mode(WIFI_AP);
 
-    if(WiFi.softAP(String(SOFT_AP_SSID).c_str(), String(SOFT_AP_PSK).c_str()))
+    if(WiFi.softAP(SOFT_AP_SSID, SOFT_AP_PSK))
     {
-        IPAddress ip = WiFi.softAPIP();
-
         Serial.print(F("AccessPoint SSID is "));
         Serial.println(SOFT_AP_SSID);
         Serial.print(F("IP: "));
-        Serial.println(ip);
+        Serial.println(WiFi.softAPIP());
 
         m_accessPointActive = true;
     }

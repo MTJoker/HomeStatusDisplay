@@ -5,21 +5,24 @@
 class HSDWifi
 {
   public:
-    HSDWifi(const HSDConfig& config);
+    explicit HSDWifi(const HSDConfig& config);
 
     void begin();
     void handleConnection();
-    bool connected();
+    bool connected() const;
 
   private:
     void startAccessPoint();
 
+    static constexpr int MAX_CONNECT_RETRIES = 100;
+    static constexpr unsigned long RETRY_DELAY_MS = 500;
+
     const HSDConfig& m_config;
-    bool m_connectFailure;
-    int m_maxConnectRetries;
-    int m_numConnectRetriesDone;
-    unsigned long m_retryDelay;
-    unsigned long m_millisLastConnectTry;
-    bool m_accessPointActive;
-    bool m_lastConnectStatus;
+
+    bool m_connectionFailed = false;
+    int m_retryCount = 0;
+    unsigned long m_millisLastConnectTry = 0;
+
+    bool m_accessPointActive = false;
+    bool m_lastConnectStatus = false;
 };

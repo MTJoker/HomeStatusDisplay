@@ -2,12 +2,12 @@
 
 #include "HSDConfig.hpp"
 #include <Adafruit_NeoPixel.h>
+#include <memory>
 
 class HSDLeds
 {
   public:
-    HSDLeds(const HSDConfig& config);
-    ~HSDLeds();
+    explicit HSDLeds(const HSDConfig& config);
 
     void begin();
     void update();
@@ -24,34 +24,35 @@ class HSDLeds
   private:
     struct LedState
     {
-        HSDConfig::Behavior behavior;
-        HSDConfig::Color color;
+        HSDConfig::Behavior behavior{HSDConfig::OFF};
+        HSDConfig::Color color{HSDConfig::NONE};
     };
 
-    static const uint32_t blinkOnTime = 500;
-    static const uint32_t blinkOffTime = 500;
-    static const uint32_t flashOnTime = 2000;
-    static const uint32_t flashOffTime = 200;
-    static const uint32_t flickerOnTime = 100;
-    static const uint32_t flickerOffTime = 100;
+    // timing constants
+    static constexpr uint32_t BLINK_ON_TIME = 500;
+    static constexpr uint32_t BLINK_OFF_TIME = 500;
+    static constexpr uint32_t FLASH_ON_TIME = 2000;
+    static constexpr uint32_t FLASH_OFF_TIME = 200;
+    static constexpr uint32_t FLICKER_ON_TIME = 100;
+    static constexpr uint32_t FLICKER_OFF_TIME = 100;
 
-    void handleBlink(unsigned long currentMillis);
-    void handleFlash(unsigned long currentMillis);
-    void handleFlicker(unsigned long currentMillis);
+    void handleBlink(unsigned long now);
+    void handleFlash(unsigned long now);
+    void handleFlicker(unsigned long now);
 
     void updateStripe();
 
     const HSDConfig& m_config;
 
-    uint32_t m_numLeds;
+    uint32_t m_numLeds{0};
     Adafruit_NeoPixel m_stripe;
-    LedState* m_pLedState;
+    std::unique_ptr<LedState[]> m_ledState;
 
-    bool m_blinkOn;
-    bool m_flashOn;
-    bool m_flickerOn;
+    bool m_blinkOn{false};
+    bool m_flashOn{false};
+    bool m_flickerOn{false};
 
-    unsigned long m_previousMillisBlink;
-    unsigned long m_previousMillisFlash;
-    unsigned long m_previousMillisFlicker;
+    unsigned long m_prevBlink{0};
+    unsigned long m_prevFlash{0};
+    unsigned long m_prevFlicker{0};
 };

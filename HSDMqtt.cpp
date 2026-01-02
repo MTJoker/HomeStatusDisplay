@@ -3,12 +3,6 @@
 HSDMqtt::HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE)
     : m_pubSubClient(m_wifiClient)
     , m_config(config)
-    , m_numberOfInTopics(0)
-    , m_connectFailure(false)
-    , m_maxConnectRetries(3)
-    , m_numConnectRetriesDone(0)
-    , m_retryDelay(5000)
-    , m_millisLastConnectTry(0)
 {
     m_pubSubClient.setCallback(callback);
 }
@@ -16,28 +10,28 @@ HSDMqtt::HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE)
 void HSDMqtt::begin()
 {
     initTopics();
+
     addTopic(m_config.getMqttStatusTopic());
     addTopic(m_config.getMqttTestTopic());
 
     IPAddress mqttIpAddr;
+    const char* server = m_config.getMqttServer();
 
-    if(mqttIpAddr.fromString(m_config.getMqttServer()))
+    if(mqttIpAddr.fromString(server))
     {
-        // valid ip address entered
-        m_pubSubClient.setServer(mqttIpAddr, 1883);
+        m_pubSubClient.setServer(mqttIpAddr, MQTT_PORT);
     }
     else
     {
-        // invalid ip address, try as hostname
-        m_pubSubClient.setServer(m_config.getMqttServer(), 1883);
+        m_pubSubClient.setServer(server, MQTT_PORT);
     }
 }
 
 void HSDMqtt::initTopics()
 {
-    for(uint32_t index = 0; index < MAX_IN_TOPICS; index++)
+    for(auto& topic : m_inTopics)
     {
-        m_inTopics[index] = NULL;
+        topic = nullptr;
     }
 
     m_numberOfInTopics = 0;
@@ -48,34 +42,40 @@ void HSDMqtt::handle()
     if(connected())
     {
         m_pubSubClient.loop();
+        return;
     }
-    else if(!m_connectFailure)
+
+    if(m_connectionFailed)
     {
-        unsigned long currentMillis = millis();
+        return;
+    }
 
-        if((currentMillis - m_millisLastConnectTry) >= m_retryDelay)
+    const unsigned long now = millis();
+    if((now - m_millisLastConnectTry) < RETRY_DELAY_MS)
+    {
+        return;
+    }
+
+    m_millisLastConnectTry = now;
+
+    if(m_retryCount < MAX_CONNECT_RETRIES)
+    {
+        if(reconnect())
         {
-            m_millisLastConnectTry = currentMillis;
-
-            if(m_numConnectRetriesDone < m_maxConnectRetries)
-            {
-                if(reconnect())
-                {
-                    Serial.println("DEBUG: Reconnect successful");
-                    m_numConnectRetriesDone = 0;
-                }
-                else
-                {
-                    m_numConnectRetriesDone++;
-                    Serial.println("DEBUG: Reconnect unsuccessful, m_numConnectRetriesDone = " + String(m_numConnectRetriesDone));
-                }
-            }
-            else
-            {
-                Serial.println(F("Failed to connect Mqtt."));
-                m_connectFailure = true;
-            }
+            Serial.println(F("MQTT reconnect successful"));
+            m_retryCount = 0;
         }
+        else
+        {
+            ++m_retryCount;
+            Serial.print(F("MQTT reconnect failed, retry "));
+            Serial.println(m_retryCount);
+        }
+    }
+    else
+    {
+        Serial.println(F("Failed to connect MQTT."));
+        m_connectionFailed = true;
     }
 }
 
@@ -86,98 +86,95 @@ bool HSDMqtt::connected() const
 
 bool HSDMqtt::reconnect()
 {
-    bool retval = false;
-
-    // Create a random client ID
-    String clientId = "ESP8266Client-";
+    String clientId = F("ESP8266Client-");
     clientId += String(random(0xffff), HEX);
 
     Serial.print(F("Connecting to MQTT broker "));
-    Serial.print(String(m_config.getMqttServer()));
-    Serial.print(" with client id " + clientId + "... ");
+    Serial.print(m_config.getMqttServer());
+    Serial.print(F(" with client id "));
+    Serial.print(clientId);
+    Serial.print(F("... "));
 
     const char* willTopic = m_config.getMqttWillTopic();
-    bool connected = false;
+    const bool useWill = isTopicValid(willTopic);
 
-    if(isTopicValid(willTopic))
+    const bool connected = useWill
+                               ? m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "off")
+                               : m_pubSubClient.connect(clientId.c_str());
+
+    if(!connected)
     {
-        connected = m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "off");
-    }
-    else
-    {
-        connected = m_pubSubClient.connect(clientId.c_str());
-    }
-
-    if(connected)
-    {
-        Serial.println(F("connected"));
-
-        if(isTopicValid(willTopic))
-        {
-            publish(willTopic, "on");
-        }
-
-        for(uint32_t index = 0; index < m_numberOfInTopics; index++)
-        {
-            subscribe(m_inTopics[index]);
-        }
-
-        retval = true;
-    }
-    else
-    {
-        Serial.print(F("failed, rc = "));
+        Serial.print(F("failed, rc="));
         Serial.println(m_pubSubClient.state());
+        return false;
     }
 
-    return retval;
+    Serial.println(F("connected"));
+
+    if(useWill)
+    {
+        publish(willTopic, F("on"));
+    }
+
+    for(uint32_t i = 0; i < m_numberOfInTopics; ++i)
+    {
+        subscribe(m_inTopics[i]);
+    }
+
+    return true;
 }
 
 void HSDMqtt::subscribe(const char* topic)
 {
-    if(isTopicValid(topic))
+    if(!isTopicValid(topic))
     {
-        Serial.print(F("Subscribing to topic "));
-        Serial.println(topic);
+        return;
+    }
 
-        if(!m_pubSubClient.subscribe(topic))
-        {
-            Serial.print("Failed to subscribe to topic ");
-            Serial.println(topic);
-        }
+    Serial.print(F("Subscribing to topic "));
+    Serial.println(topic);
+
+    if(!m_pubSubClient.subscribe(topic))
+    {
+        Serial.print(F("Failed to subscribe to topic "));
+        Serial.println(topic);
     }
 }
 
-void HSDMqtt::publish(String topic, String msg)
+void HSDMqtt::publish(const String& topic, const String& msg)
 {
     if(m_pubSubClient.publish(topic.c_str(), msg.c_str()))
     {
-        Serial.println("Published msg " + msg + " for topic " + topic);
+        Serial.print(F("Published "));
+        Serial.print(msg);
+        Serial.print(F(" to "));
+        Serial.println(topic);
     }
     else
     {
-        Serial.println("Error publishing msg " + msg + " for topic " + topic);
+        Serial.print(F("Publish failed for "));
+        Serial.println(topic);
     }
 }
 
 bool HSDMqtt::addTopic(const char* topic)
 {
-    bool success = false;
-
-    if(isTopicValid(topic))
+    if(!isTopicValid(topic))
     {
-        if(m_numberOfInTopics < (MAX_IN_TOPICS - 1))
-        {
-            m_inTopics[m_numberOfInTopics] = topic;
-            m_numberOfInTopics++;
-            success = true;
-        }
+        return false;
     }
 
-    return success;
+    if(m_numberOfInTopics >= MAX_IN_TOPICS)
+    {
+        return false;
+    }
+
+    m_inTopics[m_numberOfInTopics++] = topic;
+    
+    return true;
 }
 
-bool HSDMqtt::isTopicValid(const char* topic)
+bool HSDMqtt::isTopicValid(const char* topic) const
 {
-    return (strlen(topic) > 0);
+    return topic && topic[0] != '\0';
 }
