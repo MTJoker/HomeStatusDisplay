@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "HomeStatusDisplay.hpp"
 
 static const char* VERSION = "0.6_dev";

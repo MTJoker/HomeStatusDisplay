@@ -2,8 +2,7 @@
 #include <FS.h>
 
 HSDConfigFile::HSDConfigFile(String fileName)
-:
-m_fileName(fileName)
+    : m_fileName(fileName)
 {
 }
 
@@ -13,66 +12,66 @@ HSDConfigFile::~HSDConfigFile()
 
 bool HSDConfigFile::read(char* buffer, int bufSize)
 {
-  bool success = false;
+    bool success = false;
 
-  Serial.print(F("Reading config file ")); 
-  Serial.println(m_fileName); 
+    Serial.print(F("Reading config file "));
+    Serial.println(m_fileName);
 
-  if(SPIFFS.exists(m_fileName)) 
-  {
-    File configFile = SPIFFS.open(m_fileName, "r");
-
-    if(configFile)
+    if(SPIFFS.exists(m_fileName))
     {
-      size_t size = configFile.size();
-      Serial.print(F("File size is ")); Serial.println(String(size) + " bytes"); 
+        File configFile = SPIFFS.open(m_fileName, "r");
 
-      if(size <= bufSize)
-      { 
-        configFile.readBytes(buffer, size);
-        success = true;
-      }
-      else
-      {
-        Serial.println(F("File is too big"));
-      }
+        if(configFile)
+        {
+            size_t size = configFile.size();
+            Serial.print(F("File size is "));
+            Serial.println(String(size) + " bytes");
+
+            if(size <= bufSize)
+            {
+                configFile.readBytes(buffer, size);
+                success = true;
+            }
+            else
+            {
+                Serial.println(F("File is too big"));
+            }
+        }
+        else
+        {
+            Serial.println(F("File open failed"));
+        }
+
+        configFile.close();
     }
     else
     {
-      Serial.println(F("File open failed"));
+        Serial.println(F("File does not exist"));
     }
 
-    configFile.close();
-  }
-  else
-  {
-    Serial.println(F("File does not exist"));
-  }
-        
-  return success;
+    return success;
 }
 
 bool HSDConfigFile::write(JsonObject* data)
 {
-  bool success = false;
+    bool success = false;
 
-  Serial.print(F("Writing config file ")); 
-  Serial.println(m_fileName); 
+    Serial.print(F("Writing config file "));
+    Serial.println(m_fileName);
 
-  File configFile = SPIFFS.open(m_fileName, "w+");
+    File configFile = SPIFFS.open(m_fileName, "w+");
 
-  if(configFile)
-  {  
-    data->printTo(configFile);
-    configFile.close();
-    
-    success = true;
-  }
-  else
-  {
-    Serial.println(F("File open failed"));
-  }
+    if(configFile)
+    {
+        serializeJson(*data, configFile);
+        configFile.close();
 
-  return success;
+        success = true;
+    }
+    else
+    {
+        Serial.println(F("File open failed"));
+    }
+
+    return success;
 }
-
