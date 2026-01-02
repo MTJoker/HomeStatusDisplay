@@ -148,6 +148,10 @@ void HSDWebserver::deliverStatusPage()
     html += m_html.minutes2Uptime(m_deviceUptimeMinutes);
     html += F("</p>");
 
+    html += F("<p>Last reset reason: <b>");
+    html += ESP.getResetReason();
+    html += F("</b><p>");
+
     if(WiFi.status() == WL_CONNECTED)
     {
         html += F("<p>Device is connected to WLAN <b>");

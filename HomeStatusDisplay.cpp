@@ -29,6 +29,8 @@ void HomeStatusDisplay::begin(const char* version, const char* identifier)
     Serial.begin(115200);
     Serial.println();
 
+    Serial.println(ESP.getResetReason());
+
     m_config.begin(version, identifier);
     m_webServer.begin();
     m_leds.begin();
