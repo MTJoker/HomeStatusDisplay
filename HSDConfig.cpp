@@ -1,6 +1,6 @@
 #include "HSDConfig.hpp"
 #include <ArduinoJson.h>
-#include <FS.h>
+#include <LittleFS.h>
 
 static const int MAX_SIZE_MAIN_CONFIG_FILE = 400;
 static const int JSON_BUFFER_MAIN_CONFIG_FILE = 500;
@@ -40,7 +40,7 @@ void HSDConfig::begin(const char* version, const char* defaultIdentifier)
     setVersion(version);
     setHost(defaultIdentifier);
 
-    if(SPIFFS.begin())
+    if(LittleFS.begin())
     {
         Serial.println(F("Mounted file system."));
 
@@ -427,7 +427,7 @@ void HSDConfig::updateDeviceMapping()
 void HSDConfig::onFileWriteError()
 {
     Serial.println(F("Failed to write file, formatting file system."));
-    SPIFFS.format();
+    LittleFS.format();
     Serial.println(F("Done."));
 }
 

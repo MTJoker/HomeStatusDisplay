@@ -1,5 +1,5 @@
 #include "HSDConfigFile.hpp"
-#include <FS.h>
+#include <LittleFS.h>
 
 HSDConfigFile::HSDConfigFile(String fileName)
     : m_fileName(fileName)
@@ -17,9 +17,9 @@ bool HSDConfigFile::read(char* buffer, size_t bufSize)
     Serial.print(F("Reading config file "));
     Serial.println(m_fileName);
 
-    if(SPIFFS.exists(m_fileName))
+    if(LittleFS.exists(m_fileName))
     {
-        File configFile = SPIFFS.open(m_fileName, "r");
+        File configFile = LittleFS.open(m_fileName, "r");
 
         if(configFile)
         {
@@ -36,13 +36,13 @@ bool HSDConfigFile::read(char* buffer, size_t bufSize)
             {
                 Serial.println(F("File is too big"));
             }
+
+            configFile.close();
         }
         else
         {
             Serial.println(F("File open failed"));
         }
-
-        configFile.close();
     }
     else
     {
@@ -59,7 +59,7 @@ bool HSDConfigFile::write(JsonObject* data)
     Serial.print(F("Writing config file "));
     Serial.println(m_fileName);
 
-    File configFile = SPIFFS.open(m_fileName, "w+");
+    File configFile = LittleFS.open(m_fileName, "w+");
 
     if(configFile)
     {
