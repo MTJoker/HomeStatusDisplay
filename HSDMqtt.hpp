@@ -6,37 +6,34 @@
 
 class HSDMqtt
 {
-public:
+  public:
+    HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE);
 
-  HSDMqtt(const HSDConfig& config, MQTT_CALLBACK_SIGNATURE);
+    static const uint32_t MAX_IN_TOPICS = 10;
 
-  static const uint32_t MAX_IN_TOPICS = 10;
+    void begin();
+    void handle();
+    void publish(String topic, String msg);
+    bool reconnect();
+    bool addTopic(const char* topic);
+    bool connected() const;
 
-  void begin();
-  void handle();
-  void publish(String topic, String msg);
-  bool reconnect(); 
-  bool addTopic(const char* topic);
-  bool connected() const;
+  private:
+    void initTopics();
+    void subscribe(const char* topic);
+    bool isTopicValid(const char* topic);
 
-private:
+    WiFiClient m_wifiClient;
+    mutable PubSubClient m_pubSubClient;
 
-  void initTopics();
-  void subscribe(const char* topic);
-  bool isTopicValid(const char* topic);
+    const HSDConfig& m_config;
 
-  WiFiClient m_wifiClient;
-  mutable PubSubClient m_pubSubClient;
+    const char* m_inTopics[MAX_IN_TOPICS];
+    uint32_t m_numberOfInTopics;
 
-  const HSDConfig& m_config;
-
-  const char* m_inTopics[MAX_IN_TOPICS];
-  uint32_t m_numberOfInTopics;
-  
-  bool m_connectFailure;
-  int m_maxConnectRetries;
-  int m_numConnectRetriesDone;
-  int m_retryDelay;
-  unsigned long m_millisLastConnectTry;
+    bool m_connectFailure;
+    int m_maxConnectRetries;
+    int m_numConnectRetriesDone;
+    unsigned long m_retryDelay;
+    unsigned long m_millisLastConnectTry;
 };
-

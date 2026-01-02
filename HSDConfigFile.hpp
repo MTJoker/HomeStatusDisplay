@@ -5,17 +5,14 @@
 
 class HSDConfigFile
 {
-  
-public:
 
-  HSDConfigFile(String fileName);
-  virtual ~HSDConfigFile();
+  public:
+    HSDConfigFile(String fileName);
+    virtual ~HSDConfigFile();
 
-  bool read(char* buffer, int bufSize);
-  bool write(JsonObject* data);
-  
-private:
-  
-  String m_fileName;
+    bool read(char* buffer, size_t bufSize);
+    bool write(JsonObject* data);
+
+  private:
+    String m_fileName;
 };
-

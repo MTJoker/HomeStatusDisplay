@@ -16,11 +16,11 @@ static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
 const constexpr HSDConfig::ColorTranslator HSDConfig::colorTranslator[8];
 
 HSDConfig::HSDConfig()
-    : m_mainConfigFile(String("/config.json"))
+    : m_cfgColorMapping(MAX_COLOR_MAP_ENTRIES)
+    , m_cfgDeviceMapping(MAX_DEVICE_MAP_ENTRIES)
+    , m_mainConfigFile(String("/config.json"))
     , m_colorMappingConfigFile(String("/colormapping.json"))
     , m_deviceMappingConfigFile(String("/devicemapping.json"))
-    , m_cfgDeviceMapping(MAX_DEVICE_MAP_ENTRIES)
-    , m_cfgColorMapping(MAX_COLOR_MAP_ENTRIES)
 {
     // reset non-configurable members
     setVersion("");

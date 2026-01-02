@@ -10,7 +10,7 @@ HSDConfigFile::~HSDConfigFile()
 {
 }
 
-bool HSDConfigFile::read(char* buffer, int bufSize)
+bool HSDConfigFile::read(char* buffer, size_t bufSize)
 {
     bool success = false;
 
