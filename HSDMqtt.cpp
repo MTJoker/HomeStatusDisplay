@@ -70,8 +70,8 @@ bool HSDMqtt::connected() const
 
 bool HSDMqtt::reconnect()
 {
-    String clientId = F("ESP8266Client-");
-    clientId += String(random(0xffff), HEX);
+    String clientId = F("HomeStatusDisplay-");
+    clientId += String(ESP.getChipId(), HEX);
 
     Serial.print(F("Connecting to MQTT broker "));
     Serial.print(m_config.getMqttServer());
