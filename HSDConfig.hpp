@@ -179,8 +179,9 @@ class HSDConfig
 
     const DeviceMapping* getDeviceMapping(int index) const;
     const ColorMapping* getColorMapping(int index);
-
     int getLedNumber(const String& device, deviceType type);
+    std::optional<std::pair<const char*, deviceType>> getDeviceInfo(int ledNumber);
+
     int getColorMapIndex(deviceType deviceType, const String& msg);
     Behavior getLedBehavior(int colorMapIndex);
     Color getLedColor(int colorMapIndex);

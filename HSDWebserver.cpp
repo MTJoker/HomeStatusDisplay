@@ -188,8 +188,9 @@ void HSDWebserver::deliverStatusPage()
 
         for(int ledNr = 0; ledNr < m_config.getNumberOfLeds(); ledNr++)
         {
-            HSDConfig::Color color = m_leds.getColor(ledNr);
-            HSDConfig::Behavior behavior = m_leds.getBehavior(ledNr);
+            auto color = m_leds.getColor(ledNr);
+            auto behavior = m_leds.getBehavior(ledNr);
+            auto deviceInfo = m_config.getDeviceInfo(ledNr);
 
             if((HSDConfig::NONE != color) && (HSDConfig::OFF != behavior))
             {
@@ -198,7 +199,21 @@ void HSDWebserver::deliverStatusPage()
                 html += F("';></div>");
                 html += F("LED number <b>");
                 html += ledNr;
-                html += F("</b> is <b>");
+                html += F("</b>");
+
+                if(deviceInfo.has_value())
+                {
+                    auto deviceName = deviceInfo->first;
+                    auto deviceType = deviceInfo->second;
+
+                    html += F(" (<b>");
+                    html += m_html.type2String(deviceType);
+                    html += F("</b> with name <b>");
+                    html += deviceName;
+                    html += F("</b>)");
+                }
+
+                html += F(" has behavior <b>");
                 html += m_html.behavior2String(behavior);
                 html += F("</b> with color <b>");
                 html += m_html.color2String(color);

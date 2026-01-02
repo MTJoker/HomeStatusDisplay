@@ -31,11 +31,10 @@ class HSDHtmlHelper
     String color2htmlColor(HSDConfig::Color color) const;
     String behavior2String(HSDConfig::Behavior behavior) const;
     String color2String(HSDConfig::Color color) const;
+    String type2String(HSDConfig::deviceType type) const;
 
   private:
     String getColorOptions(HSDConfig::Color selectedColor) const;
     String getBehaviorOptions(HSDConfig::Behavior selectedBehavior) const;
     String getTypeOptions(HSDConfig::deviceType selectedType) const;
-
-    String type2String(HSDConfig::deviceType type) const;
 };

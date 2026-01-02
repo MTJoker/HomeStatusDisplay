@@ -71,7 +71,7 @@ class PreAllocatedLinkedList
 template <typename T>
 PreAllocatedLinkedList<T>::PreAllocatedLinkedList(size_t maxCount)
     : m_size(0)
-    , m_root(NULL)
+    , m_root(nullptr)
     , m_maxCount(maxCount)
 {
     for(size_t i = 0; i < m_maxCount; i++)
@@ -114,8 +114,8 @@ bool PreAllocatedLinkedList<T>::remove(size_t index)
 
     if(index < size())
     {
-        ListNode<T>* previous = NULL;
-        ListNode<T>* current = NULL;
+        ListNode<T>* previous = nullptr;
+        ListNode<T>* current = nullptr;
         ListNode<T>* last = getLast();
 
         // unchain element from list and add it at the end again
@@ -144,7 +144,7 @@ bool PreAllocatedLinkedList<T>::remove(size_t index)
 template <typename T>
 const T* const PreAllocatedLinkedList<T>::get(size_t index) const
 {
-    ListNode<T>* tmp = NULL;
+    ListNode<T>* tmp = nullptr;
 
     if(m_size == 0)
     {
@@ -162,7 +162,7 @@ const T* const PreAllocatedLinkedList<T>::get(size_t index) const
         tmp = getNode(m_size);
     }
 
-    return tmp ? tmp->data : NULL;
+    return tmp ? tmp->data : nullptr;
 }
 
 template <typename T>
@@ -226,7 +226,7 @@ ListNode<T>* PreAllocatedLinkedList<T>::getNode(size_t index) const
         return current;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 template <typename T>

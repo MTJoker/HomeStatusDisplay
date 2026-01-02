@@ -686,6 +686,21 @@ int HSDConfig::getLedNumber(const String& deviceName, deviceType deviceType)
     return number;
 }
 
+std::optional<std::pair<const char*, HSDConfig::deviceType>> HSDConfig::getDeviceInfo(int ledNumber)
+{
+    for(size_t i = 0; i < m_cfgDeviceMapping.size(); i++)
+    {
+        const auto dm = m_cfgDeviceMapping.get(i);
+
+        if(dm && ledNumber == dm->ledNumber)
+        {
+            return std::make_pair(dm->name, dm->type);
+        }
+    }
+
+    return std::nullopt;
+}
+
 int HSDConfig::getColorMapIndex(deviceType deviceType, const String& msg)
 {
     int index = -1;
