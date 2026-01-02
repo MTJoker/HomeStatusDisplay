@@ -13,14 +13,12 @@ static const int JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE = 4000; // 3908 exactly
 
 static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
 
-const constexpr HSDConfig::ColorTranslator HSDConfig::colorTranslator[8];
-
 HSDConfig::HSDConfig()
     : m_cfgColorMapping(MAX_COLOR_MAP_ENTRIES)
     , m_cfgDeviceMapping(MAX_DEVICE_MAP_ENTRIES)
-    , m_mainConfigFile(String("/config.json"))
-    , m_colorMappingConfigFile(String("/colormapping.json"))
-    , m_deviceMappingConfigFile(String("/devicemapping.json"))
+    , m_mainConfigFile("/config.json")
+    , m_colorMappingConfigFile("/colormapping.json")
+    , m_deviceMappingConfigFile("/devicemapping.json")
 {
     // reset non-configurable members
     setVersion("");
@@ -74,7 +72,6 @@ void HSDConfig::resetMainConfigData()
 void HSDConfig::resetColorMappingConfigData()
 {
     Serial.println(F("Deleting color mapping config data."));
-
     m_cfgColorMapping.clear();
     m_cfgColorMappingDirty = true;
 }
@@ -82,7 +79,6 @@ void HSDConfig::resetColorMappingConfigData()
 void HSDConfig::resetDeviceMappingConfigData()
 {
     Serial.println(F("Deleting device mapping config data."));
-
     m_cfgDeviceMapping.clear();
     m_cfgDeviceMappingDirty = true;
 }
@@ -90,7 +86,6 @@ void HSDConfig::resetDeviceMappingConfigData()
 bool HSDConfig::readMainConfigFile()
 {
     bool success = false;
-
     char fileBuffer[MAX_SIZE_MAIN_CONFIG_FILE];
 
     if(m_mainConfigFile.read(fileBuffer, MAX_SIZE_MAIN_CONFIG_FILE))
@@ -130,8 +125,11 @@ bool HSDConfig::readMainConfigFile()
                 setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC].as<const char*>());
                 setNumberOfLeds(json[JSON_KEY_LED_COUNT].as<uint16_t>());
                 setLedDataPin(json[JSON_KEY_LED_PIN].as<uint8_t>());
-                setLedBrightness(json[JSON_KEY_LED_BRIGHTNESS] |
-                                 DEFAULT_LED_BRIGHTNESS);
+
+                uint8_t brightness = DEFAULT_LED_BRIGHTNESS;
+                if(json.containsKey(JSON_KEY_LED_BRIGHTNESS))
+                    brightness = json[JSON_KEY_LED_BRIGHTNESS].as<uint8_t>();
+                setLedBrightness(brightness);
 
                 success = true;
             }
@@ -155,30 +153,29 @@ bool HSDConfig::readMainConfigFile()
 void HSDConfig::printMainConfigFile(JsonObject& json)
 {
     Serial.print(F("  • host            : "));
-    Serial.println((const char*)(json[JSON_KEY_HOST]));
+    Serial.println(String(json[JSON_KEY_HOST]));
     Serial.print(F("  • wifiSSID        : "));
-    Serial.println((const char*)(json[JSON_KEY_WIFI_SSID]));
+    Serial.println(String(json[JSON_KEY_WIFI_SSID]));
     Serial.println(F("  • wifiPSK         : not shown"));
     Serial.print(F("  • mqttServer      : "));
-    Serial.println((const char*)(json[JSON_KEY_MQTT_SERVER]));
+    Serial.println(String(json[JSON_KEY_MQTT_SERVER]));
     Serial.print(F("  • mqttStatusTopic : "));
-    Serial.println((const char*)(json[JSON_KEY_MQTT_STATUS_TOPIC]));
+    Serial.println(String(json[JSON_KEY_MQTT_STATUS_TOPIC]));
     Serial.print(F("  • mqttTestTopic   : "));
-    Serial.println((const char*)(json[JSON_KEY_MQTT_TEST_TOPIC]));
+    Serial.println(String(json[JSON_KEY_MQTT_TEST_TOPIC]));
     Serial.print(F("  • mqttWillTopic   : "));
-    Serial.println((const char*)(json[JSON_KEY_MQTT_WILL_TOPIC]));
+    Serial.println(String(json[JSON_KEY_MQTT_WILL_TOPIC]));
     Serial.print(F("  • ledCount        : "));
-    Serial.println((const char*)(json[JSON_KEY_LED_COUNT]));
+    Serial.println(json[JSON_KEY_LED_COUNT].as<int>());
     Serial.print(F("  • ledPin          : "));
-    Serial.println((const char*)(json[JSON_KEY_LED_PIN]));
+    Serial.println(json[JSON_KEY_LED_PIN].as<int>());
     Serial.print(F("  • ledBrightness   : "));
-    Serial.println((const char*)(json[JSON_KEY_LED_BRIGHTNESS]));
+    Serial.println(json[JSON_KEY_LED_BRIGHTNESS].as<int>());
 }
 
 bool HSDConfig::readColorMappingConfigFile()
 {
     bool success = false;
-
     char fileBuffer[MAX_SIZE_COLOR_MAPPING_CONFIG_FILE];
     memset(fileBuffer, 0, MAX_SIZE_COLOR_MAPPING_CONFIG_FILE);
     resetColorMappingConfigData();
@@ -191,15 +188,13 @@ bool HSDConfig::readColorMappingConfigFile()
         if(!error)
         {
             JsonObject json = doc.as<JsonObject>();
-
             Serial.println(F("Color mapping config data successfully parsed."));
             Serial.print(F("JSON length is "));
             Serial.println(measureJson(json));
-            // json.prettyPrintTo(Serial);
             Serial.println(F(""));
 
             success = true;
-            int index = 0;
+            size_t index = 0;
 
             for(JsonPair kv : json)
             {
@@ -212,7 +207,7 @@ bool HSDConfig::readColorMappingConfigFile()
                 {
                     addColorMappingEntry(
                         index,
-                        entry[JSON_KEY_COLORMAPPING_MSG].as<const char*>(),
+                        String(entry[JSON_KEY_COLORMAPPING_MSG]).c_str(),
                         (deviceType)(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()),
                         (Color)(id2color(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>())),
                         (Behavior)(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>()));
@@ -235,14 +230,12 @@ bool HSDConfig::readColorMappingConfigFile()
     }
 
     m_cfgColorMappingDirty = false;
-
     return success;
 }
 
 bool HSDConfig::readDeviceMappingConfigFile()
 {
     bool success = false;
-
     char fileBuffer[MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE];
     memset(fileBuffer, 0, MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE);
     resetDeviceMappingConfigData();
@@ -255,15 +248,13 @@ bool HSDConfig::readDeviceMappingConfigFile()
         if(!error)
         {
             JsonObject json = doc.as<JsonObject>();
-
             Serial.println(F("Device mapping config data successfully parsed."));
             Serial.print(F("JSON length is "));
             Serial.println(measureJson(json));
-            // json.prettyPrintTo(Serial);
             Serial.println(F(""));
 
             success = true;
-            int index = 0;
+            size_t index = 0;
 
             for(JsonPair kv : json)
             {
@@ -275,7 +266,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
                 {
                     addDeviceMappingEntry(
                         index,
-                        entry[JSON_KEY_DEVICEMAPPING_NAME].as<const char*>(),
+                        String(entry[JSON_KEY_DEVICEMAPPING_NAME]).c_str(),
                         (deviceType)(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()),
                         entry[JSON_KEY_DEVICEMAPPING_LED].as<int>());
 
@@ -316,7 +307,7 @@ void HSDConfig::writeMainConfigFile()
     json[JSON_KEY_LED_PIN] = m_cfgLedDataPin;
     json[JSON_KEY_LED_BRIGHTNESS] = m_cfgLedBrightness;
 
-    if(!m_mainConfigFile.write(&json))
+    if(!m_mainConfigFile.write(json))
     {
         onFileWriteError();
     }
@@ -327,19 +318,16 @@ void HSDConfig::writeColorMappingConfigFile()
     DynamicJsonDocument doc(JSON_BUFFER_COLOR_MAPPING_CONFIG_FILE);
     JsonObject json = doc.to<JsonObject>();
 
-    for(int index = 0; index < m_cfgColorMapping.size(); index++)
+    for(size_t index = 0; index < m_cfgColorMapping.size(); index++)
     {
         const ColorMapping* mapping = m_cfgColorMapping.get(index);
-
         if(strlen(mapping->msg) != 0)
         {
             Serial.print(F("Preparing to write color mapping config file index "));
             Serial.print(String(index));
             Serial.print(F(", msg="));
             Serial.println(String(mapping->msg));
-
             JsonObject colorMappingEntry = json.createNestedObject(String(index));
-
             colorMappingEntry[JSON_KEY_COLORMAPPING_MSG] = mapping->msg;
             colorMappingEntry[JSON_KEY_COLORMAPPING_TYPE] = (int)mapping->type;
             colorMappingEntry[JSON_KEY_COLORMAPPING_COLOR] = (int)color2id(mapping->color);
@@ -352,7 +340,7 @@ void HSDConfig::writeColorMappingConfigFile()
         }
     }
 
-    if(!m_colorMappingConfigFile.write(&json))
+    if(!m_colorMappingConfigFile.write(json))
     {
         onFileWriteError();
     }
@@ -367,17 +355,14 @@ void HSDConfig::writeDeviceMappingConfigFile()
     DynamicJsonDocument doc(JSON_BUFFER_DEVICE_MAPPING_CONFIG_FILE);
     JsonObject json = doc.to<JsonObject>();
 
-    for(int index = 0; index < m_cfgDeviceMapping.size(); index++)
+    for(size_t index = 0; index < m_cfgDeviceMapping.size(); index++)
     {
         const DeviceMapping* mapping = m_cfgDeviceMapping.get(index);
-
         if(strlen(mapping->name) != 0)
         {
             Serial.print(F("Preparing to write device mapping config file index "));
             Serial.println(String(index));
-
             JsonObject deviceMappingEntry = json.createNestedObject(String(index));
-
             deviceMappingEntry[JSON_KEY_DEVICEMAPPING_NAME] = mapping->name;
             deviceMappingEntry[JSON_KEY_DEVICEMAPPING_TYPE] = (int)mapping->type;
             deviceMappingEntry[JSON_KEY_DEVICEMAPPING_LED] = (int)mapping->ledNumber;
@@ -389,7 +374,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
         }
     }
 
-    if(!m_deviceMappingConfigFile.write(&json))
+    if(!m_deviceMappingConfigFile.write(json))
     {
         onFileWriteError();
     }
@@ -423,16 +408,13 @@ void HSDConfig::updateDeviceMapping()
 {
     readDeviceMappingConfigFile();
 }
-
 void HSDConfig::onFileWriteError()
 {
     Serial.println(F("Failed to write file, formatting file system."));
     LittleFS.format();
     Serial.println(F("Done."));
 }
-
-bool HSDConfig::addDeviceMappingEntry(int entryNum, String name,
-                                      deviceType type, int ledNumber)
+bool HSDConfig::addDeviceMappingEntry(int entryNum, const String& name, deviceType type, int ledNumber)
 {
     bool success = false;
 
@@ -484,8 +466,7 @@ bool HSDConfig::isDeviceMappingFull() const
     return m_cfgDeviceMapping.isFull();
 }
 
-bool HSDConfig::addColorMappingEntry(int entryNum, String msg, deviceType type,
-                                     Color color, Behavior behavior)
+bool HSDConfig::addColorMappingEntry(int entryNum, const String& msg, deviceType type, Color color, Behavior behavior)
 {
     bool success = false;
 
@@ -687,11 +668,11 @@ const HSDConfig::DeviceMapping* HSDConfig::getDeviceMapping(int index) const
     return m_cfgDeviceMapping.get(index);
 }
 
-int HSDConfig::getLedNumber(String deviceName, deviceType deviceType)
+int HSDConfig::getLedNumber(const String& deviceName, deviceType deviceType)
 {
     int number = -1;
 
-    for(int i = 0; i < m_cfgDeviceMapping.size(); i++)
+    for(size_t i = 0; i < m_cfgDeviceMapping.size(); i++)
     {
         const DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
 
@@ -705,11 +686,11 @@ int HSDConfig::getLedNumber(String deviceName, deviceType deviceType)
     return number;
 }
 
-int HSDConfig::getColorMapIndex(deviceType deviceType, String msg)
+int HSDConfig::getColorMapIndex(deviceType deviceType, const String& msg)
 {
     int index = -1;
 
-    for(int i = 0; i < m_cfgColorMapping.size(); i++)
+    for(size_t i = 0; i < m_cfgColorMapping.size(); i++)
     {
         const ColorMapping* mapping = m_cfgColorMapping.get(i);
 

@@ -17,20 +17,20 @@ class HomeStatusDisplay
   private:
     unsigned long calcUptime();
 
-    static const int MQTT_MSG_MAX_LEN = 50;
+    static constexpr int MQTT_MSG_MAX_LEN = 50;
 
     void mqttCallback(char* topic, byte* payload, unsigned int length);
 
-    bool isStatusTopic(String& topic);
-    HSDConfig::deviceType getDeviceType(String& statusTopic);
-    String getDevice(String& statusTopic);
+    bool isStatusTopic(const String& topic) const;
+    HSDConfig::deviceType getDeviceType(const String& statusTopic) const;
+    String getDevice(const String& statusTopic) const;
 
-    void handleStatus(String device, HSDConfig::deviceType type, String msg);
-    void handleTest(String msg);
+    void handleStatus(const String& device, HSDConfig::deviceType type, const String& msg);
+    void handleTest(const String& msg);
 
     void checkConnections();
 
-    char mqttMsgBuffer[MQTT_MSG_MAX_LEN + 1];
+    char mqttMsgBuffer[MQTT_MSG_MAX_LEN + 1]{};
 
     HSDConfig m_config;
     HSDWifi m_wifi;
@@ -38,8 +38,8 @@ class HomeStatusDisplay
     HSDMqtt m_mqttHandler;
     HSDLeds m_leds;
 
-    bool m_lastWifiConnectionState;
-    bool m_lastMqttConnectionState;
-    unsigned long m_oneMinuteTimerLast;
-    unsigned long m_uptime;
+    bool m_lastWifiConnectionState{false};
+    bool m_lastMqttConnectionState{false};
+    unsigned long m_oneMinuteTimerLast{0};
+    unsigned long m_uptime{0};
 };

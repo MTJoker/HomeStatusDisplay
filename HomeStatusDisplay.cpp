@@ -1,14 +1,14 @@
 #include "HomeStatusDisplay.hpp"
 
 // function declarations
-void handleMqttMessage(String topic, String msg);
+void handleMqttMessage(const String& topic, const String& msg);
 
-#define WINDOW_STRING (F("/window/"))
-#define DOOR_STRING (F("/door/"))
-#define LIGHT_STRING (F("/light/"))
-#define ALARM_STRING (F("/alarm/"))
+const char* WINDOW_STRING = "/window/";
+const char* DOOR_STRING = "/door/";
+const char* LIGHT_STRING = "/light/";
+const char* ALARM_STRING = "/alarm/";
 
-#define ONE_MINUTE_MILLIS (60000)
+constexpr unsigned long ONE_MINUTE_MILLIS = 60000;
 
 int getFreeRamSize();
 
@@ -26,9 +26,8 @@ HomeStatusDisplay::HomeStatusDisplay()
 
 void HomeStatusDisplay::begin(const char* version, const char* identifier)
 {
-    // initialize serial
     Serial.begin(115200);
-    Serial.println(F(""));
+    Serial.println();
 
     m_config.begin(version, identifier);
     m_webServer.begin();
@@ -42,7 +41,7 @@ void HomeStatusDisplay::begin(const char* version, const char* identifier)
 
 void HomeStatusDisplay::work()
 {
-    unsigned long uptime = calcUptime();
+    const auto uptime = calcUptime();
 
     checkConnections();
 
@@ -55,13 +54,12 @@ void HomeStatusDisplay::work()
     }
 
     m_leds.update();
-
     delay(100);
 }
 
 unsigned long HomeStatusDisplay::calcUptime()
 {
-    unsigned long currentMillis = millis();
+    const auto currentMillis = millis();
 
     if(currentMillis - m_oneMinuteTimerLast >= ONE_MINUTE_MILLIS)
     {
@@ -76,16 +74,16 @@ unsigned long HomeStatusDisplay::calcUptime()
 
 void HomeStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int length)
 {
-    unsigned int i = 0;
+    const auto copyLength = min(length, static_cast<unsigned int>(MQTT_MSG_MAX_LEN));
 
-    for(unsigned int i = 0; (i < length) && (i < MQTT_MSG_MAX_LEN); i++)
+    for(unsigned int i = 0; i < copyLength; ++i)
     {
         mqttMsgBuffer[i] = payload[i];
     }
-    mqttMsgBuffer[i] = '\0';
+    mqttMsgBuffer[copyLength] = '\0';
 
-    String mqttTopicString(topic);
-    String mqttMsgString = String(mqttMsgBuffer);
+    const String mqttTopicString(topic);
+    const String mqttMsgString(mqttMsgBuffer);
 
     Serial.print(F("Received an MQTT message for topic "));
     Serial.println(mqttTopicString + ": " + mqttMsgString);
@@ -96,55 +94,45 @@ void HomeStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int le
     }
     else if(isStatusTopic(mqttTopicString))
     {
-        HSDConfig::deviceType type = getDeviceType(mqttTopicString);
-        String device = getDevice(mqttTopicString);
+        const auto type = getDeviceType(mqttTopicString);
+        const auto device = getDevice(mqttTopicString);
 
         handleStatus(device, type, mqttMsgString);
     }
 }
 
-bool HomeStatusDisplay::isStatusTopic(String& topic)
+bool HomeStatusDisplay::isStatusTopic(const String& topic) const
 {
-    String mqttStatusTopic = String(m_config.getMqttStatusTopic());
-    int posOfLastSlashInStatusTopic = mqttStatusTopic.lastIndexOf("/");
+    const auto mqttStatusTopic = String(m_config.getMqttStatusTopic());
+    const auto posOfLastSlashInStatusTopic = mqttStatusTopic.lastIndexOf("/");
 
-    return topic.startsWith(mqttStatusTopic.substring(0, posOfLastSlashInStatusTopic)) ? true : false;
+    return topic.startsWith(mqttStatusTopic.substring(0, posOfLastSlashInStatusTopic));
 }
 
-HSDConfig::deviceType HomeStatusDisplay::getDeviceType(String& statusTopic)
+HSDConfig::deviceType HomeStatusDisplay::getDeviceType(const String& statusTopic) const
 {
-    HSDConfig::deviceType type = HSDConfig::TYPE_UNKNOWN;
-
     if(statusTopic.indexOf(LIGHT_STRING) != -1)
-    {
-        type = HSDConfig::TYPE_LIGHT;
-    }
-    else if(statusTopic.indexOf(WINDOW_STRING) != -1)
-    {
-        type = HSDConfig::TYPE_WINDOW;
-    }
-    else if(statusTopic.indexOf(DOOR_STRING) != -1)
-    {
-        type = HSDConfig::TYPE_DOOR;
-    }
-    else if(statusTopic.indexOf(ALARM_STRING) != -1)
-    {
-        type = HSDConfig::TYPE_ALARM;
-    }
+        return HSDConfig::TYPE_LIGHT;
+    if(statusTopic.indexOf(WINDOW_STRING) != -1)
+        return HSDConfig::TYPE_WINDOW;
+    if(statusTopic.indexOf(DOOR_STRING) != -1)
+        return HSDConfig::TYPE_DOOR;
+    if(statusTopic.indexOf(ALARM_STRING) != -1)
+        return HSDConfig::TYPE_ALARM;
 
-    return type;
+    return HSDConfig::TYPE_UNKNOWN;
 }
 
-String HomeStatusDisplay::getDevice(String& statusTopic)
+String HomeStatusDisplay::getDevice(const String& statusTopic) const
 {
-    int posOfLastSlashInStatusTopic = statusTopic.lastIndexOf("/");
-
+    const auto posOfLastSlashInStatusTopic = statusTopic.lastIndexOf("/");
     return statusTopic.substring(posOfLastSlashInStatusTopic + 1);
 }
 
-void HomeStatusDisplay::handleTest(String msg)
+void HomeStatusDisplay::handleTest(const String& msg)
 {
-    int type = msg.toInt();
+    const auto type = msg.toInt();
+
     if(type > 0)
     {
         Serial.print(F("Showing testpattern "));
@@ -158,18 +146,18 @@ void HomeStatusDisplay::handleTest(String msg)
     }
 }
 
-void HomeStatusDisplay::handleStatus(String device, HSDConfig::deviceType type, String msg)
+void HomeStatusDisplay::handleStatus(const String& device, HSDConfig::deviceType type, const String& msg)
 {
-    int ledNumber = m_config.getLedNumber(device, type);
+    const int ledNumber = m_config.getLedNumber(device, type);
 
     if(ledNumber != -1)
     {
-        int colorMapIndex = m_config.getColorMapIndex(type, msg);
+        const int colorMapIndex = m_config.getColorMapIndex(type, msg);
 
         if(colorMapIndex != -1)
         {
-            HSDConfig::Behavior behavior = m_config.getLedBehavior(colorMapIndex);
-            HSDConfig::Color color = m_config.getLedColor(colorMapIndex);
+            const auto behavior = m_config.getLedBehavior(colorMapIndex);
+            const auto color = m_config.getLedColor(colorMapIndex);
 
             Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
             m_leds.set(ledNumber, behavior, color);

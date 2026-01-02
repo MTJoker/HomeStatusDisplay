@@ -1,17 +1,14 @@
 #pragma once
 
-#include <Arduino.h>
 #include <ArduinoJson.h>
 
 class HSDConfigFile
 {
-
   public:
-    HSDConfigFile(String fileName);
-    virtual ~HSDConfigFile();
+    explicit HSDConfigFile(const char* fileName);
 
-    bool read(char* buffer, size_t bufSize);
-    bool write(JsonObject* data);
+    bool read(char* buffer, size_t bufferSize) const;
+    bool write(const JsonObject& data) const;
 
   private:
     String m_fileName;

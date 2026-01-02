@@ -23,29 +23,29 @@ class PreAllocatedLinkedList
      * Create list with maxCount elements. List node memory as well
      * as data memory are maintained inside the list.
      */
-    PreAllocatedLinkedList(int maxCount);
+    PreAllocatedLinkedList(size_t maxCount);
     ~PreAllocatedLinkedList();
 
     /*
      * Get number of elements in the list
      */
-    int size() const;
+    size_t size() const;
 
     /*
      * Remove element at specified index. Returns
      * false if element does not exist.
      */
-    bool remove(int index);
+    bool remove(size_t index);
 
     /*
      * Get the element at index (for writing to it)
      */
-    const T* const get(int index) const;
+    const T* const get(size_t index) const;
 
     /*
      * Set element at index to data
      */
-    bool set(int index, T& data);
+    bool set(size_t index, T& data);
 
     /*
      * Clear the entire list. Return false if
@@ -60,21 +60,21 @@ class PreAllocatedLinkedList
     bool isFull() const;
 
   private:
-    int m_size;
+    size_t m_size;
     ListNode<T>* m_root;
-    int m_maxCount;
+    size_t m_maxCount;
 
     ListNode<T>* getLast() const;
-    ListNode<T>* getNode(int index) const;
+    ListNode<T>* getNode(size_t index) const;
 };
 
 template <typename T>
-PreAllocatedLinkedList<T>::PreAllocatedLinkedList(int maxCount)
+PreAllocatedLinkedList<T>::PreAllocatedLinkedList(size_t maxCount)
     : m_size(0)
     , m_root(NULL)
     , m_maxCount(maxCount)
 {
-    for(int i = 0; i < m_maxCount; i++)
+    for(size_t i = 0; i < m_maxCount; i++)
     {
         ListNode<T>* tmp = new ListNode<T>();
         tmp->data = new T;
@@ -102,13 +102,13 @@ PreAllocatedLinkedList<T>::~PreAllocatedLinkedList()
 }
 
 template <typename T>
-int PreAllocatedLinkedList<T>::size() const
+size_t PreAllocatedLinkedList<T>::size() const
 {
     return m_size;
 }
 
 template <typename T>
-bool PreAllocatedLinkedList<T>::remove(int index)
+bool PreAllocatedLinkedList<T>::remove(size_t index)
 {
     bool ret = false;
 
@@ -142,7 +142,7 @@ bool PreAllocatedLinkedList<T>::remove(int index)
 }
 
 template <typename T>
-const T* const PreAllocatedLinkedList<T>::get(int index) const
+const T* const PreAllocatedLinkedList<T>::get(size_t index) const
 {
     ListNode<T>* tmp = NULL;
 
@@ -166,7 +166,7 @@ const T* const PreAllocatedLinkedList<T>::get(int index) const
 }
 
 template <typename T>
-bool PreAllocatedLinkedList<T>::set(int index, T& entry)
+bool PreAllocatedLinkedList<T>::set(size_t index, T& entry)
 {
     bool ret = false;
 
@@ -209,9 +209,9 @@ bool PreAllocatedLinkedList<T>::isFull() const
 }
 
 template <typename T>
-ListNode<T>* PreAllocatedLinkedList<T>::getNode(int index) const
+ListNode<T>* PreAllocatedLinkedList<T>::getNode(size_t index) const
 {
-    int pos = 0;
+    size_t pos = 0;
     ListNode<T>* current = m_root;
 
     while(pos < index && current)
@@ -236,7 +236,7 @@ ListNode<T>* PreAllocatedLinkedList<T>::getLast() const
 
     if(m_size > 0)
     {
-        for(int i = 0; i < m_size - 1; i++)
+        for(size_t i = 0; i < m_size - 1; i++)
         {
             tmp = tmp->next;
         }

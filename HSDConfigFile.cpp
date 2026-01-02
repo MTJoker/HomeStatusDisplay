@@ -1,77 +1,61 @@
 #include "HSDConfigFile.hpp"
 #include <LittleFS.h>
 
-HSDConfigFile::HSDConfigFile(String fileName)
+HSDConfigFile::HSDConfigFile(const char* fileName)
     : m_fileName(fileName)
 {
 }
 
-HSDConfigFile::~HSDConfigFile()
+bool HSDConfigFile::read(char* buffer, size_t bufferSize) const
 {
-}
-
-bool HSDConfigFile::read(char* buffer, size_t bufSize)
-{
-    bool success = false;
-
     Serial.print(F("Reading config file "));
     Serial.println(m_fileName);
 
-    if(LittleFS.exists(m_fileName))
-    {
-        File configFile = LittleFS.open(m_fileName, "r");
-
-        if(configFile)
-        {
-            size_t size = configFile.size();
-            Serial.print(F("File size is "));
-            Serial.println(String(size) + " bytes");
-
-            if(size <= bufSize)
-            {
-                configFile.readBytes(buffer, size);
-                success = true;
-            }
-            else
-            {
-                Serial.println(F("File is too big"));
-            }
-
-            configFile.close();
-        }
-        else
-        {
-            Serial.println(F("File open failed"));
-        }
-    }
-    else
+    if(!LittleFS.exists(m_fileName))
     {
         Serial.println(F("File does not exist"));
+        return false;
     }
 
-    return success;
+    File configFile = LittleFS.open(m_fileName, "r");
+    if(!configFile)
+    {
+        Serial.println(F("File open failed"));
+        return false;
+    }
+
+    const size_t size = configFile.size();
+    Serial.print(F("File size is "));
+    Serial.print(size);
+    Serial.println(F(" bytes"));
+
+    if(size == 0 || size >= bufferSize)
+    {
+        Serial.println(F("File is empty or too big"));
+        configFile.close();
+        return false;
+    }
+
+    const size_t bytesRead = configFile.readBytes(buffer, size);
+    buffer[bytesRead] = '\0';
+
+    configFile.close();
+    return true;
 }
 
-bool HSDConfigFile::write(JsonObject* data)
+bool HSDConfigFile::write(const JsonObject& data) const
 {
-    bool success = false;
-
     Serial.print(F("Writing config file "));
     Serial.println(m_fileName);
 
-    File configFile = LittleFS.open(m_fileName, "w+");
-
-    if(configFile)
-    {
-        serializeJson(*data, configFile);
-        configFile.close();
-
-        success = true;
-    }
-    else
+    File configFile = LittleFS.open(m_fileName, "w");
+    if(!configFile)
     {
         Serial.println(F("File open failed"));
+        return false;
     }
 
-    return success;
+    serializeJson(data, configFile);
+    configFile.close();
+    return true;
 }
