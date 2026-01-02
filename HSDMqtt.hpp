@@ -23,7 +23,6 @@ class HSDMqtt
     void subscribe(const char* topic);
     bool isTopicValid(const char* topic) const;
 
-    static constexpr int MAX_CONNECT_RETRIES = 3;
     static constexpr unsigned long RETRY_DELAY_MS = 5000;
     static constexpr uint16_t MQTT_PORT = 1883;
 

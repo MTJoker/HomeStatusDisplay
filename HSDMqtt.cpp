@@ -45,11 +45,6 @@ void HSDMqtt::handle()
         return;
     }
 
-    if(m_connectionFailed)
-    {
-        return;
-    }
-
     const unsigned long now = millis();
     if((now - m_millisLastConnectTry) < RETRY_DELAY_MS)
     {
@@ -58,24 +53,13 @@ void HSDMqtt::handle()
 
     m_millisLastConnectTry = now;
 
-    if(m_retryCount < MAX_CONNECT_RETRIES)
+    if(reconnect())
     {
-        if(reconnect())
-        {
-            Serial.println(F("MQTT reconnect successful"));
-            m_retryCount = 0;
-        }
-        else
-        {
-            ++m_retryCount;
-            Serial.print(F("MQTT reconnect failed, retry "));
-            Serial.println(m_retryCount);
-        }
+        Serial.println(F("MQTT reconnect successful"));
     }
     else
     {
-        Serial.println(F("Failed to connect MQTT."));
-        m_connectionFailed = true;
+        Serial.println(F("MQTT reconnect failed"));
     }
 }
 
@@ -170,7 +154,7 @@ bool HSDMqtt::addTopic(const char* topic)
     }
 
     m_inTopics[m_numberOfInTopics++] = topic;
-    
+
     return true;
 }
 
