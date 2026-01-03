@@ -8,7 +8,7 @@ HSDHtmlHelper::HSDHtmlHelper()
 {
 }
 
-String HSDHtmlHelper::getHeader(const char* title, const char* host, const char* version) const
+String HSDHtmlHelper::getHeader(const char* title, const char* host, const char* version, uint32_t reloadSeconds) const
 {
     String header;
     header.reserve(1500);
@@ -18,6 +18,16 @@ String HSDHtmlHelper::getHeader(const char* title, const char* host, const char*
     header += F("<title>");
     header += String(host);
     header += F("</title>");
+
+    if(reloadSeconds > 0)
+    {
+        header += F("<script>");
+        header += F("setInterval(function(){location.reload();},");
+        header += String(reloadSeconds * 1000);
+        header += F(");");
+        header += F("</script>");
+    }
+
     header += F("<style>.button {border-radius:0;height:30px;width:100px;border:0;background-color:black;color:#fff;margin:5px;cursor:pointer;}</style>");
     header += F("<style>.buttonr {border-radius:0;height:30px;width:100px;border:0;background-color:red;color:#fff;margin:5px;cursor:pointer;}</style>");
     header += F("<style>.hsdcolor {width:15px;height:15px;border:1px black solid;float:left;margin-right:5px';}</style>");

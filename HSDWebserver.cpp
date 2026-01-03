@@ -38,7 +38,7 @@ void HSDWebserver::deliverRootPage()
     String html;
     html.reserve(3000);
 
-    html = m_html.getHeader("General configuration", m_config.getHost(), m_config.getVersion());
+    html = m_html.getHeader("General configuration", m_config.getHost(), m_config.getVersion(), 0);
 
     html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -142,7 +142,7 @@ void HSDWebserver::deliverStatusPage()
     String html;
     html.reserve(3000);
 
-    html = m_html.getHeader("Status", m_config.getHost(), m_config.getVersion());
+    html = m_html.getHeader("Status", m_config.getHost(), m_config.getVersion(), 10);
 
     html += F("<p>Device uptime: ");
     html += m_html.minutes2Uptime(m_deviceUptimeMinutes);
@@ -270,7 +270,7 @@ void HSDWebserver::deliverColorMappingPage()
     String html;
     html.reserve(8000);
 
-    html = m_html.getHeader("Color mapping configuration", m_config.getHost(), m_config.getVersion());
+    html = m_html.getHeader("Color mapping configuration", m_config.getHost(), m_config.getVersion(), 0);
 
     html += m_html.getColorMappingTableHeader();
 
@@ -409,7 +409,7 @@ void HSDWebserver::deliverDeviceMappingPage()
     String html;
     html.reserve(8000);
 
-    html = m_html.getHeader("Device mapping configuration", m_config.getHost(), m_config.getVersion());
+    html = m_html.getHeader("Device mapping configuration", m_config.getHost(), m_config.getVersion(), 0);
 
     html += m_html.getDeviceMappingTableHeader();
 

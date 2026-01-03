@@ -10,7 +10,7 @@ class HSDHtmlHelper
   public:
     HSDHtmlHelper();
 
-    String getHeader(const char* title, const char* host, const char* version) const;
+    String getHeader(const char* title, const char* host, const char* version, uint32_t reloadSeconds) const;
     String getFooter() const;
 
     String getColorMappingTableHeader() const;
