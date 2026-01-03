@@ -172,10 +172,6 @@ void HSDWebserver::deliverStatusPage()
     html += m_html.minutes2Uptime(m_deviceUptimeMinutes);
     html += F("</p>");
 
-    html += F("<p>Last reset reason: <b>");
-    html += ESP.getResetReason();
-    html += F("</b><p>");
-
     if(WiFi.status() == WL_CONNECTED)
     {
         html += F("<p>Device is connected to WLAN <b>");
@@ -350,6 +346,10 @@ bool HSDWebserver::deliverMaintenancePage()
     html.reserve(2000);
 
     html = m_html.getHeader("Maintenance", m_config.getHost(), m_config.getVersion(), 0);
+
+    html += F("<p>Last reset reason: <b>");
+    html += ESP.getResetReason();
+    html += F("</b><p>");
 
     html += F("<form><p><input type='submit' class='button'value='Reboot' id='reset' name='reset'> Reboot device</p>");
     html += F("<input type='button' class='button'onclick=\"location.href='./update'\"  value='Update Firmware'> Update Firmware of device</p>");
