@@ -61,6 +61,7 @@ void HSDWifi::handleConnection()
 
         WiFi.mode(WIFI_STA);
         WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
+        yield();
     }
 
     if(++m_retryCount >= MAX_CONNECT_RETRIES)

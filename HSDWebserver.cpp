@@ -29,6 +29,7 @@ void HSDWebserver::handleClient(unsigned long deviceUptime)
 {
     m_deviceUptimeMinutes = deviceUptime;
     m_server.handleClient();
+    yield();
 }
 
 void HSDWebserver::deliverRootPage()
@@ -237,7 +238,7 @@ void HSDWebserver::deliverStatusPage()
     m_server.send(200, F("text/html"), html);
 
     checkReboot();
-}
+} 
 
 void HSDWebserver::deliverColorMappingPage()
 {

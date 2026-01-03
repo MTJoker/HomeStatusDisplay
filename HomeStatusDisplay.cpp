@@ -46,13 +46,18 @@ void HomeStatusDisplay::work()
     const auto uptime = calcUptime();
 
     checkConnections();
+    yield();
 
     m_wifi.handleConnection();
+    yield();
+
     m_webServer.handleClient(uptime);
+    yield();
 
     if(m_wifi.connected())
     {
         m_mqttHandler.handle();
+        yield();
     }
 
     m_leds.update();
