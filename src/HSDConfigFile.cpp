@@ -59,3 +59,8 @@ bool HSDConfigFile::write(const JsonObject& data) const
     configFile.close();
     return true;
 }
+
+const String& HSDConfigFile::getName() const
+{
+    return m_fileName;
+}

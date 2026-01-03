@@ -124,6 +124,8 @@ class HSDConfig
     void updateColorMapping();
     void saveDeviceMapping();
     void updateDeviceMapping();
+    bool createBackup(String& out) const;
+    bool restoreBackup(const String& in);
 
     const char* getVersion() const;
     bool setVersion(const char* version);

@@ -9,6 +9,7 @@ class HSDConfigFile
 
     bool read(char* buffer, size_t bufferSize) const;
     bool write(const JsonObject& data) const;
+    const String& getName() const;
 
   private:
     String m_fileName;

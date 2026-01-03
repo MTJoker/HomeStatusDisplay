@@ -19,9 +19,13 @@ class HSDWebserver
   private:
     void deliverRootPage();
     void deliverStatusPage();
+    bool deliverMaintenancePage();
     void deliverColorMappingPage();
     void deliverDeviceMappingPage();
     void deliverNotFoundPage();
+    void handleBackup();
+    void handleRestoreUpload();
+    void handleRestoreFinish();
 
     void checkReboot();
 
@@ -48,4 +52,5 @@ class HSDWebserver
     const HSDMqtt& m_mqtt;
     unsigned long m_deviceUptimeMinutes;
     const HSDHtmlHelper m_html;
+    File m_configRestoreFile;
 };

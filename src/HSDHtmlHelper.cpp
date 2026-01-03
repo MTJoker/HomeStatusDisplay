@@ -4,10 +4,6 @@
 #define CHECKED_STRING (F("checked='checked'"))
 #define EMPTY_STRING (F(""))
 
-HSDHtmlHelper::HSDHtmlHelper()
-{
-}
-
 String HSDHtmlHelper::getHeader(const char* title, const char* host, const char* version, uint32_t reloadSeconds) const
 {
     String header;
@@ -40,10 +36,9 @@ String HSDHtmlHelper::getHeader(const char* title, const char* host, const char*
     header += F("</font><font size='-3'>V");
     header += String(version);
     header += F("</font>");
-    header += F("<form><p><input type='button' class='button' onclick=\"location.href='./'\"  value='Status'>");
-    header += F("<input type='submit' class='button'value='Reboot' id='reset' name='reset'>");
-    header += F("<input type='button' class='button'onclick=\"location.href='./update'\"  value='Update Firmware'></p>");
 
+    header += F("<form><p><input type='button' class='button' onclick=\"location.href='./'\"  value='Status'>");
+    header += F("<input type='button' class='button'onclick=\"location.href='./maintenance'\"  value='Maintenance'></p>");
     header += F("<p><input type='button' class='button'onclick=\"location.href='./cfgmain'\"  value='General'>");
     header += F("<input type='button' class='button'onclick=\"location.href='./cfgcolormapping'\"  value='Color mapping'>");
     header += F("<input type='button' class='button'onclick=\"location.href='./cfgdevicemapping'\"  value='Device mapping'></p></form>");

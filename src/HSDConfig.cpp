@@ -408,6 +408,104 @@ void HSDConfig::updateDeviceMapping()
 {
     readDeviceMappingConfigFile();
 }
+bool HSDConfig::createBackup(String& out) const
+{
+    out = "{\"meta\":{\"format\":\"hsd-config-backup\",\"version\":1},";
+
+    auto appendFile = [&](const char* key, const String& path, bool addComma) -> bool
+    {
+        File f = LittleFS.open(path, "r");
+        if(!f)
+        {
+            Serial.print(F("Cannot open config file: "));
+            Serial.println(path);
+            return false;
+        }
+
+        out += "\"";
+        out += key;
+        out += "\":";
+
+        out += f.readString();
+        f.close();
+
+        if(addComma)
+        {
+            out += ",";
+        }
+
+        return true;
+    };
+
+    if(!appendFile("config", m_mainConfigFile.getName(), true) ||
+       !appendFile("colorMapping", m_colorMappingConfigFile.getName(), true) ||
+       !appendFile("deviceMapping", m_deviceMappingConfigFile.getName(), false))
+    {
+        Serial.print(F("Cannot append config files to backup"));
+        return false;
+    }
+
+    out += "}";
+    return true;
+}
+
+bool HSDConfig::restoreBackup(const String& in)
+{
+    File f = LittleFS.open(in, "r");
+    if(!f)
+    {
+        Serial.print(F("Cannot open backup file: "));
+        Serial.println(in);
+        return false;
+    }
+
+    String content = f.readString();
+    f.close();
+
+    DynamicJsonDocument doc(8192);
+    DeserializationError err = deserializeJson(doc, content);
+    if(err)
+    {
+        Serial.print(F("Restore parse error: "));
+        Serial.println(err.c_str());
+        return false;
+    }
+
+    auto writeConfigFile = [&](const String& path, const char* key) -> bool
+    {
+        File out = LittleFS.open(path, "w");
+        if(!out)
+        {
+            Serial.print(F("Cannot open config file for writing: "));
+            Serial.println(path);
+            return false;
+        }
+
+        serializeJson(doc[key], out);
+        out.close();
+
+        return true;
+    };
+
+    if(!writeConfigFile(m_mainConfigFile.getName() + ".tmp", "config") ||
+       !writeConfigFile(m_colorMappingConfigFile.getName() + ".tmp", "colorMapping") ||
+       !writeConfigFile(m_deviceMappingConfigFile.getName() + ".tmp", "deviceMapping"))
+    {
+        Serial.print(F("Cannot write config files from backup"));
+        return false;
+    }
+
+    LittleFS.remove(m_mainConfigFile.getName());
+    LittleFS.remove(m_colorMappingConfigFile.getName());
+    LittleFS.remove(m_deviceMappingConfigFile.getName());
+
+    LittleFS.rename(m_mainConfigFile.getName() + ".tmp", m_mainConfigFile.getName());
+    LittleFS.rename(m_colorMappingConfigFile.getName() + ".tmp", m_colorMappingConfigFile.getName());
+    LittleFS.rename(m_deviceMappingConfigFile.getName() + ".tmp", m_deviceMappingConfigFile.getName());
+
+    return true;
+}
+
 void HSDConfig::onFileWriteError()
 {
     Serial.println(F("Failed to write file, formatting file system."));
