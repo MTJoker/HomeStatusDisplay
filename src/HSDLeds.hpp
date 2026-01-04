@@ -44,15 +44,14 @@ class HSDLeds
 
     const HSDConfig& m_config;
 
-    uint32_t m_numLeds{0};
-    Adafruit_NeoPixel m_stripe;
-    std::unique_ptr<LedState[]> m_ledState;
+    std::unique_ptr<Adafruit_NeoPixel> m_stripe;
+    std::vector<LedState> m_ledState;
 
-    bool m_blinkOn{false};
-    bool m_flashOn{false};
-    bool m_flickerOn{false};
+    bool m_blinkOn = false;
+    bool m_flashOn = false;
+    bool m_flickerOn = false;
 
-    unsigned long m_prevBlink{0};
-    unsigned long m_prevFlash{0};
-    unsigned long m_prevFlicker{0};
+    unsigned long m_prevBlink = 0;
+    unsigned long m_prevFlash = 0;
+    unsigned long m_prevFlicker = 0;
 };

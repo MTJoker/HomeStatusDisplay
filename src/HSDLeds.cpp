@@ -8,54 +8,56 @@ HSDLeds::HSDLeds(const HSDConfig& config)
 
 void HSDLeds::begin()
 {
-    m_numLeds = m_config.getNumberOfLeds();
-    m_ledState = std::make_unique<LedState[]>(m_numLeds);
+    auto numLeds = m_config.getNumberOfLeds();
 
-    m_stripe.setPin(m_config.getLedDataPin());
-    m_stripe.updateLength(m_numLeds);
-    m_stripe.updateType(NEO_GRB + NEO_KHZ800);
-    m_stripe.setBrightness(m_config.getLedBrightness());
+    m_ledState.resize(numLeds);
 
-    m_stripe.begin();
+    auto pin = m_config.getLedDataPin();
+    auto type = NEO_GRBW + NEO_KHZ800;
+    // TODO: make led type configurable
+    // auto type = NEO_GRB + NEO_KHZ800;
+
+    m_stripe = std::make_unique<Adafruit_NeoPixel>(m_ledState.size(), pin, type);
+
+    m_stripe->setBrightness(m_config.getLedBrightness());
+    m_stripe->begin();
+
     clear();
+    updateStripe();
 }
 
 void HSDLeds::set(uint32_t ledNum, HSDConfig::Behavior behavior, HSDConfig::Color color)
 {
-    if(ledNum >= m_numLeds)
+    if(ledNum >= m_ledState.size())
+    {
         return;
+    }
 
-    m_ledState[ledNum].behavior = behavior;
-    m_ledState[ledNum].color = color;
+    m_ledState.at(ledNum).behavior = behavior;
+    m_ledState.at(ledNum).color = color;
 }
 
 void HSDLeds::setAll(HSDConfig::Behavior behavior, HSDConfig::Color color)
 {
-    for(uint32_t i = 0; i < m_numLeds; ++i)
-    {
-        m_ledState[i].behavior = behavior;
-        m_ledState[i].color = color;
-    }
+    std::fill(
+        m_ledState.begin(),
+        m_ledState.end(),
+        LedState{behavior, color});
 }
 
 HSDConfig::Color HSDLeds::getColor(uint32_t ledNum) const
 {
-    return (ledNum < m_numLeds) ? m_ledState[ledNum].color : HSDConfig::NONE;
+    return (ledNum < m_ledState.size()) ? m_ledState.at(ledNum).color : HSDConfig::NONE;
 }
 
 HSDConfig::Behavior HSDLeds::getBehavior(uint32_t ledNum) const
 {
-    return (ledNum < m_numLeds) ? m_ledState[ledNum].behavior : HSDConfig::OFF;
+    return (ledNum < m_ledState.size()) ? m_ledState.at(ledNum).behavior : HSDConfig::OFF;
 }
 
 void HSDLeds::clear()
 {
-    for(uint32_t i = 0; i < m_numLeds; ++i)
-    {
-        m_ledState[i] = {};
-    }
-
-    updateStripe();
+    std::fill(m_ledState.begin(), m_ledState.end(), LedState{});
 }
 
 void HSDLeds::update()
@@ -71,20 +73,22 @@ void HSDLeds::update()
 
 void HSDLeds::updateStripe()
 {
-    for(uint32_t i = 0; i < m_numLeds; ++i)
-    {
-        const auto& led = m_ledState[i];
+    uint32_t index = 0;
 
+    for(const auto& led : m_ledState)
+    {
         const bool on =
             led.behavior == HSDConfig::ON ||
             (led.behavior == HSDConfig::BLINKING && m_blinkOn) ||
             (led.behavior == HSDConfig::FLASHING && m_flashOn) ||
             (led.behavior == HSDConfig::FLICKERING && m_flickerOn);
 
-        m_stripe.setPixelColor(i, on ? led.color : HSDConfig::NONE);
+        m_stripe->setPixelColor(
+            index++,
+            on ? led.color : HSDConfig::NONE);
     }
 
-    m_stripe.show();
+    m_stripe->show();
 }
 
 void HSDLeds::handleBlink(unsigned long now)
@@ -118,36 +122,30 @@ void HSDLeds::test(uint32_t type)
 {
     clear();
 
-    auto setRange = [&](uint32_t from, uint32_t to, HSDConfig::Color color)
+    const uint32_t third = m_ledState.size() / 3;
+    auto setRange = [&](auto first, auto last, HSDConfig::Color color)
     {
-        for(uint32_t led = from; led < to; ++led)
+        for(auto it = first; it != last; ++it)
         {
-            m_ledState[led].behavior = HSDConfig::ON;
-            m_ledState[led].color = color;
+            it->behavior = HSDConfig::ON;
+            it->color = color;
         }
-        updateStripe();
     };
-
-    const uint32_t third = m_numLeds / 3;
 
     switch(type)
     {
-    case 1: // left row
-        setRange(0, third, HSDConfig::GREEN);
+    case 1: // first row green
+        setRange(m_ledState.begin(), m_ledState.begin() + third, HSDConfig::GREEN);
         break;
-
-    case 2: // middle row
-        setRange(third, third * 2, HSDConfig::GREEN);
+    case 2: // second row green
+        setRange(m_ledState.begin() + third, m_ledState.begin() + 2 * third, HSDConfig::GREEN);
         break;
-
-    case 3: // right row
-        setRange(third * 2, m_numLeds, HSDConfig::GREEN);
+    case 3: // third row green
+        setRange(m_ledState.begin() + 2 * third, m_ledState.end(), HSDConfig::GREEN);
         break;
-
-    case 4: // all rows
-        setRange(0, m_numLeds, HSDConfig::GREEN);
+    case 4: // all green
+        setRange(m_ledState.begin(), m_ledState.end(), HSDConfig::GREEN);
         break;
-
     case 5: // color sweep
     {
         const HSDConfig::Color colors[] =
