@@ -61,6 +61,7 @@ void HSDConfig::resetMainConfigData()
 
     setNumberOfLeds(0);
     setLedDataPin(0);
+    setLedType(0);
     setLedBrightness(DEFAULT_LED_BRIGHTNESS);
 }
 
@@ -107,7 +108,9 @@ bool HSDConfig::readMainConfigFile()
                json[JSON_KEY_MQTT_TEST_TOPIC].is<const char*>() &&
                json[JSON_KEY_MQTT_WILL_TOPIC].is<const char*>() &&
                json[JSON_KEY_LED_COUNT].is<uint16_t>() &&
-               json[JSON_KEY_LED_PIN].is<uint8_t>())
+               json[JSON_KEY_LED_PIN].is<uint8_t>() &&
+               json[JSON_KEY_LED_TYPE].is<uint16_t>() &&
+               json[JSON_KEY_LED_BRIGHTNESS].is<uint8_t>())
             {
                 Serial.println(F("Config data is complete."));
 
@@ -120,15 +123,14 @@ bool HSDConfig::readMainConfigFile()
                 setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC].as<const char*>());
                 setNumberOfLeds(json[JSON_KEY_LED_COUNT].as<uint16_t>());
                 setLedDataPin(json[JSON_KEY_LED_PIN].as<uint8_t>());
-
-                uint8_t brightness = DEFAULT_LED_BRIGHTNESS;
-                if(json[JSON_KEY_LED_BRIGHTNESS].is<uint8_t>())
-                {
-                    brightness = json[JSON_KEY_LED_BRIGHTNESS].as<uint8_t>();
-                }
-                setLedBrightness(brightness);
+                setLedType(json[JSON_KEY_LED_TYPE].as<uint16_t>());
+                setLedBrightness(json[JSON_KEY_LED_BRIGHTNESS].as<uint8_t>());
 
                 success = true;
+            }
+            else
+            {
+                Serial.println(F("Config data is incomplete."));
             }
         }
         else
@@ -302,6 +304,7 @@ void HSDConfig::writeMainConfigFile()
     json[JSON_KEY_MQTT_WILL_TOPIC] = m_cfgMqttWillTopic;
     json[JSON_KEY_LED_COUNT] = m_cfgNumberOfLeds;
     json[JSON_KEY_LED_PIN] = m_cfgLedDataPin;
+    json[JSON_KEY_LED_TYPE] = m_cfgLedType;
     json[JSON_KEY_LED_BRIGHTNESS] = m_cfgLedBrightness;
 
     if(!m_mainConfigFile.write(json))
@@ -731,6 +734,17 @@ int HSDConfig::getLedDataPin() const
 bool HSDConfig::setLedDataPin(int dataPin)
 {
     m_cfgLedDataPin = dataPin;
+    return true;
+}
+
+uint16_t HSDConfig::getLedType() const
+{
+    return m_cfgLedType;
+}
+
+bool HSDConfig::setLedType(uint16_t type)
+{
+    m_cfgLedType = type;
     return true;
 }
 

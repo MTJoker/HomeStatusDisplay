@@ -23,11 +23,11 @@ void HSDWebserver::begin()
     m_server.on("/maintenance", [this]()
                 { deliverMaintenancePage(); });
     m_server.on("/cfgmain", [this]()
-                { deliverRootPage(); });
+                { deliverMainConfigPage(); });
     m_server.on("/cfgcolormapping", [this]()
-                { deliverColorMappingPage(); });
+                { deliverColorMappingConfigPage(); });
     m_server.on("/cfgdevicemapping", [this]()
-                { deliverDeviceMappingPage(); });
+                { deliverDeviceMappingConfigPage(); });
     m_server.on("/backup", HTTP_GET,
                 [this]()
                 { handleBackup(); });
@@ -46,118 +46,6 @@ void HSDWebserver::handleClient(unsigned long deviceUptime)
     m_deviceUptimeMinutes = deviceUptime;
     m_server.handleClient();
     yield();
-}
-
-void HSDWebserver::deliverRootPage()
-{
-    bool needSave = updateMainConfig();
-
-    String html;
-    html.reserve(3000);
-
-    html = m_html.getHeader("General configuration", m_config.getHost(),
-                            m_config.getVersion(), 0);
-
-    html += F("<form><font face='Verdana,Arial,Helvetica'>");
-
-    html += F("<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
-              " <tr>"
-              "  <td><b><font size='+1'>General</font></b></td>"
-              "  <td></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Name</td>");
-
-    html += F("  <td><input type='text' id='host' name='host' value='");
-    html += String(m_config.getHost());
-    html += F("' size='30' maxlength='40' placeholder='host'></td></tr>");
-
-    html += F(" <tr>"
-              "  <td><b><font size='+1'>WiFi</font></b></td>"
-              "  <td></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>SSID</td>");
-
-    html += F("<td><input type='text' id='wifiSSID' name='wifiSSID' value='");
-    html += String(m_config.getWifiSSID());
-    html += F("' size='30' maxlength='40' placeholder='SSID'></td>");
-    html += F("</tr><tr><td>Password</td>");
-    html += F("  <td><input type='password' id='wifiPSK' name='wifiPSK' value='");
-    html += String(m_config.getWifiPSK());
-    html += F("' size='30' maxlength='40' placeholder='Password'></td></tr>");
-
-    html += F(" <tr>"
-              "  <td><b><font size='+1'>MQTT</font></b></td>"
-              "  <td></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Server</td>");
-    html +=
-        F("  <td><input type='text' id='mqttServer' name='mqttServer' value='");
-    html += String(m_config.getMqttServer());
-    html += F("' size='30' maxlength='40' placeholder='IP or "
-              "hostname'></td></tr><tr><td>Status topic</td>");
-
-    html += F("  <td><input type='text' id='mqttStatusTopic' "
-              "name='mqttStatusTopic' value='");
-    html += String(m_config.getMqttStatusTopic());
-    html += F("' size='30' maxlength='40' placeholder='#'></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Test topic</td>"
-              "  <td><input type='text' id='mqttTestTopic' name='mqttTestTopic' "
-              "value='");
-    html += String(m_config.getMqttTestTopic());
-    html += F("' size='30' maxlength='40' placeholder='#'></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Will topic</td>"
-              "  <td><input type='text' id='mqttWillTopic' name='mqttWillTopic' "
-              "value='");
-    html += String(m_config.getMqttWillTopic());
-    html += F("' size='30' maxlength='40' placeholder='#'></td></tr>");
-
-    html += F(""
-              " <tr>"
-              "  <td><b><font size='+1'>LEDs</font></b></td>"
-              "  <td></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Number of LEDs</td>");
-    html += "  <td><input type='text' id='ledCount' name='ledCount' value='" +
-            String(m_config.getNumberOfLeds()) +
-            "' size='30' maxlength='40' placeholder='0'></td></tr>";
-    html += F("<tr><td>LED pin</td>");
-    html += F("<td><input type='text' id='ledPin' name='ledPin' value='");
-    html += String(m_config.getLedDataPin());
-    html += F("' size='30' maxlength='40' placeholder='0'></td></tr>");
-
-    html += F("<tr><td>Brightness</td>");
-    html += F(
-        "<td><input type='text' id='ledBrightness' name='ledBrightness' value='");
-    html += String(m_config.getLedBrightness());
-    html += F("' size='30' maxlength='5' placeholder='0-255'></td></tr></table>");
-
-    html += F("<input type='submit' class='button' value='Save'>");
-
-    html += F("</form></font></body></html>");
-
-    Serial.print(F("Page size: "));
-    Serial.println(html.length());
-
-    m_server.send(200, F("text/html"), html);
-
-    if(needSave)
-    {
-        Serial.println(F("Main config has changed, storing it."));
-        m_config.saveMain();
-    }
-
-    checkReboot();
-
-    Serial.print(F("Free RAM: "));
-    Serial.println(ESP.getFreeHeap());
 }
 
 void HSDWebserver::deliverStatusPage()
@@ -259,7 +147,136 @@ void HSDWebserver::deliverStatusPage()
     checkReboot();
 }
 
-void HSDWebserver::deliverColorMappingPage()
+void HSDWebserver::deliverMainConfigPage()
+{
+    bool needSave = updateMainConfig();
+
+    String html;
+    html.reserve(3500);
+
+    html = m_html.getHeader("General configuration", m_config.getHost(),
+                            m_config.getVersion(), 0);
+
+    html += F("<form><font face='Verdana,Arial,Helvetica'>");
+
+    html += F("<table width='30%' border='0' cellpadding='0' cellspacing='2'>"
+              " <tr>"
+              "  <td><b><font size='+1'>General</font></b></td>"
+              "  <td></td>"
+              " </tr>"
+              " <tr>"
+              "  <td>Name</td>");
+
+    html += F("  <td><input type='text' id='host' name='host' value='");
+    html += String(m_config.getHost());
+    html += F("' size='30' maxlength='40' placeholder='host'></td></tr>");
+
+    html += F(" <tr>"
+              "  <td><b><font size='+1'>WiFi</font></b></td>"
+              "  <td></td>"
+              " </tr>"
+              " <tr>"
+              "  <td>SSID</td>");
+
+    html += F("<td><input type='text' id='wifiSSID' name='wifiSSID' value='");
+    html += String(m_config.getWifiSSID());
+    html += F("' size='30' maxlength='40' placeholder='SSID'></td>");
+    html += F("</tr><tr><td>Password</td>");
+    html += F("  <td><input type='password' id='wifiPSK' name='wifiPSK' value='");
+    html += String(m_config.getWifiPSK());
+    html += F("' size='30' maxlength='40' placeholder='Password'></td></tr>");
+
+    html += F(" <tr>"
+              "  <td><b><font size='+1'>MQTT</font></b></td>"
+              "  <td></td>"
+              " </tr>"
+              " <tr>"
+              "  <td>Server</td>");
+    html +=
+        F("  <td><input type='text' id='mqttServer' name='mqttServer' value='");
+    html += String(m_config.getMqttServer());
+    html += F("' size='30' maxlength='40' placeholder='IP or "
+              "hostname'></td></tr><tr><td>Status topic</td>");
+
+    html += F("  <td><input type='text' id='mqttStatusTopic' "
+              "name='mqttStatusTopic' value='");
+    html += String(m_config.getMqttStatusTopic());
+    html += F("' size='30' maxlength='40' placeholder='#'></td>"
+              " </tr>"
+              " <tr>"
+              "  <td>Test topic</td>"
+              "  <td><input type='text' id='mqttTestTopic' name='mqttTestTopic' "
+              "value='");
+    html += String(m_config.getMqttTestTopic());
+    html += F("' size='30' maxlength='40' placeholder='#'></td>"
+              " </tr>"
+              " <tr>"
+              "  <td>Will topic</td>"
+              "  <td><input type='text' id='mqttWillTopic' name='mqttWillTopic' "
+              "value='");
+    html += String(m_config.getMqttWillTopic());
+    html += F("' size='30' maxlength='40' placeholder='#'></td></tr>");
+
+    html += F(""
+              " <tr>"
+              "  <td><b><font size='+1'>LEDs</font></b></td>"
+              "  <td></td>"
+              " </tr>"
+              " <tr>"
+              "  <td>Number of LEDs</td>");
+    html += "  <td><input type='text' id='ledCount' name='ledCount' value='" +
+            String(m_config.getNumberOfLeds()) +
+            "' size='30' maxlength='40' placeholder='0'></td></tr>";
+
+    html += F("<tr><td>LED type</td>");
+    html += F("<td><select id='ledType' name='ledType'>");
+
+    if(m_config.getLedType() == 0)
+    {
+        html += F("<option value='0' selected>GRB</option>");
+        html += F("<option value='1'>GRBW</option>");
+    }
+    else
+    {
+        html += F("<option value='0'>GRB</option>");
+        html += F("<option value='1' selected>GRBW</option>");
+    }
+
+    html += F("</select></td></tr>");
+
+    html += F("<tr><td>LED pin</td>");
+    html += F("<td><input type='text' id='ledPin' name='ledPin' value='");
+    html += String(m_config.getLedDataPin());
+    html += F("' size='30' maxlength='40' placeholder='0'></td></tr>");
+
+    html += F("<tr><td>Brightness</td>");
+    html += F(
+        "<td><input type='text' id='ledBrightness' name='ledBrightness' value='");
+    html += String(m_config.getLedBrightness());
+    html += F("' size='30' maxlength='5' placeholder='0-255'></td></tr></table>");
+
+    html += F("<input type='submit' class='button' value='Save'>");
+
+    html += F("</form></font></body></html>");
+
+    Serial.print(F("Page size: "));
+    Serial.println(html.length());
+
+    m_server.send(200, F("text/html"), html);
+
+    if(needSave)
+    {
+        Serial.println(F("Main config has changed, storing it."));
+        m_config.saveMain();
+    }
+
+    checkReboot();
+
+    Serial.print(F("Free RAM: "));
+    Serial.println(ESP.getFreeHeap());
+}
+
+void HSDWebserver::deliverColorMappingConfigPage()
 {
     if(needUndo())
     {
@@ -437,7 +454,7 @@ bool HSDWebserver::deleteColorMappingEntry()
     return success;
 }
 
-void HSDWebserver::deliverDeviceMappingPage()
+void HSDWebserver::deliverDeviceMappingConfigPage()
 {
     if(needUndo())
     {
@@ -722,6 +739,13 @@ bool HSDWebserver::updateMainConfig()
         {
             needSave |= m_config.setLedDataPin(ledPin);
         }
+    }
+
+    if(m_server.hasArg(JSON_KEY_LED_TYPE))
+    {
+        uint16_t ledType = m_server.arg(JSON_KEY_LED_TYPE).toInt();
+
+        needSave |= m_config.setLedType(ledType);
     }
 
     if(m_server.hasArg(JSON_KEY_LED_BRIGHTNESS))

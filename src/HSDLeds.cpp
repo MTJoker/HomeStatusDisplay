@@ -13,9 +13,7 @@ void HSDLeds::begin()
     m_ledState.resize(numLeds);
 
     auto pin = m_config.getLedDataPin();
-    auto type = NEO_GRBW + NEO_KHZ800;
-    // TODO: make led type configurable
-    // auto type = NEO_GRB + NEO_KHZ800;
+    auto type = m_config.getLedType() == 0 ? NEO_GRB : NEO_GRBW;
 
     m_stripe = std::make_unique<Adafruit_NeoPixel>(m_ledState.size(), pin, type);
 

@@ -12,6 +12,7 @@ inline constexpr const char* JSON_KEY_MQTT_TEST_TOPIC = "mqttTestTopic";
 inline constexpr const char* JSON_KEY_MQTT_WILL_TOPIC = "mqttWillTopic";
 inline constexpr const char* JSON_KEY_LED_COUNT = "ledCount";
 inline constexpr const char* JSON_KEY_LED_PIN = "ledPin";
+inline constexpr const char* JSON_KEY_LED_TYPE = "ledType";
 inline constexpr const char* JSON_KEY_LED_BRIGHTNESS = "ledBrightness";
 inline constexpr const char* JSON_KEY_COLORMAPPING_MSG = "m";
 inline constexpr const char* JSON_KEY_COLORMAPPING_TYPE = "t";
@@ -157,6 +158,9 @@ class HSDConfig
     int getLedDataPin() const;
     bool setLedDataPin(int dataPin);
 
+    uint16_t getLedType() const;
+    bool setLedType(uint16_t type);
+
     uint8_t getLedBrightness() const;
     bool setLedBrightness(uint8_t brightness);
 
@@ -262,6 +266,7 @@ class HSDConfig
 
     int m_cfgNumberOfLeds = 0;
     int m_cfgLedDataPin = 0;
+    int m_cfgLedType = 0;
     uint8_t m_cfgLedBrightness = 0;
 
     HSDConfigFile m_mainConfigFile;

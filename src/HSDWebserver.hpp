@@ -17,11 +17,11 @@ class HSDWebserver
     void handleClient(unsigned long deviceUptime);
 
   private:
-    void deliverRootPage();
     void deliverStatusPage();
     bool deliverMaintenancePage();
-    void deliverColorMappingPage();
-    void deliverDeviceMappingPage();
+    void deliverMainConfigPage();
+    void deliverColorMappingConfigPage();
+    void deliverDeviceMappingConfigPage();
     void deliverNotFoundPage();
     void handleBackup();
     void handleRestoreUpload();
