@@ -247,7 +247,7 @@ class HSDConfig
     static constexpr int MAX_MQTT_WILL_TOPIC_LEN = 50;
 
     static constexpr int MAX_COLOR_MAP_ENTRIES = 30;
-    static constexpr int MAX_DEVICE_MAP_ENTRIES = 35;
+    static constexpr int MAX_DEVICE_MAP_ENTRIES = 40;
 
     PreAllocatedLinkedList<ColorMapping> m_cfgColorMapping;
     bool m_cfgColorMappingDirty = false;
