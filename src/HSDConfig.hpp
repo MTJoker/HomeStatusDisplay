@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDConfigFile.hpp"
+#include "HSDEnums.hpp"
 #include "PreAllocatedLinkedList.hpp"
 
 inline constexpr const char* JSON_KEY_HOST = "host";
@@ -30,41 +31,6 @@ class HSDConfig
     static constexpr int MAX_DEVICE_MAPPING_NAME_LEN = 25;
     static constexpr int MAX_COLOR_MAPPING_MSG_LEN = 15;
 
-    /*
-     * Enum which defines the types of devices which can send messages.
-     * If the same message (e.g. "on") can be received from different types
-     * of devices (e.g. light and alarm), different reaction can be done.
-     */
-    enum deviceType
-    {
-        TYPE_WINDOW,
-        TYPE_DOOR,
-        TYPE_LIGHT,
-        TYPE_ALARM,
-        TYPE_UNKNOWN
-    };
-
-    enum Behavior
-    {
-        OFF,
-        ON,
-        BLINKING,
-        FLASHING,
-        FLICKERING
-    };
-
-    enum Color
-    {
-        NONE = 0x000000,
-        GREEN = 0x00FF00,
-        YELLOW = 0xFFFF00,
-        ORANGE = 0xFF5500,
-        RED = 0xFF0000,
-        PURPLE = 0xFF00FF,
-        BLUE = 0x0000FF,
-        WHITE = 0xFFFFFF
-    };
-
     struct ColorTranslator
     {
         Color color;
@@ -74,13 +40,13 @@ class HSDConfig
     struct DeviceMapping
     {
         DeviceMapping()
-            : type(TYPE_UNKNOWN)
+            : type(DeviceType::Unknown)
             , ledNumber(0)
         {
             memset(name, 0, MAX_DEVICE_MAPPING_NAME_LEN);
         }
 
-        DeviceMapping(const String& n, deviceType t, int l)
+        DeviceMapping(const String& n, DeviceType t, int l)
             : type(t)
             , ledNumber(l)
         {
@@ -89,21 +55,21 @@ class HSDConfig
         }
 
         char name[MAX_DEVICE_MAPPING_NAME_LEN];
-        deviceType type;
+        DeviceType type;
         int ledNumber;
     };
 
     struct ColorMapping
     {
         ColorMapping()
-            : type(TYPE_UNKNOWN)
-            , color(NONE)
-            , behavior(OFF)
+            : type(DeviceType::Unknown)
+            , color(Color::None)
+            , behavior(Behavior::Off)
         {
             memset(msg, 0, MAX_COLOR_MAPPING_MSG_LEN + 1);
         }
 
-        ColorMapping(const String& m, deviceType t, Color c, Behavior b)
+        ColorMapping(const String& m, DeviceType t, Color c, Behavior b)
             : type(t)
             , color(c)
             , behavior(b)
@@ -113,7 +79,7 @@ class HSDConfig
         }
 
         char msg[MAX_COLOR_MAPPING_MSG_LEN + 1];
-        deviceType type;
+        DeviceType type;
         Color color;
         Behavior behavior;
     };
@@ -179,13 +145,13 @@ class HSDConfig
     int getNumberOfDeviceMappingEntries() const;
     int getNumberOfColorMappingEntries();
 
-    bool addDeviceMappingEntry(int entryNum, const String& name, deviceType type, int ledNumber);
+    bool addDeviceMappingEntry(int entryNum, const String& name, DeviceType type, int ledNumber);
     bool deleteColorMappingEntry(int entryNum);
     bool deleteAllDeviceMappingEntries();
     bool isDeviceMappingDirty() const;
     bool isDeviceMappingFull() const;
 
-    bool addColorMappingEntry(int entryNum, const String& msg, deviceType type, Color color, Behavior behavior);
+    bool addColorMappingEntry(int entryNum, const String& msg, DeviceType type, Color color, Behavior behavior);
     bool deleteDeviceMappingEntry(int entryNum);
     bool deleteAllColorMappingEntries();
     bool isColorMappingDirty() const;
@@ -193,10 +159,10 @@ class HSDConfig
 
     const DeviceMapping* getDeviceMapping(int index) const;
     const ColorMapping* getColorMapping(int index);
-    int getLedNumber(const String& device, deviceType type);
-    std::optional<std::pair<const char*, deviceType>> getDeviceInfo(int ledNumber);
+    int getLedNumber(const String& device, DeviceType type);
+    std::optional<std::pair<const char*, DeviceType>> getDeviceInfo(int ledNumber);
 
-    int getColorMapIndex(deviceType deviceType, const String& msg);
+    int getColorMapIndex(DeviceType deviceType, const String& msg);
     Behavior getLedBehavior(int colorMapIndex);
     Color getLedColor(int colorMapIndex);
 
@@ -217,20 +183,20 @@ class HSDConfig
             if(colorTranslator[i].id == id)
                 return colorTranslator[i].color;
         }
-        return NONE;
+        return Color::None;
     }
 
   private:
     static inline constexpr ColorTranslator colorTranslator[8] =
         {
-            {NONE, 0},
-            {GREEN, 1},
-            {YELLOW, 2},
-            {ORANGE, 3},
-            {RED, 4},
-            {PURPLE, 5},
-            {BLUE, 6},
-            {WHITE, 7},
+            {Color::None, 0},
+            {Color::Green, 1},
+            {Color::Yellow, 2},
+            {Color::Orange, 3},
+            {Color::Red, 4},
+            {Color::Purple, 5},
+            {Color::Blue, 6},
+            {Color::White, 7},
     };
 
     bool readMainConfigFile();

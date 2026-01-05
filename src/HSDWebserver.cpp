@@ -1,4 +1,5 @@
 #include "HSDWebserver.hpp"
+#include "HSDEnumsToString.hpp"
 #include "LittleFS.h"
 
 HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds,
@@ -100,7 +101,7 @@ void HSDWebserver::deliverStatusPage()
             auto behavior = m_leds.getBehavior(ledNr);
             auto deviceInfo = m_config.getDeviceInfo(ledNr);
 
-            if((HSDConfig::NONE != color) && (HSDConfig::OFF != behavior))
+            if((Color::None != color) && (Behavior::Off != behavior))
             {
                 html += F("<p><div class='hsdcolor' style='background-color:");
                 html += m_html.color2htmlColor(color);
@@ -115,16 +116,16 @@ void HSDWebserver::deliverStatusPage()
                     auto deviceType = deviceInfo->second;
 
                     html += F(" (<b>");
-                    html += m_html.type2String(deviceType);
+                    html += toString(deviceType);
                     html += F("</b> with name <b>");
                     html += deviceName;
                     html += F("</b>)");
                 }
 
                 html += F(" has behavior <b>");
-                html += m_html.behavior2String(behavior);
+                html += toString(behavior);
                 html += F("</b> with color <b>");
-                html += m_html.color2String(color);
+                html += toString(color);
                 html += F("</b><br/></p>");
 
                 ledOnCount++;
@@ -318,7 +319,7 @@ void HSDWebserver::deliverColorMappingConfigPage()
 
     for(int i = 0; i < m_config.getNumberOfColorMappingEntries(); i++)
     {
-        const HSDConfig::ColorMapping* mapping = m_config.getColorMapping(i);
+        const auto mapping = m_config.getColorMapping(i);
         html += m_html.getColorMappingTableEntry(i, mapping);
     }
 
@@ -430,9 +431,9 @@ bool HSDWebserver::addColorMappingEntry()
         {
             success = m_config.addColorMappingEntry(
                 m_server.arg("i").toInt(), m_server.arg("n"),
-                (HSDConfig::deviceType)(m_server.arg("t").toInt()),
-                (HSDConfig::Color)(HSDConfig::id2color(m_server.arg("c").toInt())),
-                (HSDConfig::Behavior)(m_server.arg("b").toInt()));
+                (DeviceType)(m_server.arg("t").toInt()),
+                (Color)(HSDConfig::id2color(m_server.arg("c").toInt())),
+                (Behavior)(m_server.arg("b").toInt()));
         }
         else
         {
@@ -552,7 +553,7 @@ bool HSDWebserver::addDeviceMappingEntry()
         {
             success = m_config.addDeviceMappingEntry(
                 m_server.arg("i").toInt(), m_server.arg("n"),
-                (HSDConfig::deviceType)(m_server.arg("t").toInt()),
+                (DeviceType)(m_server.arg("t").toInt()),
                 m_server.arg("l").toInt());
         }
         else

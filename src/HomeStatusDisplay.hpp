@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDConfig.hpp"
+#include "HSDEnums.hpp"
 #include "HSDLeds.hpp"
 #include "HSDMqtt.hpp"
 #include "HSDWebserver.hpp"
@@ -22,10 +23,10 @@ class HomeStatusDisplay
     void mqttCallback(char* topic, byte* payload, unsigned int length);
 
     bool isStatusTopic(const String& topic) const;
-    HSDConfig::deviceType getDeviceType(const String& statusTopic) const;
+    DeviceType getDeviceType(const String& statusTopic) const;
     String getDevice(const String& statusTopic) const;
 
-    void handleStatus(const String& device, HSDConfig::deviceType type, const String& msg);
+    void handleStatus(const String& device, DeviceType type, const String& msg);
     void handleTest(const String& msg);
 
     void checkConnections();

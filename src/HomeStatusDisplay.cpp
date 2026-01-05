@@ -1,6 +1,6 @@
 #include "HomeStatusDisplay.hpp"
+#include "HSDEnumsToString.hpp"
 
-// function declarations
 void handleMqttMessage(const String& topic, const String& msg);
 
 const char* WINDOW_STRING = "/window/";
@@ -116,18 +116,17 @@ bool HomeStatusDisplay::isStatusTopic(const String& topic) const
     return topic.startsWith(mqttStatusTopic.substring(0, posOfLastSlashInStatusTopic));
 }
 
-HSDConfig::deviceType HomeStatusDisplay::getDeviceType(const String& statusTopic) const
+DeviceType HomeStatusDisplay::getDeviceType(const String& statusTopic) const
 {
     if(statusTopic.indexOf(LIGHT_STRING) != -1)
-        return HSDConfig::TYPE_LIGHT;
+        return DeviceType::Light;
     if(statusTopic.indexOf(WINDOW_STRING) != -1)
-        return HSDConfig::TYPE_WINDOW;
+        return DeviceType::Window;
     if(statusTopic.indexOf(DOOR_STRING) != -1)
-        return HSDConfig::TYPE_DOOR;
+        return DeviceType::Door;
     if(statusTopic.indexOf(ALARM_STRING) != -1)
-        return HSDConfig::TYPE_ALARM;
-
-    return HSDConfig::TYPE_UNKNOWN;
+        return DeviceType::Alarm;
+    return DeviceType::Unknown;
 }
 
 String HomeStatusDisplay::getDevice(const String& statusTopic) const
@@ -153,7 +152,7 @@ void HomeStatusDisplay::handleTest(const String& msg)
     }
 }
 
-void HomeStatusDisplay::handleStatus(const String& device, HSDConfig::deviceType type, const String& msg)
+void HomeStatusDisplay::handleStatus(const String& device, DeviceType type, const String& msg)
 {
     const int ledNumber = m_config.getLedNumber(device, type);
 
@@ -166,18 +165,18 @@ void HomeStatusDisplay::handleStatus(const String& device, HSDConfig::deviceType
             const auto behavior = m_config.getLedBehavior(colorMapIndex);
             const auto color = m_config.getLedColor(colorMapIndex);
 
-            Serial.println("Set led number " + String(ledNumber) + " to behavior " + String(behavior) + " with color " + String(color, HEX));
+            Serial.println("Set led number " + String(ledNumber) + " to behavior " + toString(behavior) + " with color " + toString(color));
             m_leds.set(ledNumber, behavior, color);
         }
         else
         {
             Serial.println("Unknown message " + msg + " for led number " + String(ledNumber) + ", set to OFF");
-            m_leds.set(ledNumber, HSDConfig::OFF, HSDConfig::NONE);
+            m_leds.set(ledNumber, Behavior::Off, Color::None);
         }
     }
     else
     {
-        Serial.println("No LED defined for device " + device + " of type " + String(type) + ", ignoring it");
+        Serial.println("No LED defined for device " + device + " of type " + toString(type) + ", ignoring it");
     }
 }
 
@@ -196,7 +195,7 @@ void HomeStatusDisplay::checkConnections()
 
     if(!m_mqttHandler.connected() && m_wifi.connected())
     {
-        m_leds.setAll(HSDConfig::ON, HSDConfig::YELLOW);
+        m_leds.setAll(Behavior::On, Color::Yellow);
     }
 
     if(!m_lastWifiConnectionState && m_wifi.connected())
@@ -205,7 +204,7 @@ void HomeStatusDisplay::checkConnections()
 
         if(!m_mqttHandler.connected())
         {
-            m_leds.setAll(HSDConfig::ON, HSDConfig::YELLOW);
+            m_leds.setAll(Behavior::On, Color::Yellow);
         }
 
         m_lastWifiConnectionState = true;
@@ -218,6 +217,6 @@ void HomeStatusDisplay::checkConnections()
 
     if(!m_wifi.connected())
     {
-        m_leds.setAll(HSDConfig::ON, HSDConfig::RED);
+        m_leds.setAll(Behavior::On, Color::Red);
     }
 }

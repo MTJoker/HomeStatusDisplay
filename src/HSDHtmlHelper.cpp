@@ -1,4 +1,5 @@
 #include "HSDHtmlHelper.hpp"
+#include "HSDEnumsToString.hpp"
 
 #define SELECTED_STRING (F("selected='selected'"))
 #define CHECKED_STRING (F("checked='checked'"))
@@ -86,12 +87,12 @@ String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::C
     html += F("</td><td>");
     html += mapping->msg;
     html += F("</td><td>");
-    html += type2String(mapping->type);
+    html += toString(mapping->type);
     html += F("</td><td>");
     html += F("<div class='hsdcolor' style='background-color:");
     html += color2htmlColor(mapping->color);
     html += F("';></div></td><td>");
-    html += behavior2String(mapping->behavior);
+    html += toString(mapping->behavior);
     html += F("</td></tr>");
 
     return html;
@@ -112,13 +113,13 @@ String HSDHtmlHelper::getColorMappingTableAddEntryForm(int newEntryNum, bool isF
     html += F("' size='5' maxlength='3' placeholder='Nr'</td>");
     html += F("<td><input type='text' id='name' name='n' value='' size='20' maxlength='15' placeholder='name'></td>");
     html += F("<td><select name='t'>");
-    html += getTypeOptions(HSDConfig::TYPE_WINDOW);
+    html += getTypeOptions(DeviceType::Window);
     html += F("</select></td>");
     html += F("<td><select name='c'>");
-    html += getColorOptions(HSDConfig::WHITE);
+    html += getColorOptions(Color::White);
     html += F("</select></td>");
     html += F("<td><select name='b'>");
-    html += getBehaviorOptions(HSDConfig::ON);
+    html += getBehaviorOptions(Behavior::On);
     html += F("</select></td></tr></table>");
     html += F("<input type='submit' class='button' value='");
     html += isFull ? F("Edit") : F("Add/Edit");
@@ -155,7 +156,7 @@ String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::
     html += F("</td><td>");
     html += mapping->name;
     html += F("</td><td>");
-    html += type2String(mapping->type);
+    html += toString(mapping->type);
     html += F("</td><td>");
     html += mapping->ledNumber;
     html += F("</td></tr>");
@@ -178,7 +179,7 @@ String HSDHtmlHelper::getDeviceMappingTableAddEntryForm(int newEntryNum, bool is
     html += F("' size='5' maxlength='3' placeholder='Nr'</td>");
     html += F("<td><input type='text' id='name' name='n' value='' size='30' maxlength='25' placeholder='name'></td>");
     html += F("<td><select name='t'>");
-    html += getTypeOptions(HSDConfig::TYPE_WINDOW);
+    html += getTypeOptions(DeviceType::Window);
     html += F("</select></td>");
     html += F("<td><input type='text' id='led' name='l' value='");
     html += isFull ? newEntryNum - 1 : newEntryNum;
@@ -211,118 +212,118 @@ String HSDHtmlHelper::getSaveForm() const
     return html;
 }
 
-String HSDHtmlHelper::getColorOptions(HSDConfig::Color selectedColor) const
+String HSDHtmlHelper::getColorOptions(Color selectedColor) const
 {
-    String greenSelect = (selectedColor == HSDConfig::GREEN) ? SELECTED_STRING : EMPTY_STRING;
-    String yellowSelect = (selectedColor == HSDConfig::YELLOW) ? SELECTED_STRING : EMPTY_STRING;
-    String orangeSelect = (selectedColor == HSDConfig::ORANGE) ? SELECTED_STRING : EMPTY_STRING;
-    String redSelect = (selectedColor == HSDConfig::RED) ? SELECTED_STRING : EMPTY_STRING;
-    String purpleSelect = (selectedColor == HSDConfig::PURPLE) ? SELECTED_STRING : EMPTY_STRING;
-    String blueSelect = (selectedColor == HSDConfig::BLUE) ? SELECTED_STRING : EMPTY_STRING;
-    String whiteSelect = (selectedColor == HSDConfig::WHITE) ? SELECTED_STRING : EMPTY_STRING;
+    String greenSelect = (selectedColor == Color::Green) ? SELECTED_STRING : EMPTY_STRING;
+    String yellowSelect = (selectedColor == Color::Yellow) ? SELECTED_STRING : EMPTY_STRING;
+    String orangeSelect = (selectedColor == Color::Orange) ? SELECTED_STRING : EMPTY_STRING;
+    String redSelect = (selectedColor == Color::Red) ? SELECTED_STRING : EMPTY_STRING;
+    String purpleSelect = (selectedColor == Color::Purple) ? SELECTED_STRING : EMPTY_STRING;
+    String blueSelect = (selectedColor == Color::Blue) ? SELECTED_STRING : EMPTY_STRING;
+    String whiteSelect = (selectedColor == Color::White) ? SELECTED_STRING : EMPTY_STRING;
 
     String html;
 
     html += F("<option ");
     html += greenSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::GREEN);
+    html += HSDConfig::color2id(Color::Green);
     html += F("'>Green</option>");
     html += F("<option ");
     html += yellowSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::YELLOW);
+    html += HSDConfig::color2id(Color::Yellow);
     html += F("'>Yellow</option>");
     html += F("<option ");
     html += orangeSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::ORANGE);
+    html += HSDConfig::color2id(Color::Orange);
     html += F("'>Orange</option>");
     html += F("<option ");
     html += redSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::RED);
+    html += HSDConfig::color2id(Color::Red);
     html += F("'>Red</option>");
     html += F("<option ");
     html += purpleSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::PURPLE);
+    html += HSDConfig::color2id(Color::Purple);
     html += F("'>Purple</option>");
     html += F("<option ");
     html += blueSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::BLUE);
+    html += HSDConfig::color2id(Color::Blue);
     html += F("'>Blue</option>");
     html += F("<option ");
     html += whiteSelect;
     html += F(" value='");
-    html += HSDConfig::color2id(HSDConfig::WHITE);
+    html += HSDConfig::color2id(Color::White);
     html += F("'>White</option>");
 
     return html;
 }
 
-String HSDHtmlHelper::getBehaviorOptions(HSDConfig::Behavior selectedBehavior) const
+String HSDHtmlHelper::getBehaviorOptions(Behavior selectedBehavior) const
 {
-    String onSelect = (selectedBehavior == HSDConfig::ON) ? SELECTED_STRING : EMPTY_STRING;
-    String blinkingSelect = (selectedBehavior == HSDConfig::BLINKING) ? SELECTED_STRING : EMPTY_STRING;
-    String flashingSelect = (selectedBehavior == HSDConfig::FLASHING) ? SELECTED_STRING : EMPTY_STRING;
-    String flickeringSelect = (selectedBehavior == HSDConfig::FLICKERING) ? SELECTED_STRING : EMPTY_STRING;
+    String onSelect = (selectedBehavior == Behavior::On) ? SELECTED_STRING : EMPTY_STRING;
+    String blinkingSelect = (selectedBehavior == Behavior::Blinking) ? SELECTED_STRING : EMPTY_STRING;
+    String flashingSelect = (selectedBehavior == Behavior::Flashing) ? SELECTED_STRING : EMPTY_STRING;
+    String flickeringSelect = (selectedBehavior == Behavior::Flickering) ? SELECTED_STRING : EMPTY_STRING;
 
     String html;
 
     html += F("<option ");
     html += onSelect;
     html += F(" value='");
-    html += HSDConfig::ON;
+    html += static_cast<uint8_t>(Behavior::On);
     html += F("'>On</option>");
     html += F("<option ");
     html += blinkingSelect;
     html += F(" value='");
-    html += HSDConfig::BLINKING;
+    html += static_cast<uint8_t>(Behavior::Blinking);
     html += F("'>Blink</option>");
     html += F("<option ");
     html += flashingSelect;
     html += F(" value='");
-    html += HSDConfig::FLASHING;
+    html += static_cast<uint8_t>(Behavior::Flashing);
     html += F("'>Flash</option>");
     html += F("<option ");
     html += flickeringSelect;
     html += F(" value='");
-    html += HSDConfig::FLICKERING;
+    html += static_cast<uint8_t>(Behavior::Flickering);
     html += F("'>Flicker</option>");
 
     return html;
 }
 
-String HSDHtmlHelper::getTypeOptions(HSDConfig::deviceType selectedType) const
+String HSDHtmlHelper::getTypeOptions(DeviceType selectedType) const
 {
-    String windowSelect = (selectedType == HSDConfig::TYPE_WINDOW) ? SELECTED_STRING : EMPTY_STRING;
-    String doorSelect = (selectedType == HSDConfig::TYPE_DOOR) ? SELECTED_STRING : EMPTY_STRING;
-    String lightSelect = (selectedType == HSDConfig::TYPE_LIGHT) ? SELECTED_STRING : EMPTY_STRING;
-    String alarmSelect = (selectedType == HSDConfig::TYPE_ALARM) ? SELECTED_STRING : EMPTY_STRING;
+    String windowSelect = (selectedType == DeviceType::Window) ? SELECTED_STRING : EMPTY_STRING;
+    String doorSelect = (selectedType == DeviceType::Door) ? SELECTED_STRING : EMPTY_STRING;
+    String lightSelect = (selectedType == DeviceType::Light) ? SELECTED_STRING : EMPTY_STRING;
+    String alarmSelect = (selectedType == DeviceType::Alarm) ? SELECTED_STRING : EMPTY_STRING;
 
     String html;
 
     html += F("<option ");
     html += windowSelect;
     html += F("value='");
-    html += HSDConfig::TYPE_WINDOW;
+    html += static_cast<uint8_t>(DeviceType::Window);
     html += F("'>Window</option>");
     html += F("<option ");
     html += doorSelect;
     html += F("value='");
-    html += HSDConfig::TYPE_DOOR;
+    html += static_cast<uint8_t>(DeviceType::Door);
     html += F("'>Door</option>");
     html += F("<option ");
     html += lightSelect;
     html += F("value='");
-    html += HSDConfig::TYPE_LIGHT;
+    html += static_cast<uint8_t>(DeviceType::Light);
     html += F("'>Light</option>");
     html += F("<option ");
     html += alarmSelect;
     html += F("value='");
-    html += HSDConfig::TYPE_ALARM;
+    html += static_cast<uint8_t>(DeviceType::Alarm);
     html += F("'>Alarm</option>");
 
     return html;
@@ -338,65 +339,31 @@ String HSDHtmlHelper::ip2String(IPAddress ip) const
     return String(buffer);
 }
 
-String HSDHtmlHelper::color2String(HSDConfig::Color color) const
-{
-    String colorString = F("none");
-
-    switch(color)
-    {
-    case HSDConfig::GREEN:
-        colorString = F("green");
-        break;
-    case HSDConfig::YELLOW:
-        colorString = F("yellow");
-        break;
-    case HSDConfig::ORANGE:
-        colorString = F("orange");
-        break;
-    case HSDConfig::RED:
-        colorString = F("red");
-        break;
-    case HSDConfig::PURPLE:
-        colorString = F("purple");
-        break;
-    case HSDConfig::BLUE:
-        colorString = F("blue");
-        break;
-    case HSDConfig::WHITE:
-        colorString = F("white");
-        break;
-    default:
-        break;
-    }
-
-    return colorString;
-}
-
-String HSDHtmlHelper::color2htmlColor(HSDConfig::Color color) const
+String HSDHtmlHelper::color2htmlColor(Color color) const
 {
     String htmlcolor = F("#000000");
 
     switch(color)
     {
-    case HSDConfig::GREEN:
+    case Color::Green:
         htmlcolor = F("#00FF00");
         break;
-    case HSDConfig::YELLOW:
+    case Color::Yellow:
         htmlcolor = F("#FFFF00");
         break;
-    case HSDConfig::ORANGE:
+    case Color::Orange:
         htmlcolor = F("#FF5500");
         break;
-    case HSDConfig::RED:
+    case Color::Red:
         htmlcolor = F("#FF0000");
         break;
-    case HSDConfig::PURPLE:
+    case Color::Purple:
         htmlcolor = F("#FF00FF");
         break;
-    case HSDConfig::BLUE:
+    case Color::Blue:
         htmlcolor = F("#0000FF");
         break;
-    case HSDConfig::WHITE:
+    case Color::White:
         htmlcolor = F("#FFFFFF");
         break;
     default:
@@ -404,56 +371,6 @@ String HSDHtmlHelper::color2htmlColor(HSDConfig::Color color) const
     }
 
     return htmlcolor;
-}
-
-String HSDHtmlHelper::behavior2String(HSDConfig::Behavior behavior) const
-{
-    String behaviorString = F("Off");
-
-    switch(behavior)
-    {
-    case HSDConfig::ON:
-        behaviorString = F("On");
-        break;
-    case HSDConfig::BLINKING:
-        behaviorString = F("Blink");
-        break;
-    case HSDConfig::FLASHING:
-        behaviorString = F("Flash");
-        break;
-    case HSDConfig::FLICKERING:
-        behaviorString = F("Flicker");
-        break;
-    default:
-        break;
-    }
-
-    return behaviorString;
-}
-
-String HSDHtmlHelper::type2String(HSDConfig::deviceType type) const
-{
-    String typeString = F("Window");
-
-    switch(type)
-    {
-    case HSDConfig::TYPE_WINDOW:
-        typeString = F("Window");
-        break;
-    case HSDConfig::TYPE_DOOR:
-        typeString = F("Door");
-        break;
-    case HSDConfig::TYPE_LIGHT:
-        typeString = F("Light");
-        break;
-    case HSDConfig::TYPE_ALARM:
-        typeString = F("Alarm");
-        break;
-    default:
-        break;
-    }
-
-    return typeString;
 }
 
 String HSDHtmlHelper::minutes2Uptime(unsigned long minutes) const

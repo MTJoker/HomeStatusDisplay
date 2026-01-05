@@ -1,4 +1,5 @@
 #include "HSDConfig.hpp"
+#include "HSDEnumsToString.hpp"
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
@@ -218,7 +219,7 @@ bool HSDConfig::readColorMappingConfigFile()
                     addColorMappingEntry(
                         index,
                         String(entry[JSON_KEY_COLORMAPPING_MSG]),
-                        static_cast<deviceType>(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()),
+                        static_cast<DeviceType>(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()),
                         id2color(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()),
                         static_cast<Behavior>(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>()));
 
@@ -277,7 +278,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
                     addDeviceMappingEntry(
                         index,
                         String(entry[JSON_KEY_DEVICEMAPPING_NAME]),
-                        static_cast<deviceType>(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()),
+                        static_cast<DeviceType>(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()),
                         entry[JSON_KEY_DEVICEMAPPING_LED].as<int>());
 
                     index++;
@@ -527,13 +528,13 @@ void HSDConfig::onFileWriteError()
     LittleFS.format();
     Serial.println(F("Done."));
 }
-bool HSDConfig::addDeviceMappingEntry(int entryNum, const String& name, deviceType type, int ledNumber)
+bool HSDConfig::addDeviceMappingEntry(int entryNum, const String& name, DeviceType type, int ledNumber)
 {
     bool success = false;
 
     Serial.print(F("Adding or editing device mapping entry at index "));
     Serial.println(String(entryNum) + " with name " + name + ", type " +
-                   String(type) + ", LED number " + String(ledNumber));
+                   toString(type) + ", LED number " + String(ledNumber));
 
     DeviceMapping mapping(name, type, ledNumber);
 
@@ -579,14 +580,14 @@ bool HSDConfig::isDeviceMappingFull() const
     return m_cfgDeviceMapping.isFull();
 }
 
-bool HSDConfig::addColorMappingEntry(int entryNum, const String& msg, deviceType type, Color color, Behavior behavior)
+bool HSDConfig::addColorMappingEntry(int entryNum, const String& msg, DeviceType type, Color color, Behavior behavior)
 {
     bool success = false;
 
     Serial.print(F("Adding or editing color mapping entry at index "));
     Serial.println(String(entryNum) + ", new values: name " + msg + ", type " +
-                   String(type) + ", color " + String(color) + ", behavior " +
-                   String(behavior));
+                   toString(type) + ", color " + toString(color) + ", behavior " +
+                   toString(behavior));
 
     ColorMapping mapping(msg, type, color, behavior);
 
@@ -816,7 +817,7 @@ const HSDConfig::DeviceMapping* HSDConfig::getDeviceMapping(int index) const
     return m_cfgDeviceMapping.get(index);
 }
 
-int HSDConfig::getLedNumber(const String& deviceName, deviceType deviceType)
+int HSDConfig::getLedNumber(const String& deviceName, DeviceType deviceType)
 {
     int number = -1;
 
@@ -834,7 +835,7 @@ int HSDConfig::getLedNumber(const String& deviceName, deviceType deviceType)
     return number;
 }
 
-std::optional<std::pair<const char*, HSDConfig::deviceType>> HSDConfig::getDeviceInfo(int ledNumber)
+std::optional<std::pair<const char*, DeviceType>> HSDConfig::getDeviceInfo(int ledNumber)
 {
     for(size_t i = 0; i < m_cfgDeviceMapping.size(); i++)
     {
@@ -849,7 +850,7 @@ std::optional<std::pair<const char*, HSDConfig::deviceType>> HSDConfig::getDevic
     return std::nullopt;
 }
 
-int HSDConfig::getColorMapIndex(deviceType deviceType, const String& msg)
+int HSDConfig::getColorMapIndex(DeviceType deviceType, const String& msg)
 {
     int index = -1;
 
@@ -867,12 +868,12 @@ int HSDConfig::getColorMapIndex(deviceType deviceType, const String& msg)
     return index;
 }
 
-HSDConfig::Behavior HSDConfig::getLedBehavior(int colorMapIndex)
+Behavior HSDConfig::getLedBehavior(int colorMapIndex)
 {
     return m_cfgColorMapping.get(colorMapIndex)->behavior;
 }
 
-HSDConfig::Color HSDConfig::getLedColor(int colorMapIndex)
+Color HSDConfig::getLedColor(int colorMapIndex)
 {
     return m_cfgColorMapping.get(colorMapIndex)->color;
 }

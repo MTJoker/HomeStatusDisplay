@@ -13,19 +13,19 @@ class HSDLeds
     void update();
     void clear();
 
-    void set(uint32_t ledNum, HSDConfig::Behavior behavior, HSDConfig::Color color);
-    void setAll(HSDConfig::Behavior behavior, HSDConfig::Color color);
+    void set(uint32_t ledNum, Behavior behavior, Color color);
+    void setAll(Behavior behavior, Color color);
 
-    HSDConfig::Color getColor(uint32_t ledNum) const;
-    HSDConfig::Behavior getBehavior(uint32_t ledNum) const;
+    Color getColor(uint32_t ledNum) const;
+    Behavior getBehavior(uint32_t ledNum) const;
 
     void test(uint32_t type);
 
   private:
     struct LedState
     {
-        HSDConfig::Behavior behavior{HSDConfig::OFF};
-        HSDConfig::Color color{HSDConfig::NONE};
+        Behavior behavior{Behavior::Off};
+        Color color{Color::None};
     };
 
     // timing constants

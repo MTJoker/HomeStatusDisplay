@@ -26,13 +26,10 @@ class HSDHtmlHelper
 
     String minutes2Uptime(unsigned long minutes) const;
     String ip2String(IPAddress ip) const;
-    String color2htmlColor(HSDConfig::Color color) const;
-    String behavior2String(HSDConfig::Behavior behavior) const;
-    String color2String(HSDConfig::Color color) const;
-    String type2String(HSDConfig::deviceType type) const;
+    String color2htmlColor(Color color) const;
 
   private:
-    String getColorOptions(HSDConfig::Color selectedColor) const;
-    String getBehaviorOptions(HSDConfig::Behavior selectedBehavior) const;
-    String getTypeOptions(HSDConfig::deviceType selectedType) const;
+    String getColorOptions(Color selectedColor) const;
+    String getBehaviorOptions(Behavior selectedBehavior) const;
+    String getTypeOptions(DeviceType selectedType) const;
 };
