@@ -22,6 +22,7 @@ class HSDMqtt
     void initTopics();
     void subscribe(const char* topic);
     bool isTopicValid(const char* topic) const;
+    bool isUserValid(const char* user) const;
 
     static constexpr unsigned long RETRY_DELAY_MS = 5000;
     static constexpr uint16_t MQTT_PORT = 1883;

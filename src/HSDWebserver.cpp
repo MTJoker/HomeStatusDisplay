@@ -189,31 +189,35 @@ void HSDWebserver::deliverMainConfigPage()
     html += F(" <tr>"
               "  <td><b><font size='+1'>MQTT</font></b></td>"
               "  <td></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Server</td>");
-    html +=
-        F("  <td><input type='text' id='mqttServer' name='mqttServer' value='");
-    html += String(m_config.getMqttServer());
-    html += F("' size='30' maxlength='40' placeholder='IP or "
-              "hostname'></td></tr><tr><td>Status topic</td>");
+              " </tr>");
 
-    html += F("  <td><input type='text' id='mqttStatusTopic' "
-              "name='mqttStatusTopic' value='");
+    html += F("<tr><td>Server</td>");
+    html += F("  <td><input type='text' id='mqttServer' name='mqttServer' value='");
+    html += String(m_config.getMqttServer());
+    html += F("' size='30' maxlength='40' placeholder='IP or hostname'></td></tr>");
+
+    html += F("<tr><td>Username</td>");
+    html += F("  <td><input type='text' id='mqttUser' name='mqttUser' value='");
+    html += String(m_config.getMqttUser());
+    html += F("' size='30' maxlength='40' placeholder='optional'></td></tr>");
+
+    html += F("<tr><td>Password</td>");
+    html += F("  <td><input type='password' id='mqttPassword' name='mqttPassword' value='");
+    html += String(m_config.getMqttPassword());
+    html += F("' size='30' maxlength='40' placeholder='optional'></td></tr>");
+
+    html += F("<tr><td>Status topic</td>");
+    html += F("  <td><input type='text' id='mqttStatusTopic' name='mqttStatusTopic' value='");
     html += String(m_config.getMqttStatusTopic());
-    html += F("' size='30' maxlength='40' placeholder='#'></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Test topic</td>"
-              "  <td><input type='text' id='mqttTestTopic' name='mqttTestTopic' "
-              "value='");
+    html += F("' size='30' maxlength='40' placeholder='#'></td></tr>");
+
+    html += F("<tr><td>Test topic</td>");
+    html += F("  <td><input type='text' id='mqttTestTopic' name='mqttTestTopic' value='");
     html += String(m_config.getMqttTestTopic());
-    html += F("' size='30' maxlength='40' placeholder='#'></td>"
-              " </tr>"
-              " <tr>"
-              "  <td>Will topic</td>"
-              "  <td><input type='text' id='mqttWillTopic' name='mqttWillTopic' "
-              "value='");
+    html += F("' size='30' maxlength='40' placeholder='#'></td></tr>");
+
+    html += F("</tr> <td>Will topic</td>");
+    html += F("  <td><input type='text' id='mqttWillTopic' name='mqttWillTopic' value='");
     html += String(m_config.getMqttWillTopic());
     html += F("' size='30' maxlength='40' placeholder='#'></td></tr>");
 
@@ -699,26 +703,32 @@ bool HSDWebserver::updateMainConfig()
 
     if(m_server.hasArg(JSON_KEY_MQTT_SERVER))
     {
-        needSave |=
-            m_config.setMqttServer(m_server.arg(JSON_KEY_MQTT_SERVER).c_str());
+        needSave |= m_config.setMqttServer(m_server.arg(JSON_KEY_MQTT_SERVER).c_str());
+    }
+
+    if(m_server.hasArg(JSON_KEY_MQTT_USER))
+    {
+        needSave |= m_config.setMqttUser(m_server.arg(JSON_KEY_MQTT_USER).c_str());
+    }
+
+    if(m_server.hasArg(JSON_KEY_MQTT_PASSWORD))
+    {
+        needSave |= m_config.setMqttPassword(m_server.arg(JSON_KEY_MQTT_PASSWORD).c_str());
     }
 
     if(m_server.hasArg(JSON_KEY_MQTT_STATUS_TOPIC))
     {
-        needSave |= m_config.setMqttStatusTopic(
-            m_server.arg(JSON_KEY_MQTT_STATUS_TOPIC).c_str());
+        needSave |= m_config.setMqttStatusTopic(m_server.arg(JSON_KEY_MQTT_STATUS_TOPIC).c_str());
     }
 
     if(m_server.hasArg(JSON_KEY_MQTT_TEST_TOPIC))
     {
-        needSave |= m_config.setMqttTestTopic(
-            m_server.arg(JSON_KEY_MQTT_TEST_TOPIC).c_str());
+        needSave |= m_config.setMqttTestTopic(m_server.arg(JSON_KEY_MQTT_TEST_TOPIC).c_str());
     }
 
     if(m_server.hasArg(JSON_KEY_MQTT_WILL_TOPIC))
     {
-        needSave |= m_config.setMqttWillTopic(
-            m_server.arg(JSON_KEY_MQTT_WILL_TOPIC).c_str());
+        needSave |= m_config.setMqttWillTopic(m_server.arg(JSON_KEY_MQTT_WILL_TOPIC).c_str());
     }
 
     if(m_server.hasArg(JSON_KEY_LED_COUNT))
@@ -743,9 +753,7 @@ bool HSDWebserver::updateMainConfig()
 
     if(m_server.hasArg(JSON_KEY_LED_TYPE))
     {
-        uint16_t ledType = m_server.arg(JSON_KEY_LED_TYPE).toInt();
-
-        needSave |= m_config.setLedType(ledType);
+        needSave |= m_config.setLedType(m_server.arg(JSON_KEY_LED_TYPE).toInt());
     }
 
     if(m_server.hasArg(JSON_KEY_LED_BRIGHTNESS))

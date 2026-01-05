@@ -79,12 +79,27 @@ bool HSDMqtt::reconnect()
     Serial.print(clientId);
     Serial.print(F("... "));
 
-    const char* willTopic = m_config.getMqttWillTopic();
-    const bool useWill = isTopicValid(willTopic);
+    const auto willTopic = m_config.getMqttWillTopic();
+    const auto user = m_config.getMqttUser();
+    const auto password = m_config.getMqttPassword();
 
-    const bool connected = useWill
-                               ? m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "off")
-                               : m_pubSubClient.connect(clientId.c_str());
+    const auto useWill = isTopicValid(willTopic);
+    const auto useAuth = isUserValid(user);
+
+    bool connected = false;
+
+    if(useAuth)
+    {
+        connected = useWill
+                        ? m_pubSubClient.connect(clientId.c_str(), user, password, willTopic, 0, true, "off")
+                        : m_pubSubClient.connect(clientId.c_str(), user, password);
+    }
+    else
+    {
+        connected = useWill
+                        ? m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "off")
+                        : m_pubSubClient.connect(clientId.c_str());
+    }
 
     if(!connected)
     {
@@ -160,5 +175,10 @@ bool HSDMqtt::addTopic(const char* topic)
 
 bool HSDMqtt::isTopicValid(const char* topic) const
 {
-    return topic && topic[0] != '\0';
+    return topic && strlen(topic) > 0;
+}
+
+bool HSDMqtt::isUserValid(const char* user) const
+{
+    return user && strlen(user) > 0;
 }
