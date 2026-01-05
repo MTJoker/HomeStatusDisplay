@@ -2,6 +2,7 @@
 
 #include "HSDConfigFile.hpp"
 #include "HSDEnums.hpp"
+#include "HSDUtils.hpp"
 #include "PreAllocatedLinkedList.hpp"
 
 inline constexpr const char* JSON_KEY_HOST = "host";
@@ -39,49 +40,46 @@ class HSDConfig
 
     struct DeviceMapping
     {
-        DeviceMapping()
-            : type(DeviceType::Unknown)
-            , ledNumber(0)
-        {
-            memset(name, 0, MAX_DEVICE_MAPPING_NAME_LEN);
-        }
+        DeviceMapping() = default;
 
         DeviceMapping(const String& n, DeviceType t, int l)
+            : DeviceMapping(std::string_view{n.c_str(), n.length()}, t, l)
+        {
+        }
+
+        DeviceMapping(std::string_view n, DeviceType t, int l)
             : type(t)
             , ledNumber(l)
         {
-            strncpy(name, n.c_str(), MAX_DEVICE_MAPPING_NAME_LEN - 1);
-            name[MAX_DEVICE_MAPPING_NAME_LEN - 1] = '\0';
+            copyToArray(name, n);
         }
 
-        char name[MAX_DEVICE_MAPPING_NAME_LEN];
-        DeviceType type;
-        int ledNumber;
+        std::array<char, MAX_DEVICE_MAPPING_NAME_LEN> name{};
+        DeviceType type = DeviceType::Unknown;
+        int ledNumber = 0;
     };
 
     struct ColorMapping
     {
-        ColorMapping()
-            : type(DeviceType::Unknown)
-            , color(Color::None)
-            , behavior(Behavior::Off)
-        {
-            memset(msg, 0, MAX_COLOR_MAPPING_MSG_LEN + 1);
-        }
+        ColorMapping() = default;
 
         ColorMapping(const String& m, DeviceType t, Color c, Behavior b)
+            : ColorMapping(std::string_view{m.c_str(), m.length()}, t, c, b)
+        {
+        }
+
+        ColorMapping(std::string_view m, DeviceType t, Color c, Behavior b)
             : type(t)
             , color(c)
             , behavior(b)
         {
-            strncpy(msg, m.c_str(), MAX_COLOR_MAPPING_MSG_LEN);
-            msg[MAX_COLOR_MAPPING_MSG_LEN] = '\0';
+            copyToArray(msg, m);
         }
 
-        char msg[MAX_COLOR_MAPPING_MSG_LEN + 1];
-        DeviceType type;
-        Color color;
-        Behavior behavior;
+        std::array<char, MAX_COLOR_MAPPING_MSG_LEN> msg{};
+        DeviceType type = DeviceType::Unknown;
+        Color color = Color::None;
+        Behavior behavior = Behavior::Off;
     };
 
     HSDConfig();
@@ -109,7 +107,7 @@ class HSDConfig
     bool setWifiPSK(const char* psk);
 
     const char* getMqttServer() const;
-    bool setMqttServer(const char* ip);
+    bool setMqttServer(const char* server);
 
     const char* getMqttUser() const;
     bool setMqttUser(const char* user);
@@ -145,13 +143,13 @@ class HSDConfig
     int getNumberOfDeviceMappingEntries() const;
     int getNumberOfColorMappingEntries();
 
-    bool addDeviceMappingEntry(int entryNum, const String& name, DeviceType type, int ledNumber);
+    bool addDeviceMappingEntry(int entryNum, std::string_view name, DeviceType type, int ledNumber);
     bool deleteColorMappingEntry(int entryNum);
     bool deleteAllDeviceMappingEntries();
     bool isDeviceMappingDirty() const;
     bool isDeviceMappingFull() const;
 
-    bool addColorMappingEntry(int entryNum, const String& msg, DeviceType type, Color color, Behavior behavior);
+    bool addColorMappingEntry(int entryNum, std::string_view name, DeviceType type, Color color, Behavior behavior);
     bool deleteDeviceMappingEntry(int entryNum);
     bool deleteAllColorMappingEntries();
     bool isColorMappingDirty() const;
@@ -160,7 +158,7 @@ class HSDConfig
     const DeviceMapping* getDeviceMapping(int index) const;
     const ColorMapping* getColorMapping(int index);
     int getLedNumber(const String& device, DeviceType type);
-    std::optional<std::pair<const char*, DeviceType>> getDeviceInfo(int ledNumber);
+    std::optional<std::pair<std::string_view, DeviceType>> getDeviceInfo(int ledNumber);
 
     int getColorMapIndex(DeviceType deviceType, const String& msg);
     Behavior getLedBehavior(int colorMapIndex);
@@ -168,36 +166,31 @@ class HSDConfig
 
     static uint32_t color2id(Color color)
     {
-        for(size_t i = 0; i < 8; i++)
-        {
-            if(colorTranslator[i].color == color)
-                return colorTranslator[i].id;
-        }
-        return 0;
+        auto it = std::find_if(colorTranslator.begin(), colorTranslator.end(),
+                               [color](const auto& e)
+                               { return e.color == color; });
+
+        return (it != colorTranslator.end()) ? it->id : 0;
     }
 
     static Color id2color(uint32_t id)
     {
-        for(size_t i = 0; i < 8; i++)
-        {
-            if(colorTranslator[i].id == id)
-                return colorTranslator[i].color;
-        }
-        return Color::None;
+        auto it = std::find_if(colorTranslator.begin(), colorTranslator.end(),
+                               [id](const auto& e)
+                               { return e.id == id; });
+
+        return (it != colorTranslator.end()) ? it->color : Color::None;
     }
 
   private:
-    static inline constexpr ColorTranslator colorTranslator[8] =
-        {
-            {Color::None, 0},
-            {Color::Green, 1},
-            {Color::Yellow, 2},
-            {Color::Orange, 3},
-            {Color::Red, 4},
-            {Color::Purple, 5},
-            {Color::Blue, 6},
-            {Color::White, 7},
-    };
+    static constexpr std::array<ColorTranslator, 8> colorTranslator{{{Color::None, 0},
+                                                                     {Color::Green, 1},
+                                                                     {Color::Yellow, 2},
+                                                                     {Color::Orange, 3},
+                                                                     {Color::Red, 4},
+                                                                     {Color::Purple, 5},
+                                                                     {Color::Blue, 6},
+                                                                     {Color::White, 7}}};
 
     bool readMainConfigFile();
     void printMainConfigFile(JsonObject& json);
@@ -211,19 +204,18 @@ class HSDConfig
 
     void onFileWriteError();
 
-    static constexpr int MAX_VERSION_LEN = 20;
-    static constexpr int MAX_HOST_LEN = 30;
-    static constexpr int MAX_WIFI_SSID_LEN = 30;
-    static constexpr int MAX_WIFI_PSK_LEN = 30;
-    static constexpr int MAX_MQTT_SERVER_LEN = 20;
-    static constexpr int MAX_MQTT_USER_LEN = 30;
-    static constexpr int MAX_MQTT_PASSWORD_LEN = 30;
-    static constexpr int MAX_MQTT_STATUS_TOPIC_LEN = 50;
-    static constexpr int MAX_MQTT_TEST_TOPIC_LEN = 50;
-    static constexpr int MAX_MQTT_WILL_TOPIC_LEN = 50;
-
-    static constexpr int MAX_COLOR_MAP_ENTRIES = 30;
-    static constexpr int MAX_DEVICE_MAP_ENTRIES = 40;
+    static constexpr size_t MaxVersionLen = 20;
+    static constexpr size_t MaxHostLen = 30;
+    static constexpr size_t MaxWifiSsidLen = 30;
+    static constexpr size_t MaxWifiPskLen = 30;
+    static constexpr size_t MaxMqttServerLen = 20;
+    static constexpr size_t MaxMqttUserLen = 30;
+    static constexpr size_t MaxMqttPasswordLen = 30;
+    static constexpr size_t MaxMqttStatusTopicLen = 50;
+    static constexpr size_t MaxMqttTestTopicLen = 50;
+    static constexpr size_t MaxMqttWillTopicLen = 50;
+    static constexpr size_t MaxColorMapEntries = 30;
+    static constexpr size_t MaxDeviceMapEntries = 40;
 
     PreAllocatedLinkedList<ColorMapping> m_cfgColorMapping;
     bool m_cfgColorMappingDirty = false;
@@ -231,17 +223,16 @@ class HSDConfig
     PreAllocatedLinkedList<DeviceMapping> m_cfgDeviceMapping;
     bool m_cfgDeviceMappingDirty = false;
 
-    char m_cfgVersion[MAX_VERSION_LEN + 1]{};
-    char m_cfgHost[MAX_HOST_LEN + 1]{};
-    char m_cfgWifiSSID[MAX_WIFI_SSID_LEN + 1]{};
-    char m_cfgWifiPSK[MAX_WIFI_PSK_LEN + 1]{};
-    char m_cfgMqttServer[MAX_MQTT_SERVER_LEN + 1]{};
-    char m_cfgMqttUser[MAX_MQTT_USER_LEN + 1]{};
-    char m_cfgMqttPassword[MAX_MQTT_PASSWORD_LEN + 1]{};
-    char m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN + 1]{};
-    char m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN + 1]{};
-    char m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN + 1]{};
-
+    std::array<char, MaxVersionLen + 1> m_cfgVersion{};
+    std::array<char, MaxHostLen + 1> m_cfgHost{};
+    std::array<char, MaxWifiSsidLen + 1> m_cfgWifiSSID{};
+    std::array<char, MaxWifiPskLen + 1> m_cfgWifiPSK{};
+    std::array<char, MaxMqttServerLen + 1> m_cfgMqttServer{};
+    std::array<char, MaxMqttUserLen + 1> m_cfgMqttUser{};
+    std::array<char, MaxMqttPasswordLen + 1> m_cfgMqttPassword{};
+    std::array<char, MaxMqttStatusTopicLen + 1> m_cfgMqttStatusTopic{};
+    std::array<char, MaxMqttTestTopicLen + 1> m_cfgMqttTestTopic{};
+    std::array<char, MaxMqttWillTopicLen + 1> m_cfgMqttWillTopic{};
     int m_cfgNumberOfLeds = 0;
     int m_cfgLedDataPin = 0;
     int m_cfgLedType = 0;

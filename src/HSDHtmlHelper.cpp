@@ -85,7 +85,7 @@ String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::C
     }
     html += entryNum;
     html += F("</td><td>");
-    html += mapping->msg;
+    html += mapping->msg.data();
     html += F("</td><td>");
     html += toString(mapping->type);
     html += F("</td><td>");
@@ -154,7 +154,7 @@ String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::
     }
     html += entryNum;
     html += F("</td><td>");
-    html += mapping->name;
+    html += mapping->name.data();
     html += F("</td><td>");
     html += toString(mapping->type);
     html += F("</td><td>");

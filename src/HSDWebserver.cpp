@@ -118,7 +118,7 @@ void HSDWebserver::deliverStatusPage()
                     html += F(" (<b>");
                     html += toString(deviceType);
                     html += F("</b> with name <b>");
-                    html += deviceName;
+                    html += deviceName.data();
                     html += F("</b>)");
                 }
 
@@ -427,13 +427,14 @@ bool HSDWebserver::addColorMappingEntry()
     if(m_server.hasArg("i") && m_server.hasArg("n") && m_server.hasArg("t") &&
        m_server.hasArg("c") && m_server.hasArg("b"))
     {
-        if(m_server.arg("n") != "")
+        if(!m_server.arg("n").isEmpty())
         {
             success = m_config.addColorMappingEntry(
-                m_server.arg("i").toInt(), m_server.arg("n"),
-                (DeviceType)(m_server.arg("t").toInt()),
-                (Color)(HSDConfig::id2color(m_server.arg("c").toInt())),
-                (Behavior)(m_server.arg("b").toInt()));
+                m_server.arg("i").toInt(),
+                m_server.arg("n").c_str(),
+                static_cast<DeviceType>(m_server.arg("t").toInt()),
+                static_cast<Color>(HSDConfig::id2color(m_server.arg("c").toInt())),
+                static_cast<Behavior>(m_server.arg("b").toInt()));
         }
         else
         {
@@ -549,11 +550,12 @@ bool HSDWebserver::addDeviceMappingEntry()
     if(m_server.hasArg("i") && m_server.hasArg("n") && m_server.hasArg("t") &&
        m_server.hasArg("l"))
     {
-        if(m_server.arg("n") != "")
+        if(!m_server.arg("n").isEmpty())
         {
             success = m_config.addDeviceMappingEntry(
-                m_server.arg("i").toInt(), m_server.arg("n"),
-                (DeviceType)(m_server.arg("t").toInt()),
+                m_server.arg("i").toInt(),
+                m_server.arg("n").c_str(),
+                static_cast<DeviceType>(m_server.arg("t").toInt()),
                 m_server.arg("l").toInt());
         }
         else

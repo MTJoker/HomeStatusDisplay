@@ -10,8 +10,8 @@ static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 1900;
 static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
 
 HSDConfig::HSDConfig()
-    : m_cfgColorMapping(MAX_COLOR_MAP_ENTRIES)
-    , m_cfgDeviceMapping(MAX_DEVICE_MAP_ENTRIES)
+    : m_cfgColorMapping(MaxColorMapEntries)
+    , m_cfgDeviceMapping(MaxDeviceMapEntries)
     , m_mainConfigFile("/config.json")
     , m_colorMappingConfigFile("/colormapping.json")
     , m_deviceMappingConfigFile("/devicemapping.json")
@@ -158,29 +158,29 @@ bool HSDConfig::readMainConfigFile()
 
 void HSDConfig::printMainConfigFile(JsonObject& json)
 {
-    Serial.print(F("  • host            : "));
-    Serial.println(String(json[JSON_KEY_HOST]));
-    Serial.print(F("  • wifiSSID        : "));
-    Serial.println(String(json[JSON_KEY_WIFI_SSID]));
-    Serial.println(F("  • wifiPSK         : not shown"));
-    Serial.print(F("  • mqttServer      : "));
-    Serial.println(String(json[JSON_KEY_MQTT_SERVER]));
-    Serial.print(F("  • mqttUser        : "));
-    Serial.println(String(json[JSON_KEY_MQTT_USER]));
-    Serial.println(F("  • mqttPassword    : not shown"));
-    Serial.print(F("  • mqttStatusTopic : "));
-    Serial.println(String(json[JSON_KEY_MQTT_STATUS_TOPIC]));
-    Serial.print(F("  • mqttTestTopic   : "));
-    Serial.println(String(json[JSON_KEY_MQTT_TEST_TOPIC]));
-    Serial.print(F("  • mqttWillTopic   : "));
-    Serial.println(String(json[JSON_KEY_MQTT_WILL_TOPIC]));
-    Serial.print(F("  • ledCount        : "));
+    Serial.print(F("  - host            : "));
+    Serial.println(json[JSON_KEY_HOST].as<const char*>());
+    Serial.print(F("  - wifiSSID        : "));
+    Serial.println(json[JSON_KEY_WIFI_SSID].as<const char*>());
+    Serial.println(F("  - wifiPSK         : not shown"));
+    Serial.print(F("  - mqttServer      : "));
+    Serial.println(json[JSON_KEY_MQTT_SERVER].as<const char*>());
+    Serial.print(F("  - mqttUser        : "));
+    Serial.println(json[JSON_KEY_MQTT_USER].as<const char*>());
+    Serial.println(F("  - mqttPassword    : not shown"));
+    Serial.print(F("  - mqttStatusTopic : "));
+    Serial.println(json[JSON_KEY_MQTT_STATUS_TOPIC].as<const char*>());
+    Serial.print(F("  - mqttTestTopic   : "));
+    Serial.println(json[JSON_KEY_MQTT_TEST_TOPIC].as<const char*>());
+    Serial.print(F("  - mqttWillTopic   : "));
+    Serial.println(json[JSON_KEY_MQTT_WILL_TOPIC].as<const char*>());
+    Serial.print(F("  - ledCount        : "));
     Serial.println(json[JSON_KEY_LED_COUNT].as<int>());
-    Serial.print(F("  • ledPin          : "));
+    Serial.print(F("  - ledPin          : "));
     Serial.println(json[JSON_KEY_LED_PIN].as<int>());
-    Serial.print(F("  • ledType        : "));
+    Serial.print(F("  - ledType         : "));
     Serial.println(json[JSON_KEY_LED_TYPE].as<int>());
-    Serial.print(F("  • ledBrightness   : "));
+    Serial.print(F("  - ledBrightness   : "));
     Serial.println(json[JSON_KEY_LED_BRIGHTNESS].as<int>());
 }
 
@@ -218,7 +218,7 @@ bool HSDConfig::readColorMappingConfigFile()
                 {
                     addColorMappingEntry(
                         index,
-                        String(entry[JSON_KEY_COLORMAPPING_MSG]),
+                        entry[JSON_KEY_COLORMAPPING_MSG].as<const char*>(),
                         static_cast<DeviceType>(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()),
                         id2color(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()),
                         static_cast<Behavior>(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>()));
@@ -277,7 +277,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
                 {
                     addDeviceMappingEntry(
                         index,
-                        String(entry[JSON_KEY_DEVICEMAPPING_NAME]),
+                        entry[JSON_KEY_DEVICEMAPPING_NAME].as<const char*>(),
                         static_cast<DeviceType>(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()),
                         entry[JSON_KEY_DEVICEMAPPING_LED].as<int>());
 
@@ -335,12 +335,12 @@ void HSDConfig::writeColorMappingConfigFile()
     for(size_t index = 0; index < m_cfgColorMapping.size(); index++)
     {
         const ColorMapping* mapping = m_cfgColorMapping.get(index);
-        if(strlen(mapping->msg) != 0)
+        if(std::strlen(mapping->msg.data()) > 0)
         {
             Serial.print(F("Preparing to write color mapping config file index "));
             Serial.print(String(index));
             Serial.print(F(", msg="));
-            Serial.println(String(mapping->msg));
+            Serial.println(String(mapping->msg.data()));
 
             JsonObject colorMappingEntry = json[String(index)].to<JsonObject>();
             colorMappingEntry[JSON_KEY_COLORMAPPING_MSG] = mapping->msg;
@@ -373,7 +373,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
     for(size_t index = 0; index < m_cfgDeviceMapping.size(); index++)
     {
         const DeviceMapping* mapping = m_cfgDeviceMapping.get(index);
-        if(strlen(mapping->name) != 0)
+        if(std::strlen(mapping->name.data()) > 0)
         {
             Serial.print(F("Preparing to write device mapping config file index "));
             Serial.println(String(index));
@@ -528,12 +528,12 @@ void HSDConfig::onFileWriteError()
     LittleFS.format();
     Serial.println(F("Done."));
 }
-bool HSDConfig::addDeviceMappingEntry(int entryNum, const String& name, DeviceType type, int ledNumber)
+bool HSDConfig::addDeviceMappingEntry(int entryNum, std::string_view name, DeviceType type, int ledNumber)
 {
     bool success = false;
 
     Serial.print(F("Adding or editing device mapping entry at index "));
-    Serial.println(String(entryNum) + " with name " + name + ", type " +
+    Serial.println(String(entryNum) + " with name " + name.data() + ", type " +
                    toString(type) + ", LED number " + String(ledNumber));
 
     DeviceMapping mapping(name, type, ledNumber);
@@ -580,12 +580,12 @@ bool HSDConfig::isDeviceMappingFull() const
     return m_cfgDeviceMapping.isFull();
 }
 
-bool HSDConfig::addColorMappingEntry(int entryNum, const String& msg, DeviceType type, Color color, Behavior behavior)
+bool HSDConfig::addColorMappingEntry(int entryNum, std::string_view msg, DeviceType type, Color color, Behavior behavior)
 {
     bool success = false;
 
     Serial.print(F("Adding or editing color mapping entry at index "));
-    Serial.println(String(entryNum) + ", new values: name " + msg + ", type " +
+    Serial.println(String(entryNum) + ", new values: name " + msg.data() + ", type " +
                    toString(type) + ", color " + toString(color) + ", behavior " +
                    toString(behavior));
 
@@ -635,109 +635,100 @@ bool HSDConfig::isColorMappingFull() const
 
 const char* HSDConfig::getHost() const
 {
-    return m_cfgHost;
+    return m_cfgHost.data();
 }
 
 bool HSDConfig::setHost(const char* host)
 {
-    strncpy(m_cfgHost, host, MAX_HOST_LEN);
-    m_cfgHost[MAX_HOST_LEN] = '\0';
+    copyToArray(m_cfgHost, host);
     return true;
 }
 
 const char* HSDConfig::getVersion() const
 {
-    return m_cfgVersion;
+    return m_cfgVersion.data();
 }
 
 bool HSDConfig::setVersion(const char* version)
 {
-    strncpy(m_cfgVersion, version, MAX_VERSION_LEN);
-    m_cfgVersion[MAX_VERSION_LEN] = '\0';
+    copyToArray(m_cfgVersion, version);
     return true;
 }
 
 const char* HSDConfig::getWifiSSID() const
 {
-    return m_cfgWifiSSID;
+    return m_cfgWifiSSID.data();
 }
 
 bool HSDConfig::setWifiSSID(const char* ssid)
 {
-    strncpy(m_cfgWifiSSID, ssid, MAX_WIFI_SSID_LEN);
-    m_cfgWifiSSID[MAX_WIFI_SSID_LEN] = '\0';
+    copyToArray(m_cfgWifiSSID, ssid);
     return true;
 }
 
 const char* HSDConfig::getWifiPSK() const
 {
-    return m_cfgWifiPSK;
+    return m_cfgWifiPSK.data();
 }
 
 bool HSDConfig::setWifiPSK(const char* psk)
 {
-    strncpy(m_cfgWifiPSK, psk, MAX_WIFI_PSK_LEN);
-    m_cfgWifiPSK[MAX_WIFI_PSK_LEN] = '\0';
+    copyToArray(m_cfgWifiPSK, psk);
     return true;
 }
 
 const char* HSDConfig::getMqttServer() const
 {
-    return m_cfgMqttServer;
+    return m_cfgMqttServer.data();
 }
 
-bool HSDConfig::setMqttServer(const char* ip)
+bool HSDConfig::setMqttServer(const char* server)
 {
-    strncpy(m_cfgMqttServer, ip, MAX_MQTT_SERVER_LEN);
-    m_cfgMqttServer[MAX_MQTT_SERVER_LEN] = '\0';
+    copyToArray(m_cfgMqttServer, server);
     return true;
 }
 
 const char* HSDConfig::getMqttUser() const
 {
-    return m_cfgMqttUser;
+    return m_cfgMqttUser.data();
 }
 
 bool HSDConfig::setMqttUser(const char* user)
 {
-    strncpy(m_cfgMqttUser, user, MAX_MQTT_USER_LEN);
-    m_cfgMqttUser[MAX_MQTT_USER_LEN] = '\0';
+    copyToArray(m_cfgMqttUser, user);
     return true;
 }
 
 const char* HSDConfig::getMqttPassword() const
 {
-    return m_cfgMqttPassword;
+    return m_cfgMqttPassword.data();
 }
 
 bool HSDConfig::setMqttPassword(const char* password)
 {
-    strncpy(m_cfgMqttPassword, password, MAX_MQTT_PASSWORD_LEN);
-    m_cfgMqttPassword[MAX_MQTT_PASSWORD_LEN] = '\0';
+    copyToArray(m_cfgMqttPassword, password);
     return true;
 }
 
 const char* HSDConfig::getMqttStatusTopic() const
 {
-    return m_cfgMqttStatusTopic;
+    return m_cfgMqttStatusTopic.data();
 }
 
 bool HSDConfig::setMqttStatusTopic(const char* topic)
 {
-    strncpy(m_cfgMqttStatusTopic, topic, MAX_MQTT_STATUS_TOPIC_LEN);
-    m_cfgMqttStatusTopic[MAX_MQTT_STATUS_TOPIC_LEN] = '\0';
+    copyToArray(m_cfgMqttStatusTopic, topic);
     return true;
 }
 
 const char* HSDConfig::getMqttTestTopic() const
 {
-    return m_cfgMqttTestTopic;
+    return m_cfgMqttTestTopic.data();
 }
 
 bool HSDConfig::setMqttTestTopic(const char* topic)
 {
-    strncpy(m_cfgMqttTestTopic, topic, MAX_MQTT_TEST_TOPIC_LEN);
-    m_cfgMqttTestTopic[MAX_MQTT_TEST_TOPIC_LEN] = '\0';
+    copyToArray(m_cfgMqttTestTopic, topic);
     return true;
 }
 
@@ -748,13 +739,12 @@ int HSDConfig::getNumberOfLeds() const
 
 const char* HSDConfig::getMqttWillTopic() const
 {
-    return m_cfgMqttWillTopic;
+    return m_cfgMqttWillTopic.data();
 }
 
 bool HSDConfig::setMqttWillTopic(const char* topic)
 {
-    strncpy(m_cfgMqttWillTopic, topic, MAX_MQTT_WILL_TOPIC_LEN);
-    m_cfgMqttWillTopic[MAX_MQTT_WILL_TOPIC_LEN] = '\0';
+    copyToArray(m_cfgMqttWillTopic, topic);
     return true;
 }
 
@@ -825,7 +815,8 @@ int HSDConfig::getLedNumber(const String& deviceName, DeviceType deviceType)
     {
         const DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
 
-        if(deviceName.equals(mapping->name) && (deviceType == mapping->type))
+        if(deviceType == mapping->type &&
+           std::strcmp(mapping->name.data(), deviceName.c_str()) == 0)
         {
             number = mapping->ledNumber;
             break;
@@ -835,7 +826,7 @@ int HSDConfig::getLedNumber(const String& deviceName, DeviceType deviceType)
     return number;
 }
 
-std::optional<std::pair<const char*, DeviceType>> HSDConfig::getDeviceInfo(int ledNumber)
+std::optional<std::pair<std::string_view, DeviceType>> HSDConfig::getDeviceInfo(int ledNumber)
 {
     for(size_t i = 0; i < m_cfgDeviceMapping.size(); i++)
     {
@@ -843,7 +834,7 @@ std::optional<std::pair<const char*, DeviceType>> HSDConfig::getDeviceInfo(int l
 
         if(dm && ledNumber == dm->ledNumber)
         {
-            return std::make_pair(dm->name, dm->type);
+            return std::make_pair(std::string_view(dm->name.data()), dm->type);
         }
     }
 
@@ -858,7 +849,8 @@ int HSDConfig::getColorMapIndex(DeviceType deviceType, const String& msg)
     {
         const ColorMapping* mapping = m_cfgColorMapping.get(i);
 
-        if(msg.equals(mapping->msg) && (deviceType == mapping->type))
+        if(deviceType == mapping->type &&
+           std::strcmp(mapping->msg.data(), msg.c_str()) == 0)
         {
             index = i;
             break;
