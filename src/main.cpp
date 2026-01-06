@@ -13,5 +13,5 @@ void setup()
 
 void loop()
 {
-    display.work();
+    display.loop();
 }

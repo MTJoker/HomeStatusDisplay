@@ -1,8 +1,6 @@
 #include "HomeStatusDisplay.hpp"
 #include "HSDEnumsToString.hpp"
 
-void handleMqttMessage(const String& topic, const String& msg);
-
 const char* WINDOW_STRING = "/window/";
 const char* DOOR_STRING = "/door/";
 const char* LIGHT_STRING = "/light/";
@@ -15,12 +13,9 @@ int getFreeRamSize();
 HomeStatusDisplay::HomeStatusDisplay()
     : m_wifi(m_config)
     , m_webServer(m_config, m_leds, m_mqttHandler)
-    , m_mqttHandler(m_config, std::bind(&HomeStatusDisplay::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+    , m_mqttHandler(m_config, [this](auto&&... args)
+                    { mqttCallback(std::forward<decltype(args)>(args)...); })
     , m_leds(m_config)
-    , m_lastWifiConnectionState(false)
-    , m_lastMqttConnectionState(false)
-    , m_oneMinuteTimerLast(0)
-    , m_uptime(0)
 {
 }
 
@@ -41,7 +36,7 @@ void HomeStatusDisplay::begin(const char* version, const char* identifier)
     Serial.println(ESP.getFreeHeap());
 }
 
-void HomeStatusDisplay::work()
+void HomeStatusDisplay::loop()
 {
     const auto uptime = calcUptime();
 
@@ -79,32 +74,30 @@ unsigned long HomeStatusDisplay::calcUptime()
     return m_uptime;
 }
 
-void HomeStatusDisplay::mqttCallback(char* topic, byte* payload, unsigned int length)
+void HomeStatusDisplay::mqttCallback(const char* topic, const uint8_t* payload, size_t length)
 {
-    const auto copyLength = min(length, static_cast<unsigned int>(MQTT_MSG_MAX_LEN));
+    const size_t copyLength = std::min(length, m_mqttMsgBuffer.size() - 1);
 
-    for(unsigned int i = 0; i < copyLength; ++i)
-    {
-        mqttMsgBuffer[i] = payload[i];
-    }
-    mqttMsgBuffer[copyLength] = '\0';
-
-    const String mqttTopicString(topic);
-    const String mqttMsgString(mqttMsgBuffer);
+    std::copy_n(reinterpret_cast<const char*>(payload), copyLength, m_mqttMsgBuffer.begin());
+    m_mqttMsgBuffer[copyLength] = '\0';
 
     Serial.print(F("Received an MQTT message for topic "));
-    Serial.println(mqttTopicString + ": " + mqttMsgString);
+    Serial.print(topic);
+    Serial.print(F(": "));
+    Serial.println(m_mqttMsgBuffer.data());
 
-    if(mqttTopicString.equals(m_config.getMqttTestTopic()))
+    if(std::strcmp(topic, m_config.getMqttTestTopic()) == 0)
     {
-        handleTest(mqttMsgString);
+        handleTest(String(m_mqttMsgBuffer.data()));
+        return;
     }
-    else if(isStatusTopic(mqttTopicString))
-    {
-        const auto type = getDeviceType(mqttTopicString);
-        const auto device = getDevice(mqttTopicString);
 
-        handleStatus(device, type, mqttMsgString);
+    if(isStatusTopic(topic))
+    {
+        const DeviceType type = getDeviceType(topic);
+        const String device = getDevice(topic);
+
+        handleStatus(device, type, String(m_mqttMsgBuffer.data()));
     }
 }
 
@@ -182,41 +175,31 @@ void HomeStatusDisplay::handleStatus(const String& device, DeviceType type, cons
 
 void HomeStatusDisplay::checkConnections()
 {
-    if(!m_lastMqttConnectionState && m_mqttHandler.connected())
+    const auto toState = [](bool connected)
+    {
+        return connected ? ConnectionState::Connected : ConnectionState::Disconnected;
+    };
+
+    const ConnectionState currentWifiState = toState(m_wifi.connected());
+    const ConnectionState currentMqttState = toState(m_mqttHandler.connected());
+
+    const bool wifiChanged = (currentWifiState != m_lastWifiConnectionState);
+    const bool mqttChanged = (currentMqttState != m_lastMqttConnectionState);
+
+    if(wifiChanged || mqttChanged)
     {
         m_leds.clear();
-        m_lastMqttConnectionState = true;
-    }
-    else if(m_lastMqttConnectionState && !m_mqttHandler.connected())
-    {
-        m_leds.clear();
-        m_lastMqttConnectionState = false;
     }
 
-    if(!m_mqttHandler.connected() && m_wifi.connected())
+    if(currentWifiState == ConnectionState::Disconnected)
+    {
+        m_leds.setAll(Behavior::On, Color::Red);
+    }
+    else if(currentMqttState == ConnectionState::Disconnected)
     {
         m_leds.setAll(Behavior::On, Color::Yellow);
     }
 
-    if(!m_lastWifiConnectionState && m_wifi.connected())
-    {
-        m_leds.clear();
-
-        if(!m_mqttHandler.connected())
-        {
-            m_leds.setAll(Behavior::On, Color::Yellow);
-        }
-
-        m_lastWifiConnectionState = true;
-    }
-    else if(m_lastWifiConnectionState && !m_wifi.connected())
-    {
-        m_leds.clear();
-        m_lastWifiConnectionState = false;
-    }
-
-    if(!m_wifi.connected())
-    {
-        m_leds.setAll(Behavior::On, Color::Red);
-    }
+    m_lastWifiConnectionState = currentWifiState;
+    m_lastMqttConnectionState = currentMqttState;
 }

@@ -13,14 +13,20 @@ class HomeStatusDisplay
     HomeStatusDisplay();
 
     void begin(const char* version, const char* identifier);
-    void work();
+    void loop();
 
   private:
+    enum class ConnectionState : uint8_t
+    {
+        Disconnected,
+        Connected
+    };
+
     unsigned long calcUptime();
 
-    static constexpr int MQTT_MSG_MAX_LEN = 50;
+    static constexpr size_t MqttMaxMsgLen = 50;
 
-    void mqttCallback(char* topic, byte* payload, unsigned int length);
+    void mqttCallback(const char* topic, const uint8_t* payload, size_t length);
 
     bool isStatusTopic(const String& topic) const;
     DeviceType getDeviceType(const String& statusTopic) const;
@@ -31,7 +37,7 @@ class HomeStatusDisplay
 
     void checkConnections();
 
-    char mqttMsgBuffer[MQTT_MSG_MAX_LEN + 1]{};
+    std::array<char, MqttMaxMsgLen + 1> m_mqttMsgBuffer{};
 
     HSDConfig m_config;
     HSDWifi m_wifi;
@@ -39,8 +45,8 @@ class HomeStatusDisplay
     HSDMqtt m_mqttHandler;
     HSDLeds m_leds;
 
-    bool m_lastWifiConnectionState{false};
-    bool m_lastMqttConnectionState{false};
-    unsigned long m_oneMinuteTimerLast{0};
-    unsigned long m_uptime{0};
+    ConnectionState m_lastWifiConnectionState = ConnectionState::Disconnected;
+    ConnectionState m_lastMqttConnectionState = ConnectionState::Disconnected;
+    unsigned long m_oneMinuteTimerLast = 0;
+    unsigned long m_uptime = 0;
 };
