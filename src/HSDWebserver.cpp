@@ -54,12 +54,7 @@ void HSDWebserver::deliverStatusPage()
     String html;
     html.reserve(3000);
 
-    html =
-        m_html.getHeader("Status", m_config.getHost(), m_config.getVersion(), 10);
-
-    html += F("<p>Device uptime: ");
-    html += m_html.minutes2Uptime(m_deviceUptimeMinutes);
-    html += F("</p>");
+    html = m_html.getHeader("Status", m_config.getHost(), m_config.getVersion(), 10);
 
     if(WiFi.status() == WL_CONNECTED)
     {
@@ -372,6 +367,10 @@ bool HSDWebserver::deliverMaintenancePage()
     html += F("<p>Last reset reason: <b>");
     html += ESP.getResetReason();
     html += F("</b><p>");
+
+    html += F("<p>Device uptime: <b>");
+    html += m_html.minutes2Uptime(m_deviceUptimeMinutes);
+    html += F("</b></p>");
 
     auto freeHeap = ESP.getFreeHeap();
 
