@@ -42,11 +42,6 @@ class HSDConfig
     {
         DeviceMapping() = default;
 
-        DeviceMapping(const String& n, DeviceType t, int l)
-            : DeviceMapping(std::string_view{n.c_str(), n.length()}, t, l)
-        {
-        }
-
         DeviceMapping(std::string_view n, DeviceType t, int l)
             : type(t)
             , ledNumber(l)
@@ -62,11 +57,6 @@ class HSDConfig
     struct ColorMapping
     {
         ColorMapping() = default;
-
-        ColorMapping(const String& m, DeviceType t, Color c, Behavior b)
-            : ColorMapping(std::string_view{m.c_str(), m.length()}, t, c, b)
-        {
-        }
 
         ColorMapping(std::string_view m, DeviceType t, Color c, Behavior b)
             : type(t)
@@ -157,10 +147,10 @@ class HSDConfig
 
     const DeviceMapping* getDeviceMapping(int index) const;
     const ColorMapping* getColorMapping(int index);
-    int getLedNumber(const String& device, DeviceType type);
+    int getLedNumber(std::string_view device, DeviceType type);
     std::optional<std::pair<std::string_view, DeviceType>> getDeviceInfo(int ledNumber);
 
-    int getColorMapIndex(DeviceType deviceType, const String& msg);
+    int getColorMapIndex(DeviceType deviceType, std::string_view msg);
     Behavior getLedBehavior(int colorMapIndex);
     Color getLedColor(int colorMapIndex);
 

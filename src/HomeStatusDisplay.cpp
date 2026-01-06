@@ -1,10 +1,11 @@
 #include "HomeStatusDisplay.hpp"
 #include "HSDEnumsToString.hpp"
+#include <charconv>
 
-const char* WINDOW_STRING = "/window/";
-const char* DOOR_STRING = "/door/";
-const char* LIGHT_STRING = "/light/";
-const char* ALARM_STRING = "/alarm/";
+constexpr std::string_view WINDOW_STRING = "/window/";
+constexpr std::string_view DOOR_STRING = "/door/";
+constexpr std::string_view LIGHT_STRING = "/light/";
+constexpr std::string_view ALARM_STRING = "/alarm/";
 
 constexpr unsigned long ONE_MINUTE_MILLIS = 60000;
 
@@ -68,7 +69,9 @@ unsigned long HomeStatusDisplay::calcUptime()
         m_uptime++;
         m_oneMinuteTimerLast = currentMillis;
 
-        Serial.println("Uptime: " + String(m_uptime) + "min");
+        Serial.print("Uptime: ");
+        Serial.print(m_uptime);
+        Serial.println("min");
     }
 
     return m_uptime;
@@ -86,51 +89,64 @@ void HomeStatusDisplay::mqttCallback(const char* topic, const uint8_t* payload, 
     Serial.print(F(": "));
     Serial.println(m_mqttMsgBuffer.data());
 
-    if(std::strcmp(topic, m_config.getMqttTestTopic()) == 0)
+    const std::string_view topicView{topic};
+
+    if(topicView == m_config.getMqttTestTopic())
     {
-        handleTest(String(m_mqttMsgBuffer.data()));
-        return;
+        handleTest(m_mqttMsgBuffer.data());
     }
-
-    if(isStatusTopic(topic))
+    else if(isStatusTopic(topicView))
     {
-        const DeviceType type = getDeviceType(topic);
-        const String device = getDevice(topic);
+        const auto type = getDeviceType(topicView);
+        const auto device = getDevice(topicView);
 
-        handleStatus(device, type, String(m_mqttMsgBuffer.data()));
+        handleStatus(device, type, m_mqttMsgBuffer.data());
     }
 }
 
-bool HomeStatusDisplay::isStatusTopic(const String& topic) const
+bool HomeStatusDisplay::isStatusTopic(std::string_view topic) const
 {
-    const auto mqttStatusTopic = String(m_config.getMqttStatusTopic());
-    const auto posOfLastSlashInStatusTopic = mqttStatusTopic.lastIndexOf("/");
+    std::string_view statusTopic{m_config.getMqttStatusTopic()};
 
-    return topic.startsWith(mqttStatusTopic.substring(0, posOfLastSlashInStatusTopic));
+    const auto posOfLastSlash = statusTopic.rfind('/');
+    std::string_view base = (posOfLastSlash == std::string_view::npos)
+                                ? statusTopic
+                                : statusTopic.substr(0, posOfLastSlash);
+
+    if(topic.size() < base.size())
+    {
+        return false;
+    }
+
+    return std::memcmp(topic.data(), base.data(), base.size()) == 0;
 }
 
-DeviceType HomeStatusDisplay::getDeviceType(const String& statusTopic) const
+DeviceType HomeStatusDisplay::getDeviceType(std::string_view statusTopic) const
 {
-    if(statusTopic.indexOf(LIGHT_STRING) != -1)
+    if(statusTopic.find(LIGHT_STRING) != std::string_view::npos)
         return DeviceType::Light;
-    if(statusTopic.indexOf(WINDOW_STRING) != -1)
+    if(statusTopic.find(WINDOW_STRING) != std::string_view::npos)
         return DeviceType::Window;
-    if(statusTopic.indexOf(DOOR_STRING) != -1)
+    if(statusTopic.find(DOOR_STRING) != std::string_view::npos)
         return DeviceType::Door;
-    if(statusTopic.indexOf(ALARM_STRING) != -1)
+    if(statusTopic.find(ALARM_STRING) != std::string_view::npos)
         return DeviceType::Alarm;
+
     return DeviceType::Unknown;
 }
 
-String HomeStatusDisplay::getDevice(const String& statusTopic) const
+std::string_view HomeStatusDisplay::getDevice(std::string_view statusTopic) const
 {
-    const auto posOfLastSlashInStatusTopic = statusTopic.lastIndexOf("/");
-    return statusTopic.substring(posOfLastSlashInStatusTopic + 1);
+    const auto posOfLastSlash = statusTopic.find_last_of('/');
+    return (posOfLastSlash == std::string_view::npos)
+               ? std::string_view{}
+               : statusTopic.substr(posOfLastSlash + 1);
 }
 
-void HomeStatusDisplay::handleTest(const String& msg)
+void HomeStatusDisplay::handleTest(std::string_view msg)
 {
-    const auto type = msg.toInt();
+    int type = 0;
+    std::from_chars(msg.data(), msg.data() + msg.size(), type);
 
     if(type > 0)
     {
@@ -138,14 +154,14 @@ void HomeStatusDisplay::handleTest(const String& msg)
         Serial.println(type);
         m_leds.test(type);
     }
-    else if(type == 0)
+    else
     {
         m_leds.clear();
         m_mqttHandler.reconnect(); // back to normal
     }
 }
 
-void HomeStatusDisplay::handleStatus(const String& device, DeviceType type, const String& msg)
+void HomeStatusDisplay::handleStatus(std::string_view device, DeviceType type, std::string_view msg)
 {
     const int ledNumber = m_config.getLedNumber(device, type);
 
@@ -158,18 +174,33 @@ void HomeStatusDisplay::handleStatus(const String& device, DeviceType type, cons
             const auto behavior = m_config.getLedBehavior(colorMapIndex);
             const auto color = m_config.getLedColor(colorMapIndex);
 
-            Serial.println("Set led number " + String(ledNumber) + " to behavior " + toString(behavior) + " with color " + toString(color));
+            Serial.print(F("Set led number "));
+            Serial.print(ledNumber);
+            Serial.print(F(" to behavior "));
+            Serial.print(toString(behavior));
+            Serial.print(F(" with color "));
+            Serial.println(toString(color));
+
             m_leds.set(ledNumber, behavior, color);
         }
         else
         {
-            Serial.println("Unknown message " + msg + " for led number " + String(ledNumber) + ", set to OFF");
+            Serial.print(F("Unknown message "));
+            Serial.print(msg.data());
+            Serial.print(F(" for led number "));
+            Serial.println(ledNumber);
+            Serial.println(F(", setting it to"));
+            Serial.print(toString(Behavior::Off));
+
             m_leds.set(ledNumber, Behavior::Off, Color::None);
         }
     }
     else
     {
-        Serial.println("No LED defined for device " + device + " of type " + toString(type) + ", ignoring it");
+        Serial.print(F("No LED defined for device "));
+        Serial.print(device.data());
+        Serial.print(F(" of type "));
+        Serial.println(toString(type));
     }
 }
 

@@ -807,7 +807,7 @@ const HSDConfig::DeviceMapping* HSDConfig::getDeviceMapping(int index) const
     return m_cfgDeviceMapping.get(index);
 }
 
-int HSDConfig::getLedNumber(const String& deviceName, DeviceType deviceType)
+int HSDConfig::getLedNumber(std::string_view device, DeviceType deviceType)
 {
     int number = -1;
 
@@ -816,7 +816,7 @@ int HSDConfig::getLedNumber(const String& deviceName, DeviceType deviceType)
         const DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
 
         if(deviceType == mapping->type &&
-           std::strcmp(mapping->name.data(), deviceName.c_str()) == 0)
+           std::strcmp(mapping->name.data(), device.data()) == 0)
         {
             number = mapping->ledNumber;
             break;
@@ -841,7 +841,7 @@ std::optional<std::pair<std::string_view, DeviceType>> HSDConfig::getDeviceInfo(
     return std::nullopt;
 }
 
-int HSDConfig::getColorMapIndex(DeviceType deviceType, const String& msg)
+int HSDConfig::getColorMapIndex(DeviceType deviceType, std::string_view msg)
 {
     int index = -1;
 
@@ -849,8 +849,7 @@ int HSDConfig::getColorMapIndex(DeviceType deviceType, const String& msg)
     {
         const ColorMapping* mapping = m_cfgColorMapping.get(i);
 
-        if(deviceType == mapping->type &&
-           std::strcmp(mapping->msg.data(), msg.c_str()) == 0)
+        if(deviceType == mapping->type && std::strcmp(mapping->msg.data(), msg.data()) == 0)
         {
             index = i;
             break;

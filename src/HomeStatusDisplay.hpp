@@ -28,12 +28,12 @@ class HomeStatusDisplay
 
     void mqttCallback(const char* topic, const uint8_t* payload, size_t length);
 
-    bool isStatusTopic(const String& topic) const;
-    DeviceType getDeviceType(const String& statusTopic) const;
-    String getDevice(const String& statusTopic) const;
+    bool isStatusTopic(std::string_view topic) const;
+    DeviceType getDeviceType(std::string_view statusTopic) const;
+    std::string_view getDevice(std::string_view statusTopic) const;
 
-    void handleStatus(const String& device, DeviceType type, const String& msg);
-    void handleTest(const String& msg);
+    void handleStatus(std::string_view device, DeviceType type, std::string_view msg);
+    void handleTest(std::string_view msg);
 
     void checkConnections();
 
