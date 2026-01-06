@@ -91,13 +91,13 @@ bool HSDMqtt::reconnect()
     if(useAuth)
     {
         connected = useWill
-                        ? m_pubSubClient.connect(clientId.c_str(), user, password, willTopic, 0, true, "off")
+                        ? m_pubSubClient.connect(clientId.c_str(), user, password, willTopic, 0, true, "offline")
                         : m_pubSubClient.connect(clientId.c_str(), user, password);
     }
     else
     {
         connected = useWill
-                        ? m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "off")
+                        ? m_pubSubClient.connect(clientId.c_str(), willTopic, 0, true, "offline")
                         : m_pubSubClient.connect(clientId.c_str());
     }
 
@@ -112,7 +112,7 @@ bool HSDMqtt::reconnect()
 
     if(useWill)
     {
-        publish(willTopic, F("on"));
+        publish(willTopic, "online");
     }
 
     for(uint32_t i = 0; i < m_numberOfInTopics; ++i)
@@ -140,9 +140,9 @@ void HSDMqtt::subscribe(const char* topic)
     }
 }
 
-void HSDMqtt::publish(const String& topic, const String& msg)
+void HSDMqtt::publish(const char* topic, const char* msg)
 {
-    if(m_pubSubClient.publish(topic.c_str(), msg.c_str()))
+    if(m_pubSubClient.publish(topic, msg))
     {
         Serial.print(F("Published "));
         Serial.print(msg);

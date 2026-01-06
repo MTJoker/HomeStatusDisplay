@@ -13,7 +13,7 @@ class HSDMqtt
 
     void begin();
     void handle();
-    void publish(const String& topic, const String& msg);
+    void publish(const char* topic, const char* msg);
     bool reconnect();
     bool addTopic(const char* topic);
     bool connected() const;
