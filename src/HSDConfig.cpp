@@ -307,15 +307,15 @@ void HSDConfig::writeMainConfigFile()
     JsonDocument doc;
     JsonObject json = doc.to<JsonObject>();
 
-    json[JSON_KEY_HOST] = m_cfgHost;
-    json[JSON_KEY_WIFI_SSID] = m_cfgWifiSSID;
-    json[JSON_KEY_WIFI_PSK] = m_cfgWifiPSK;
-    json[JSON_KEY_MQTT_SERVER] = m_cfgMqttServer;
-    json[JSON_KEY_MQTT_USER] = m_cfgMqttUser;
-    json[JSON_KEY_MQTT_PASSWORD] = m_cfgMqttPassword;
-    json[JSON_KEY_MQTT_STATUS_TOPIC] = m_cfgMqttStatusTopic;
-    json[JSON_KEY_MQTT_TEST_TOPIC] = m_cfgMqttTestTopic;
-    json[JSON_KEY_MQTT_WILL_TOPIC] = m_cfgMqttWillTopic;
+    json[JSON_KEY_HOST] = m_cfgHost.data();
+    json[JSON_KEY_WIFI_SSID] = m_cfgWifiSSID.data();
+    json[JSON_KEY_WIFI_PSK] = m_cfgWifiPSK.data();
+    json[JSON_KEY_MQTT_SERVER] = m_cfgMqttServer.data();
+    json[JSON_KEY_MQTT_USER] = m_cfgMqttUser.data();
+    json[JSON_KEY_MQTT_PASSWORD] = m_cfgMqttPassword.data();
+    json[JSON_KEY_MQTT_STATUS_TOPIC] = m_cfgMqttStatusTopic.data();
+    json[JSON_KEY_MQTT_TEST_TOPIC] = m_cfgMqttTestTopic.data();
+    json[JSON_KEY_MQTT_WILL_TOPIC] = m_cfgMqttWillTopic.data();
     json[JSON_KEY_LED_COUNT] = m_cfgNumberOfLeds;
     json[JSON_KEY_LED_PIN] = m_cfgLedDataPin;
     json[JSON_KEY_LED_TYPE] = m_cfgLedType;
