@@ -373,6 +373,12 @@ bool HSDWebserver::deliverMaintenancePage()
     html += ESP.getResetReason();
     html += F("</b><p>");
 
+    auto freeHeap = ESP.getFreeHeap();
+
+    html += F("<p>Free Heap: <b>");
+    html += freeHeap;
+    html += F(" Bytes</b></p>");
+
     html += F("<form><p><input type='submit' class='button'value='Reboot' id='reset' name='reset'> Reboot device</p>");
     html += F("<input type='button' class='button'onclick=\"location.href='./update'\"  value='Update Firmware'> Update Firmware of device</p>");
     html += F("<input type='button' class='button' onclick=\"location.href='./backup'\" value='Config Backup'> Create Backup of config and download</p></form>");
@@ -389,8 +395,8 @@ bool HSDWebserver::deliverMaintenancePage()
 
     checkReboot();
 
-    Serial.print(F("Free RAM: "));
-    Serial.println(ESP.getFreeHeap());
+    Serial.print(F("Free Heap: "));
+    Serial.println(freeHeap);
 
     return true;
 }
