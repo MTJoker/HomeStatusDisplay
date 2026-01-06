@@ -188,9 +188,9 @@ void HomeStatusDisplay::handleStatus(std::string_view device, DeviceType type, s
             Serial.print(F("Unknown message "));
             Serial.print(msg.data());
             Serial.print(F(" for led number "));
-            Serial.println(ledNumber);
-            Serial.println(F(", setting it to"));
-            Serial.print(toString(Behavior::Off));
+            Serial.print(ledNumber);
+            Serial.print(F(", setting it to "));
+            Serial.println(toString(Behavior::Off));
 
             m_leds.set(ledNumber, Behavior::Off, Color::None);
         }
