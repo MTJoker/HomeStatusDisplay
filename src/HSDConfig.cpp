@@ -3,11 +3,11 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-static const int MAX_SIZE_MAIN_CONFIG_FILE = 400;
-static const int MAX_SIZE_COLOR_MAPPING_CONFIG_FILE = 1500;
-static const int MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE = 1900;
+static constexpr int MaxSizeMainConfigFile = 400;
+static constexpr int MaxSizeColorMappingConfigFile = 1500;
+static constexpr int MaxSizeDeviceMappingConfigFile = 1900;
 
-static const uint8_t DEFAULT_LED_BRIGHTNESS = 50;
+static constexpr uint8_t DefaultLedBrightness = 50;
 
 HSDConfig::HSDConfig()
     : m_cfgColorMapping(MaxColorMapEntries)
@@ -65,7 +65,7 @@ void HSDConfig::resetMainConfigData()
     setNumberOfLeds(0);
     setLedDataPin(0);
     setLedType(0);
-    setLedBrightness(DEFAULT_LED_BRIGHTNESS);
+    setLedBrightness(DefaultLedBrightness);
 }
 
 void HSDConfig::resetColorMappingConfigData()
@@ -85,9 +85,9 @@ void HSDConfig::resetDeviceMappingConfigData()
 bool HSDConfig::readMainConfigFile()
 {
     bool success = false;
-    char fileBuffer[MAX_SIZE_MAIN_CONFIG_FILE];
+    char fileBuffer[MaxSizeMainConfigFile];
 
-    if(m_mainConfigFile.read(fileBuffer, MAX_SIZE_MAIN_CONFIG_FILE))
+    if(m_mainConfigFile.read(fileBuffer, MaxSizeMainConfigFile))
     {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, fileBuffer);
@@ -187,11 +187,11 @@ void HSDConfig::printMainConfigFile(JsonObject& json)
 bool HSDConfig::readColorMappingConfigFile()
 {
     bool success = false;
-    char fileBuffer[MAX_SIZE_COLOR_MAPPING_CONFIG_FILE];
-    memset(fileBuffer, 0, MAX_SIZE_COLOR_MAPPING_CONFIG_FILE);
+    char fileBuffer[MaxSizeColorMappingConfigFile];
+    memset(fileBuffer, 0, MaxSizeColorMappingConfigFile);
     resetColorMappingConfigData();
 
-    if(m_colorMappingConfigFile.read(fileBuffer, MAX_SIZE_COLOR_MAPPING_CONFIG_FILE))
+    if(m_colorMappingConfigFile.read(fileBuffer, MaxSizeColorMappingConfigFile))
     {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, fileBuffer);
@@ -247,11 +247,11 @@ bool HSDConfig::readColorMappingConfigFile()
 bool HSDConfig::readDeviceMappingConfigFile()
 {
     bool success = false;
-    char fileBuffer[MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE];
-    memset(fileBuffer, 0, MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE);
+    char fileBuffer[MaxSizeDeviceMappingConfigFile];
+    memset(fileBuffer, 0, MaxSizeDeviceMappingConfigFile);
     resetDeviceMappingConfigData();
 
-    if(m_deviceMappingConfigFile.read(fileBuffer, MAX_SIZE_DEVICE_MAPPING_CONFIG_FILE))
+    if(m_deviceMappingConfigFile.read(fileBuffer, MaxSizeDeviceMappingConfigFile))
     {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, fileBuffer);

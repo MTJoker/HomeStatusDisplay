@@ -253,7 +253,7 @@ void HSDWebserver::deliverMainConfigPage()
     html += F(
         "<td><input type='text' id='ledBrightness' name='ledBrightness' value='");
     html += String(m_config.getLedBrightness());
-    html += F("' size='30' maxlength='5' placeholder='0-255'></td></tr></table>");
+    html += F("' size='30' maxlength='5' placeholder='1-255'></td></tr></table>");
 
     html += F("<input type='submit' class='button' value='Save'>");
 
@@ -766,12 +766,13 @@ bool HSDWebserver::updateMainConfig()
 
     if(m_server.hasArg(JSON_KEY_LED_BRIGHTNESS))
     {
-        uint8_t ledBrightness = m_server.arg(JSON_KEY_LED_BRIGHTNESS).toInt();
+        auto clamp = [](int v, int minV, int maxV)
+        { return (v < minV)   ? minV
+                 : (v > maxV) ? maxV
+                              : v; };
+        auto ledBrightness = static_cast<uint8_t>(clamp(m_server.arg(JSON_KEY_LED_BRIGHTNESS).toInt(), 1, 255));
 
-        if(ledBrightness > 0)
-        {
-            needSave |= m_config.setLedBrightness(ledBrightness);
-        }
+        needSave |= m_config.setLedBrightness(ledBrightness);
     }
 
     return needSave;
