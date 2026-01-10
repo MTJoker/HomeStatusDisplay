@@ -16,6 +16,9 @@ enum class DeviceType : uint8_t
     Unknown
 };
 
+/*
+ * LED behaviors which can be activated upon reception of messages.
+ */
 enum class Behavior : uint8_t
 {
     Off,
@@ -25,6 +28,9 @@ enum class Behavior : uint8_t
     Flickering
 };
 
+/*
+ * Available colors for LEDs.
+ */
 enum class Color : uint32_t
 {
     None = 0x000000,
