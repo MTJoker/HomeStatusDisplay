@@ -28,13 +28,12 @@ class HSDLeds
         Color color = Color::None;
     };
 
-    // timing constants (ms)
-    static constexpr uint32_t BLINK_ON_TIME = 500;
-    static constexpr uint32_t BLINK_OFF_TIME = 500;
-    static constexpr uint32_t FLASH_ON_TIME = 2000;
-    static constexpr uint32_t FLASH_OFF_TIME = 200;
-    static constexpr uint32_t FLICKER_ON_TIME = 100;
-    static constexpr uint32_t FLICKER_OFF_TIME = 100;
+    static constexpr uint32_t BlinkOnTimeMs = 500;
+    static constexpr uint32_t BlinkOffTimeMs = 500;
+    static constexpr uint32_t FlashOnTimeMs = 2000;
+    static constexpr uint32_t FlashOffTimeMs = 200;
+    static constexpr uint32_t FlickerOnTimeMs = 100;
+    static constexpr uint32_t FlickerOffTimeMs = 100;
 
     void updateBlink(uint32_t now) noexcept;
     void updateFlash(uint32_t now) noexcept;

@@ -99,7 +99,7 @@ void HSDLeds::updateStripe() noexcept
 
 void HSDLeds::updateBlink(uint32_t now) noexcept
 {
-    const uint32_t interval = m_blinkOn ? BLINK_OFF_TIME : BLINK_ON_TIME;
+    const uint32_t interval = m_blinkOn ? BlinkOffTimeMs : BlinkOnTimeMs;
     if((now - m_prevBlink) >= interval)
     {
         m_blinkOn = !m_blinkOn;
@@ -109,7 +109,7 @@ void HSDLeds::updateBlink(uint32_t now) noexcept
 
 void HSDLeds::updateFlash(uint32_t now) noexcept
 {
-    const uint32_t interval = m_flashOn ? FLASH_OFF_TIME : FLASH_ON_TIME;
+    const uint32_t interval = m_flashOn ? FlashOffTimeMs : FlashOnTimeMs;
     if((now - m_prevFlash) >= interval)
     {
         m_flashOn = !m_flashOn;
@@ -119,7 +119,7 @@ void HSDLeds::updateFlash(uint32_t now) noexcept
 
 void HSDLeds::updateFlicker(uint32_t now) noexcept
 {
-    const uint32_t interval = m_flickerOn ? FLICKER_OFF_TIME : FLICKER_ON_TIME;
+    const uint32_t interval = m_flickerOn ? FlickerOffTimeMs : FlickerOnTimeMs;
     if((now - m_prevFlicker) >= interval)
     {
         m_flickerOn = !m_flickerOn;

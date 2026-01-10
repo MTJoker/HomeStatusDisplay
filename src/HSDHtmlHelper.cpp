@@ -1,9 +1,14 @@
 #include "HSDHtmlHelper.hpp"
 #include "HSDEnumsToString.hpp"
 
-#define SELECTED_STRING (F("selected='selected'"))
-#define CHECKED_STRING (F("checked='checked'"))
-#define EMPTY_STRING (F(""))
+inline const __FlashStringHelper* selectedStr()
+{
+    return F("selected='selected'");
+}
+inline const __FlashStringHelper* emptyStr()
+{
+    return F("");
+}
 
 String HSDHtmlHelper::getHeader(const char* title, const char* host, const char* version, uint32_t reloadSeconds) const
 {
@@ -214,13 +219,13 @@ String HSDHtmlHelper::getSaveForm() const
 
 String HSDHtmlHelper::getColorOptions(Color selectedColor) const
 {
-    String greenSelect = (selectedColor == Color::Green) ? SELECTED_STRING : EMPTY_STRING;
-    String yellowSelect = (selectedColor == Color::Yellow) ? SELECTED_STRING : EMPTY_STRING;
-    String orangeSelect = (selectedColor == Color::Orange) ? SELECTED_STRING : EMPTY_STRING;
-    String redSelect = (selectedColor == Color::Red) ? SELECTED_STRING : EMPTY_STRING;
-    String purpleSelect = (selectedColor == Color::Purple) ? SELECTED_STRING : EMPTY_STRING;
-    String blueSelect = (selectedColor == Color::Blue) ? SELECTED_STRING : EMPTY_STRING;
-    String whiteSelect = (selectedColor == Color::White) ? SELECTED_STRING : EMPTY_STRING;
+    String greenSelect = (selectedColor == Color::Green) ? selectedStr() : emptyStr();
+    String yellowSelect = (selectedColor == Color::Yellow) ? selectedStr() : emptyStr();
+    String orangeSelect = (selectedColor == Color::Orange) ? selectedStr() : emptyStr();
+    String redSelect = (selectedColor == Color::Red) ? selectedStr() : emptyStr();
+    String purpleSelect = (selectedColor == Color::Purple) ? selectedStr() : emptyStr();
+    String blueSelect = (selectedColor == Color::Blue) ? selectedStr() : emptyStr();
+    String whiteSelect = (selectedColor == Color::White) ? selectedStr() : emptyStr();
 
     String html;
 
@@ -265,10 +270,10 @@ String HSDHtmlHelper::getColorOptions(Color selectedColor) const
 
 String HSDHtmlHelper::getBehaviorOptions(Behavior selectedBehavior) const
 {
-    String onSelect = (selectedBehavior == Behavior::On) ? SELECTED_STRING : EMPTY_STRING;
-    String blinkingSelect = (selectedBehavior == Behavior::Blinking) ? SELECTED_STRING : EMPTY_STRING;
-    String flashingSelect = (selectedBehavior == Behavior::Flashing) ? SELECTED_STRING : EMPTY_STRING;
-    String flickeringSelect = (selectedBehavior == Behavior::Flickering) ? SELECTED_STRING : EMPTY_STRING;
+    String onSelect = (selectedBehavior == Behavior::On) ? selectedStr() : emptyStr();
+    String blinkingSelect = (selectedBehavior == Behavior::Blinking) ? selectedStr() : emptyStr();
+    String flashingSelect = (selectedBehavior == Behavior::Flashing) ? selectedStr() : emptyStr();
+    String flickeringSelect = (selectedBehavior == Behavior::Flickering) ? selectedStr() : emptyStr();
 
     String html;
 
@@ -298,10 +303,10 @@ String HSDHtmlHelper::getBehaviorOptions(Behavior selectedBehavior) const
 
 String HSDHtmlHelper::getTypeOptions(DeviceType selectedType) const
 {
-    String windowSelect = (selectedType == DeviceType::Window) ? SELECTED_STRING : EMPTY_STRING;
-    String doorSelect = (selectedType == DeviceType::Door) ? SELECTED_STRING : EMPTY_STRING;
-    String lightSelect = (selectedType == DeviceType::Light) ? SELECTED_STRING : EMPTY_STRING;
-    String alarmSelect = (selectedType == DeviceType::Alarm) ? SELECTED_STRING : EMPTY_STRING;
+    String windowSelect = (selectedType == DeviceType::Window) ? selectedStr() : emptyStr();
+    String doorSelect = (selectedType == DeviceType::Door) ? selectedStr() : emptyStr();
+    String lightSelect = (selectedType == DeviceType::Light) ? selectedStr() : emptyStr();
+    String alarmSelect = (selectedType == DeviceType::Alarm) ? selectedStr() : emptyStr();
 
     String html;
 

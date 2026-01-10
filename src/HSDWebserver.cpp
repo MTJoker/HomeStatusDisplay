@@ -694,54 +694,54 @@ bool HSDWebserver::updateMainConfig()
 {
     bool needSave = false;
 
-    if(m_server.hasArg(JSON_KEY_HOST))
+    if(m_server.hasArg(jsonKeyHost))
     {
-        needSave |= m_config.setHost(m_server.arg(JSON_KEY_HOST).c_str());
+        needSave |= m_config.setHost(m_server.arg(jsonKeyHost).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_WIFI_SSID))
+    if(m_server.hasArg(jsonKeyWifiSsid))
     {
-        needSave |= m_config.setWifiSSID(m_server.arg(JSON_KEY_WIFI_SSID).c_str());
+        needSave |= m_config.setWifiSSID(m_server.arg(jsonKeyWifiSsid).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_WIFI_PSK))
+    if(m_server.hasArg(jsonKeyWifiPsk))
     {
-        needSave |= m_config.setWifiPSK(m_server.arg(JSON_KEY_WIFI_PSK).c_str());
+        needSave |= m_config.setWifiPSK(m_server.arg(jsonKeyWifiPsk).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_MQTT_SERVER))
+    if(m_server.hasArg(jsonKeyMqttServer))
     {
-        needSave |= m_config.setMqttServer(m_server.arg(JSON_KEY_MQTT_SERVER).c_str());
+        needSave |= m_config.setMqttServer(m_server.arg(jsonKeyMqttServer).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_MQTT_USER))
+    if(m_server.hasArg(jsonKeyMqttUser))
     {
-        needSave |= m_config.setMqttUser(m_server.arg(JSON_KEY_MQTT_USER).c_str());
+        needSave |= m_config.setMqttUser(m_server.arg(jsonKeyMqttUser).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_MQTT_PASSWORD))
+    if(m_server.hasArg(jsonKeyMqttPassword))
     {
-        needSave |= m_config.setMqttPassword(m_server.arg(JSON_KEY_MQTT_PASSWORD).c_str());
+        needSave |= m_config.setMqttPassword(m_server.arg(jsonKeyMqttPassword).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_MQTT_STATUS_TOPIC))
+    if(m_server.hasArg(jsonKeyMqttStatusTopic))
     {
-        needSave |= m_config.setMqttStatusTopic(m_server.arg(JSON_KEY_MQTT_STATUS_TOPIC).c_str());
+        needSave |= m_config.setMqttStatusTopic(m_server.arg(jsonKeyMqttStatusTopic).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_MQTT_TEST_TOPIC))
+    if(m_server.hasArg(jsonKeyMqttTestTopic))
     {
-        needSave |= m_config.setMqttTestTopic(m_server.arg(JSON_KEY_MQTT_TEST_TOPIC).c_str());
+        needSave |= m_config.setMqttTestTopic(m_server.arg(jsonKeyMqttTestTopic).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_MQTT_WILL_TOPIC))
+    if(m_server.hasArg(jsonKeyMqttWillTopic))
     {
-        needSave |= m_config.setMqttWillTopic(m_server.arg(JSON_KEY_MQTT_WILL_TOPIC).c_str());
+        needSave |= m_config.setMqttWillTopic(m_server.arg(jsonKeyMqttWillTopic).c_str());
     }
 
-    if(m_server.hasArg(JSON_KEY_LED_COUNT))
+    if(m_server.hasArg(jsonKeyLedCount))
     {
-        int ledCount = m_server.arg(JSON_KEY_LED_COUNT).toInt();
+        int ledCount = m_server.arg(jsonKeyLedCount).toInt();
 
         if(ledCount > 0)
         {
@@ -749,9 +749,9 @@ bool HSDWebserver::updateMainConfig()
         }
     }
 
-    if(m_server.hasArg(JSON_KEY_LED_PIN))
+    if(m_server.hasArg(jsonKeyLedPin))
     {
-        int ledPin = m_server.arg(JSON_KEY_LED_PIN).toInt();
+        int ledPin = m_server.arg(jsonKeyLedPin).toInt();
 
         if(ledPin > 0)
         {
@@ -759,18 +759,18 @@ bool HSDWebserver::updateMainConfig()
         }
     }
 
-    if(m_server.hasArg(JSON_KEY_LED_TYPE))
+    if(m_server.hasArg(jsonKeyLedType))
     {
-        needSave |= m_config.setLedType(m_server.arg(JSON_KEY_LED_TYPE).toInt());
+        needSave |= m_config.setLedType(m_server.arg(jsonKeyLedType).toInt());
     }
 
-    if(m_server.hasArg(JSON_KEY_LED_BRIGHTNESS))
+    if(m_server.hasArg(jsonKeyLedBrightness))
     {
         auto clamp = [](int v, int minV, int maxV)
         { return (v < minV)   ? minV
                  : (v > maxV) ? maxV
                               : v; };
-        auto ledBrightness = static_cast<uint8_t>(clamp(m_server.arg(JSON_KEY_LED_BRIGHTNESS).toInt(), 1, 255));
+        auto ledBrightness = static_cast<uint8_t>(clamp(m_server.arg(jsonKeyLedBrightness).toInt(), 1, 255));
 
         needSave |= m_config.setLedBrightness(ledBrightness);
     }

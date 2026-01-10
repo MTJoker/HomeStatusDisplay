@@ -5,32 +5,32 @@
 #include "HSDUtils.hpp"
 #include "PreAllocatedLinkedList.hpp"
 
-inline constexpr const char* JSON_KEY_HOST = "host";
-inline constexpr const char* JSON_KEY_WIFI_SSID = "wifiSSID";
-inline constexpr const char* JSON_KEY_WIFI_PSK = "wifiPSK";
-inline constexpr const char* JSON_KEY_MQTT_SERVER = "mqttServer";
-inline constexpr const char* JSON_KEY_MQTT_USER = "mqttUser";
-inline constexpr const char* JSON_KEY_MQTT_PASSWORD = "mqttPassword";
-inline constexpr const char* JSON_KEY_MQTT_STATUS_TOPIC = "mqttStatusTopic";
-inline constexpr const char* JSON_KEY_MQTT_TEST_TOPIC = "mqttTestTopic";
-inline constexpr const char* JSON_KEY_MQTT_WILL_TOPIC = "mqttWillTopic";
-inline constexpr const char* JSON_KEY_LED_COUNT = "ledCount";
-inline constexpr const char* JSON_KEY_LED_PIN = "ledPin";
-inline constexpr const char* JSON_KEY_LED_TYPE = "ledType";
-inline constexpr const char* JSON_KEY_LED_BRIGHTNESS = "ledBrightness";
-inline constexpr const char* JSON_KEY_COLORMAPPING_MSG = "m";
-inline constexpr const char* JSON_KEY_COLORMAPPING_TYPE = "t";
-inline constexpr const char* JSON_KEY_COLORMAPPING_COLOR = "c";
-inline constexpr const char* JSON_KEY_COLORMAPPING_BEHAVIOR = "b";
-inline constexpr const char* JSON_KEY_DEVICEMAPPING_NAME = "n";
-inline constexpr const char* JSON_KEY_DEVICEMAPPING_TYPE = "t";
-inline constexpr const char* JSON_KEY_DEVICEMAPPING_LED = "l";
+inline constexpr const char* jsonKeyHost = "host";
+inline constexpr const char* jsonKeyWifiSsid = "wifiSSID";
+inline constexpr const char* jsonKeyWifiPsk = "wifiPSK";
+inline constexpr const char* jsonKeyMqttServer = "mqttServer";
+inline constexpr const char* jsonKeyMqttUser = "mqttUser";
+inline constexpr const char* jsonKeyMqttPassword = "mqttPassword";
+inline constexpr const char* jsonKeyMqttStatusTopic = "mqttStatusTopic";
+inline constexpr const char* jsonKeyMqttTestTopic = "mqttTestTopic";
+inline constexpr const char* jsonKeyMqttWillTopic = "mqttWillTopic";
+inline constexpr const char* jsonKeyLedCount = "ledCount";
+inline constexpr const char* jsonKeyLedPin = "ledPin";
+inline constexpr const char* jsonKeyLedType = "ledType";
+inline constexpr const char* jsonKeyLedBrightness = "ledBrightness";
+inline constexpr const char* jsonKeyColorMappingMsg = "m";
+inline constexpr const char* jsonKeyColorMappingType = "t";
+inline constexpr const char* jsonKeyColorMappingColor = "c";
+inline constexpr const char* jsonKeyColorMappingBehavior = "b";
+inline constexpr const char* jsonKeyDeviceMappingName = "n";
+inline constexpr const char* jsonKeyDeviceMappingType = "t";
+inline constexpr const char* jsonKeyDeviceMappingLed = "l";
 
 class HSDConfig
 {
   public:
-    static constexpr int MAX_DEVICE_MAPPING_NAME_LEN = 25;
-    static constexpr int MAX_COLOR_MAPPING_MSG_LEN = 15;
+    static constexpr int MaxDeviceMappingNameLen = 25;
+    static constexpr int MaxColorMappingMsgLen = 15;
 
     struct ColorTranslator
     {
@@ -49,7 +49,7 @@ class HSDConfig
             copyToArray(name, n);
         }
 
-        std::array<char, MAX_DEVICE_MAPPING_NAME_LEN> name{};
+        std::array<char, MaxDeviceMappingNameLen> name{};
         DeviceType type = DeviceType::Unknown;
         int ledNumber = 0;
     };
@@ -66,7 +66,7 @@ class HSDConfig
             copyToArray(msg, m);
         }
 
-        std::array<char, MAX_COLOR_MAPPING_MSG_LEN> msg{};
+        std::array<char, MaxColorMappingMsgLen> msg{};
         DeviceType type = DeviceType::Unknown;
         Color color = Color::None;
         Behavior behavior = Behavior::Off;

@@ -1,8 +1,8 @@
 #include "HSDWifi.hpp"
 #include <ESP8266WiFi.h>
 
-inline constexpr char SOFT_AP_SSID[] = "StatusDisplay";
-inline constexpr char SOFT_AP_PSK[] = "statusdisplay";
+inline constexpr char SoftApSsid[] = "StatusDisplay";
+inline constexpr char SoftApPsk[] = "statusdisplay";
 
 HSDWifi::HSDWifi(const HSDConfig& config)
     : m_config(config)
@@ -48,7 +48,7 @@ void HSDWifi::handleConnection()
     }
 
     const unsigned long now = millis();
-    if((now - m_millisLastConnectTry) < RETRY_DELAY_MS)
+    if((now - m_millisLastConnectTry) < RetryDelayMs)
         return;
 
     m_millisLastConnectTry = now;
@@ -64,7 +64,7 @@ void HSDWifi::handleConnection()
         yield();
     }
 
-    if(++m_retryCount >= MAX_CONNECT_RETRIES)
+    if(++m_retryCount >= MaxConnectRetries)
     {
         Serial.println(F("Failed to connect WiFi."));
         m_connectionFailed = true;
@@ -83,10 +83,10 @@ void HSDWifi::startAccessPoint()
 
     WiFi.mode(WIFI_AP);
 
-    if(WiFi.softAP(SOFT_AP_SSID, SOFT_AP_PSK))
+    if(WiFi.softAP(SoftApSsid, SoftApPsk))
     {
         Serial.print(F("AccessPoint SSID is "));
-        Serial.println(SOFT_AP_SSID);
+        Serial.println(SoftApSsid);
         Serial.print(F("IP: "));
         Serial.println(WiFi.softAPIP());
 

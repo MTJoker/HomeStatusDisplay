@@ -14,8 +14,8 @@ class HSDWifi
   private:
     void startAccessPoint();
 
-    static constexpr int MAX_CONNECT_RETRIES = 100;
-    static constexpr unsigned long RETRY_DELAY_MS = 500;
+    static constexpr int MaxConnectRetries = 100;
+    static constexpr unsigned long RetryDelayMs = 500;
 
     const HSDConfig& m_config;
 

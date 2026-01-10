@@ -2,12 +2,12 @@
 #include "HSDEnumsToString.hpp"
 #include <charconv>
 
-constexpr std::string_view WINDOW_STRING = "/window/";
-constexpr std::string_view DOOR_STRING = "/door/";
-constexpr std::string_view LIGHT_STRING = "/light/";
-constexpr std::string_view ALARM_STRING = "/alarm/";
+constexpr std::string_view WindowString = "/window/";
+constexpr std::string_view DoorString = "/door/";
+constexpr std::string_view LightString = "/light/";
+constexpr std::string_view AlarmString = "/alarm/";
 
-constexpr unsigned long ONE_MINUTE_MILLIS = 60000;
+constexpr unsigned long OneMinuteMillis = 60000;
 
 int getFreeRamSize();
 
@@ -64,7 +64,7 @@ unsigned long HomeStatusDisplay::calcUptime()
 {
     const auto currentMillis = millis();
 
-    if(currentMillis - m_oneMinuteTimerLast >= ONE_MINUTE_MILLIS)
+    if(currentMillis - m_oneMinuteTimerLast >= OneMinuteMillis)
     {
         m_uptime++;
         m_oneMinuteTimerLast = currentMillis;
@@ -123,13 +123,13 @@ bool HomeStatusDisplay::isStatusTopic(std::string_view topic) const
 
 DeviceType HomeStatusDisplay::getDeviceType(std::string_view statusTopic) const
 {
-    if(statusTopic.find(LIGHT_STRING) != std::string_view::npos)
+    if(statusTopic.find(LightString) != std::string_view::npos)
         return DeviceType::Light;
-    if(statusTopic.find(WINDOW_STRING) != std::string_view::npos)
+    if(statusTopic.find(WindowString) != std::string_view::npos)
         return DeviceType::Window;
-    if(statusTopic.find(DOOR_STRING) != std::string_view::npos)
+    if(statusTopic.find(DoorString) != std::string_view::npos)
         return DeviceType::Door;
-    if(statusTopic.find(ALARM_STRING) != std::string_view::npos)
+    if(statusTopic.find(AlarmString) != std::string_view::npos)
         return DeviceType::Alarm;
 
     return DeviceType::Unknown;

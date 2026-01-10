@@ -103,35 +103,36 @@ bool HSDConfig::readMainConfigFile()
             printMainConfigFile(json);
             Serial.println(F(""));
 
-            if(json[JSON_KEY_HOST].is<const char*>() &&
-               json[JSON_KEY_WIFI_SSID].is<const char*>() &&
-               json[JSON_KEY_WIFI_PSK].is<const char*>() &&
-               json[JSON_KEY_MQTT_SERVER].is<const char*>() &&
-               json[JSON_KEY_MQTT_USER].is<const char*>() &&
-               json[JSON_KEY_MQTT_PASSWORD].is<const char*>() &&
-               json[JSON_KEY_MQTT_STATUS_TOPIC].is<const char*>() &&
-               json[JSON_KEY_MQTT_TEST_TOPIC].is<const char*>() &&
-               json[JSON_KEY_MQTT_WILL_TOPIC].is<const char*>() &&
-               json[JSON_KEY_LED_COUNT].is<uint16_t>() &&
-               json[JSON_KEY_LED_PIN].is<uint8_t>() &&
-               json[JSON_KEY_LED_TYPE].is<uint16_t>() &&
-               json[JSON_KEY_LED_BRIGHTNESS].is<uint8_t>())
+            if(json[jsonKeyHost].is<const char*>() &&
+               json[jsonKeyWifiSsid].is<const char*>() &&
+               json[jsonKeyWifiPsk].is<const char*>() &&
+               json[jsonKeyMqttServer].is<const char*>() &&
+               json[jsonKeyMqttUser].is<const char*>() &&
+               json[jsonKeyMqttPassword].is<const char*>() &&
+               json[jsonKeyMqttStatusTopic].is<const char*>() &&
+               json[jsonKeyMqttTestTopic].is<const char*>() &&
+               json[jsonKeyMqttWillTopic].is<const char*>() &&
+               json[jsonKeyLedCount].is<uint16_t>() &&
+               json[jsonKeyLedPin].is<uint8_t>() &&
+               json[jsonKeyLedType].is<uint16_t>() &&
+               json[jsonKeyLedBrightness].is<uint8_t>())
             {
                 Serial.println(F("Config data is complete."));
 
-                setHost(json[JSON_KEY_HOST].as<const char*>());
-                setWifiSSID(json[JSON_KEY_WIFI_SSID].as<const char*>());
-                setWifiPSK(json[JSON_KEY_WIFI_PSK].as<const char*>());
-                setMqttServer(json[JSON_KEY_MQTT_SERVER].as<const char*>());
-                setMqttUser(json[JSON_KEY_MQTT_USER].as<const char*>());
-                setMqttPassword(json[JSON_KEY_MQTT_PASSWORD].as<const char*>());
-                setMqttStatusTopic(json[JSON_KEY_MQTT_STATUS_TOPIC].as<const char*>());
-                setMqttTestTopic(json[JSON_KEY_MQTT_TEST_TOPIC].as<const char*>());
-                setMqttWillTopic(json[JSON_KEY_MQTT_WILL_TOPIC].as<const char*>());
-                setNumberOfLeds(json[JSON_KEY_LED_COUNT].as<uint16_t>());
-                setLedDataPin(json[JSON_KEY_LED_PIN].as<uint8_t>());
-                setLedType(json[JSON_KEY_LED_TYPE].as<uint16_t>());
-                setLedBrightness(json[JSON_KEY_LED_BRIGHTNESS].as<uint8_t>());
+                setHost(json[jsonKeyHost].as<const char*>());
+                setWifiSSID(json[jsonKeyWifiSsid].as<const char*>());
+                setWifiPSK(json[jsonKeyWifiPsk].as<const char*>());
+                setMqttServer(json[jsonKeyMqttServer].as<const char*>());
+                setMqttUser(json[jsonKeyMqttUser].as<const char*>());
+                setMqttPassword(json[jsonKeyMqttPassword].as<const char*>());
+                setMqttStatusTopic(json[jsonKeyMqttStatusTopic].as<const char*>());
+                setMqttTestTopic(json[jsonKeyMqttTestTopic].as<const char*>());
+                setMqttWillTopic(json[jsonKeyMqttWillTopic].as<const char*>());
+
+                setNumberOfLeds(json[jsonKeyLedCount].as<uint16_t>());
+                setLedDataPin(json[jsonKeyLedPin].as<uint8_t>());
+                setLedType(json[jsonKeyLedType].as<uint16_t>());
+                setLedBrightness(json[jsonKeyLedBrightness].as<uint8_t>());
 
                 success = true;
             }
@@ -159,29 +160,29 @@ bool HSDConfig::readMainConfigFile()
 void HSDConfig::printMainConfigFile(JsonObject& json)
 {
     Serial.print(F("  - host            : "));
-    Serial.println(json[JSON_KEY_HOST].as<const char*>());
+    Serial.println(json[jsonKeyHost].as<const char*>());
     Serial.print(F("  - wifiSSID        : "));
-    Serial.println(json[JSON_KEY_WIFI_SSID].as<const char*>());
+    Serial.println(json[jsonKeyWifiSsid].as<const char*>());
     Serial.println(F("  - wifiPSK         : not shown"));
     Serial.print(F("  - mqttServer      : "));
-    Serial.println(json[JSON_KEY_MQTT_SERVER].as<const char*>());
+    Serial.println(json[jsonKeyMqttServer].as<const char*>());
     Serial.print(F("  - mqttUser        : "));
-    Serial.println(json[JSON_KEY_MQTT_USER].as<const char*>());
+    Serial.println(json[jsonKeyMqttUser].as<const char*>());
     Serial.println(F("  - mqttPassword    : not shown"));
     Serial.print(F("  - mqttStatusTopic : "));
-    Serial.println(json[JSON_KEY_MQTT_STATUS_TOPIC].as<const char*>());
+    Serial.println(json[jsonKeyMqttStatusTopic].as<const char*>());
     Serial.print(F("  - mqttTestTopic   : "));
-    Serial.println(json[JSON_KEY_MQTT_TEST_TOPIC].as<const char*>());
+    Serial.println(json[jsonKeyMqttTestTopic].as<const char*>());
     Serial.print(F("  - mqttWillTopic   : "));
-    Serial.println(json[JSON_KEY_MQTT_WILL_TOPIC].as<const char*>());
+    Serial.println(json[jsonKeyMqttWillTopic].as<const char*>());
     Serial.print(F("  - ledCount        : "));
-    Serial.println(json[JSON_KEY_LED_COUNT].as<int>());
+    Serial.println(json[jsonKeyLedCount].as<int>());
     Serial.print(F("  - ledPin          : "));
-    Serial.println(json[JSON_KEY_LED_PIN].as<int>());
+    Serial.println(json[jsonKeyLedPin].as<int>());
     Serial.print(F("  - ledType         : "));
-    Serial.println(json[JSON_KEY_LED_TYPE].as<int>());
+    Serial.println(json[jsonKeyLedType].as<int>());
     Serial.print(F("  - ledBrightness   : "));
-    Serial.println(json[JSON_KEY_LED_BRIGHTNESS].as<int>());
+    Serial.println(json[jsonKeyLedBrightness].as<int>());
 }
 
 bool HSDConfig::readColorMappingConfigFile()
@@ -211,17 +212,17 @@ bool HSDConfig::readColorMappingConfigFile()
             {
                 JsonObject entry = kv.value().as<JsonObject>();
 
-                if(entry[JSON_KEY_COLORMAPPING_MSG].is<const char*>() &&
-                   entry[JSON_KEY_COLORMAPPING_TYPE].is<int>() &&
-                   entry[JSON_KEY_COLORMAPPING_COLOR].is<int>() &&
-                   entry[JSON_KEY_COLORMAPPING_BEHAVIOR].is<int>())
+                if(entry[jsonKeyColorMappingMsg].is<const char*>() &&
+                   entry[jsonKeyColorMappingType].is<int>() &&
+                   entry[jsonKeyColorMappingColor].is<int>() &&
+                   entry[jsonKeyColorMappingBehavior].is<int>())
                 {
                     addColorMappingEntry(
                         index,
-                        entry[JSON_KEY_COLORMAPPING_MSG].as<const char*>(),
-                        static_cast<DeviceType>(entry[JSON_KEY_COLORMAPPING_TYPE].as<int>()),
-                        id2color(entry[JSON_KEY_COLORMAPPING_COLOR].as<int>()),
-                        static_cast<Behavior>(entry[JSON_KEY_COLORMAPPING_BEHAVIOR].as<int>()));
+                        entry[jsonKeyColorMappingMsg].as<const char*>(),
+                        static_cast<DeviceType>(entry[jsonKeyColorMappingType].as<int>()),
+                        id2color(entry[jsonKeyColorMappingColor].as<int>()),
+                        static_cast<Behavior>(entry[jsonKeyColorMappingBehavior].as<int>()));
 
                     index++;
                 }
@@ -271,15 +272,15 @@ bool HSDConfig::readDeviceMappingConfigFile()
             {
                 JsonObject entry = kv.value().as<JsonObject>();
 
-                if(entry[JSON_KEY_DEVICEMAPPING_NAME].is<const char*>() &&
-                   entry[JSON_KEY_DEVICEMAPPING_TYPE].is<int>() &&
-                   entry[JSON_KEY_DEVICEMAPPING_LED].is<int>())
+                if(entry[jsonKeyDeviceMappingName].is<const char*>() &&
+                   entry[jsonKeyDeviceMappingType].is<int>() &&
+                   entry[jsonKeyDeviceMappingLed].is<int>())
                 {
                     addDeviceMappingEntry(
                         index,
-                        entry[JSON_KEY_DEVICEMAPPING_NAME].as<const char*>(),
-                        static_cast<DeviceType>(entry[JSON_KEY_DEVICEMAPPING_TYPE].as<int>()),
-                        entry[JSON_KEY_DEVICEMAPPING_LED].as<int>());
+                        entry[jsonKeyDeviceMappingName].as<const char*>(),
+                        static_cast<DeviceType>(entry[jsonKeyDeviceMappingType].as<int>()),
+                        entry[jsonKeyDeviceMappingLed].as<int>());
 
                     index++;
                 }
@@ -307,19 +308,19 @@ void HSDConfig::writeMainConfigFile()
     JsonDocument doc;
     JsonObject json = doc.to<JsonObject>();
 
-    json[JSON_KEY_HOST] = m_cfgHost.data();
-    json[JSON_KEY_WIFI_SSID] = m_cfgWifiSSID.data();
-    json[JSON_KEY_WIFI_PSK] = m_cfgWifiPSK.data();
-    json[JSON_KEY_MQTT_SERVER] = m_cfgMqttServer.data();
-    json[JSON_KEY_MQTT_USER] = m_cfgMqttUser.data();
-    json[JSON_KEY_MQTT_PASSWORD] = m_cfgMqttPassword.data();
-    json[JSON_KEY_MQTT_STATUS_TOPIC] = m_cfgMqttStatusTopic.data();
-    json[JSON_KEY_MQTT_TEST_TOPIC] = m_cfgMqttTestTopic.data();
-    json[JSON_KEY_MQTT_WILL_TOPIC] = m_cfgMqttWillTopic.data();
-    json[JSON_KEY_LED_COUNT] = m_cfgNumberOfLeds;
-    json[JSON_KEY_LED_PIN] = m_cfgLedDataPin;
-    json[JSON_KEY_LED_TYPE] = m_cfgLedType;
-    json[JSON_KEY_LED_BRIGHTNESS] = m_cfgLedBrightness;
+    json[jsonKeyHost] = m_cfgHost.data();
+    json[jsonKeyWifiSsid] = m_cfgWifiSSID.data();
+    json[jsonKeyWifiPsk] = m_cfgWifiPSK.data();
+    json[jsonKeyMqttServer] = m_cfgMqttServer.data();
+    json[jsonKeyMqttUser] = m_cfgMqttUser.data();
+    json[jsonKeyMqttPassword] = m_cfgMqttPassword.data();
+    json[jsonKeyMqttStatusTopic] = m_cfgMqttStatusTopic.data();
+    json[jsonKeyMqttTestTopic] = m_cfgMqttTestTopic.data();
+    json[jsonKeyMqttWillTopic] = m_cfgMqttWillTopic.data();
+    json[jsonKeyLedCount] = m_cfgNumberOfLeds;
+    json[jsonKeyLedPin] = m_cfgLedDataPin;
+    json[jsonKeyLedType] = m_cfgLedType;
+    json[jsonKeyLedBrightness] = m_cfgLedBrightness;
 
     if(!m_mainConfigFile.write(json))
     {
@@ -343,10 +344,10 @@ void HSDConfig::writeColorMappingConfigFile()
             Serial.println(String(mapping->msg.data()));
 
             JsonObject colorMappingEntry = json[String(index)].to<JsonObject>();
-            colorMappingEntry[JSON_KEY_COLORMAPPING_MSG] = mapping->msg;
-            colorMappingEntry[JSON_KEY_COLORMAPPING_TYPE] = (int)mapping->type;
-            colorMappingEntry[JSON_KEY_COLORMAPPING_COLOR] = (int)color2id(mapping->color);
-            colorMappingEntry[JSON_KEY_COLORMAPPING_BEHAVIOR] = (int)mapping->behavior;
+            colorMappingEntry[jsonKeyColorMappingMsg] = mapping->msg;
+            colorMappingEntry[jsonKeyColorMappingType] = (int)mapping->type;
+            colorMappingEntry[jsonKeyColorMappingColor] = (int)color2id(mapping->color);
+            colorMappingEntry[jsonKeyColorMappingBehavior] = (int)mapping->behavior;
         }
         else
         {
@@ -379,9 +380,9 @@ void HSDConfig::writeDeviceMappingConfigFile()
             Serial.println(String(index));
 
             JsonObject deviceMappingEntry = json[String(index)].to<JsonObject>();
-            deviceMappingEntry[JSON_KEY_DEVICEMAPPING_NAME] = mapping->name;
-            deviceMappingEntry[JSON_KEY_DEVICEMAPPING_TYPE] = (int)mapping->type;
-            deviceMappingEntry[JSON_KEY_DEVICEMAPPING_LED] = (int)mapping->ledNumber;
+            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping->name;
+            deviceMappingEntry[jsonKeyDeviceMappingType] = (int)mapping->type;
+            deviceMappingEntry[jsonKeyDeviceMappingLed] = (int)mapping->ledNumber;
         }
         else
         {
