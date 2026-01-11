@@ -10,12 +10,19 @@ static constexpr int MaxSizeDeviceMappingConfigFile = 1900;
 static constexpr uint8_t DefaultLedBrightness = 50;
 
 HSDConfig::HSDConfig()
-    : m_cfgColorMapping(MaxColorMapEntries)
-    , m_cfgDeviceMapping(MaxDeviceMapEntries)
-    , m_mainConfigFile("/config.json")
+    : m_mainConfigFile("/config.json")
     , m_colorMappingConfigFile("/colormapping.json")
     , m_deviceMappingConfigFile("/devicemapping.json")
 {
+    m_cfgColorMapping.reserve(MaxColorMapEntries);
+    m_cfgDeviceMapping.reserve(MaxDeviceMapEntries);
+
+    Serial.print("m_cfgColorMapping.capacity() ? ");
+    Serial.println(m_cfgColorMapping.capacity());
+
+    Serial.print("m_cfgDeviceMapping.capacity() ? ");
+    Serial.println(m_cfgDeviceMapping.capacity());
+
     // reset non-configurable members
     setVersion("");
     setHost("");
@@ -206,7 +213,6 @@ bool HSDConfig::readColorMappingConfigFile()
             Serial.println(F(""));
 
             success = true;
-            size_t index = 0;
 
             for(JsonPair kv : json)
             {
@@ -218,13 +224,10 @@ bool HSDConfig::readColorMappingConfigFile()
                    entry[jsonKeyColorMappingBehavior].is<int>())
                 {
                     addColorMappingEntry(
-                        index,
                         entry[jsonKeyColorMappingMsg].as<const char*>(),
                         static_cast<DeviceType>(entry[jsonKeyColorMappingType].as<int>()),
                         id2color(entry[jsonKeyColorMappingColor].as<int>()),
                         static_cast<Behavior>(entry[jsonKeyColorMappingBehavior].as<int>()));
-
-                    index++;
                 }
             }
         }
@@ -266,7 +269,6 @@ bool HSDConfig::readDeviceMappingConfigFile()
             Serial.println(F(""));
 
             success = true;
-            size_t index = 0;
 
             for(JsonPair kv : json)
             {
@@ -277,12 +279,9 @@ bool HSDConfig::readDeviceMappingConfigFile()
                    entry[jsonKeyDeviceMappingLed].is<int>())
                 {
                     addDeviceMappingEntry(
-                        index,
                         entry[jsonKeyDeviceMappingName].as<const char*>(),
                         static_cast<DeviceType>(entry[jsonKeyDeviceMappingType].as<int>()),
                         entry[jsonKeyDeviceMappingLed].as<int>());
-
-                    index++;
                 }
             }
         }
@@ -335,19 +334,19 @@ void HSDConfig::writeColorMappingConfigFile()
 
     for(size_t index = 0; index < m_cfgColorMapping.size(); index++)
     {
-        const ColorMapping* mapping = m_cfgColorMapping.get(index);
-        if(std::strlen(mapping->msg.data()) > 0)
+        auto mapping = m_cfgColorMapping[index];
+        if(std::strlen(mapping.msg.data()) > 0)
         {
             Serial.print(F("Preparing to write color mapping config file index "));
             Serial.print(String(index));
             Serial.print(F(", msg="));
-            Serial.println(String(mapping->msg.data()));
+            Serial.println(String(mapping.msg.data()));
 
             JsonObject colorMappingEntry = json[String(index)].to<JsonObject>();
-            colorMappingEntry[jsonKeyColorMappingMsg] = mapping->msg;
-            colorMappingEntry[jsonKeyColorMappingType] = (int)mapping->type;
-            colorMappingEntry[jsonKeyColorMappingColor] = (int)color2id(mapping->color);
-            colorMappingEntry[jsonKeyColorMappingBehavior] = (int)mapping->behavior;
+            colorMappingEntry[jsonKeyColorMappingMsg] = mapping.msg;
+            colorMappingEntry[jsonKeyColorMappingType] = static_cast<int>(mapping.type);
+            colorMappingEntry[jsonKeyColorMappingColor] = static_cast<int>(color2id(mapping.color));
+            colorMappingEntry[jsonKeyColorMappingBehavior] = static_cast<int>(mapping.behavior);
         }
         else
         {
@@ -373,16 +372,16 @@ void HSDConfig::writeDeviceMappingConfigFile()
 
     for(size_t index = 0; index < m_cfgDeviceMapping.size(); index++)
     {
-        const DeviceMapping* mapping = m_cfgDeviceMapping.get(index);
-        if(std::strlen(mapping->name.data()) > 0)
+        auto mapping = m_cfgDeviceMapping[index];
+        if(std::strlen(mapping.name.data()) > 0)
         {
             Serial.print(F("Preparing to write device mapping config file index "));
             Serial.println(String(index));
 
             JsonObject deviceMappingEntry = json[String(index)].to<JsonObject>();
-            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping->name;
-            deviceMappingEntry[jsonKeyDeviceMappingType] = (int)mapping->type;
-            deviceMappingEntry[jsonKeyDeviceMappingLed] = (int)mapping->ledNumber;
+            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping.name;
+            deviceMappingEntry[jsonKeyDeviceMappingType] = static_cast<int>(mapping.type);
+            deviceMappingEntry[jsonKeyDeviceMappingLed] = static_cast<int>(mapping.ledNumber);
         }
         else
         {
@@ -529,18 +528,16 @@ void HSDConfig::onFileWriteError()
     LittleFS.format();
     Serial.println(F("Done."));
 }
-bool HSDConfig::addDeviceMappingEntry(int entryNum, std::string_view name, DeviceType type, int ledNumber)
+bool HSDConfig::addDeviceMappingEntry(std::string_view name, DeviceType type, int ledNumber)
 {
     bool success = false;
 
-    Serial.print(F("Adding or editing device mapping entry at index "));
-    Serial.println(String(entryNum) + " with name " + name.data() + ", type " +
-                   toString(type) + ", LED number " + String(ledNumber));
+    Serial.print(F("Adding or editing device mapping entry, values: "));
+    Serial.println("name " + String(name.data()) + ", type " + toString(type) + ", LED number " + String(ledNumber));
 
-    DeviceMapping mapping(name, type, ledNumber);
-
-    if(m_cfgDeviceMapping.set(entryNum, mapping))
+    if(!isDeviceMappingFull())
     {
+        m_cfgDeviceMapping.emplace_back(DeviceMapping(name, type, ledNumber));
         m_cfgDeviceMappingDirty = true;
         success = true;
     }
@@ -552,16 +549,17 @@ bool HSDConfig::addDeviceMappingEntry(int entryNum, std::string_view name, Devic
     return success;
 }
 
-bool HSDConfig::deleteDeviceMappingEntry(int entryNum)
+bool HSDConfig::deleteDeviceMappingEntry(size_t entryNum)
 {
-    bool removed = m_cfgDeviceMapping.remove(entryNum);
-
-    if(removed)
+    if(entryNum >= m_cfgDeviceMapping.size())
     {
-        m_cfgDeviceMappingDirty = true;
+        return false;
     }
 
-    return removed;
+    m_cfgDeviceMapping.erase(m_cfgDeviceMapping.begin() + entryNum);
+    m_cfgDeviceMappingDirty = true;
+
+    return true;
 }
 
 bool HSDConfig::deleteAllDeviceMappingEntries()
@@ -578,22 +576,21 @@ bool HSDConfig::isDeviceMappingDirty() const
 
 bool HSDConfig::isDeviceMappingFull() const
 {
-    return m_cfgDeviceMapping.isFull();
+    return (m_cfgDeviceMapping.size() >= m_cfgDeviceMapping.capacity());
 }
 
-bool HSDConfig::addColorMappingEntry(int entryNum, std::string_view msg, DeviceType type, Color color, Behavior behavior)
+bool HSDConfig::addColorMappingEntry(std::string_view msg, DeviceType type, Color color, Behavior behavior)
 {
     bool success = false;
 
-    Serial.print(F("Adding or editing color mapping entry at index "));
-    Serial.println(String(entryNum) + ", new values: name " + msg.data() + ", type " +
+    Serial.print(F("Adding or editing color mapping entry, values: "));
+    Serial.println("name " + String(msg.data()) + ", type " +
                    toString(type) + ", color " + toString(color) + ", behavior " +
                    toString(behavior));
 
-    ColorMapping mapping(msg, type, color, behavior);
-
-    if(m_cfgColorMapping.set(entryNum, mapping))
+    if(!isColorMappingFull())
     {
+        m_cfgColorMapping.emplace_back(ColorMapping(msg, type, color, behavior));
         m_cfgColorMappingDirty = true;
         success = true;
     }
@@ -605,16 +602,17 @@ bool HSDConfig::addColorMappingEntry(int entryNum, std::string_view msg, DeviceT
     return success;
 }
 
-bool HSDConfig::deleteColorMappingEntry(int entryNum)
+bool HSDConfig::deleteColorMappingEntry(size_t entryNum)
 {
-    bool removed = m_cfgColorMapping.remove(entryNum);
-
-    if(removed)
+    if(entryNum >= m_cfgColorMapping.size())
     {
-        m_cfgColorMappingDirty = true;
+        return false;
     }
 
-    return removed;
+    m_cfgColorMapping.erase(m_cfgColorMapping.begin() + entryNum);
+    m_cfgColorMappingDirty = true;
+
+    return true;
 }
 
 bool HSDConfig::deleteAllColorMappingEntries()
@@ -631,7 +629,7 @@ bool HSDConfig::isColorMappingDirty() const
 
 bool HSDConfig::isColorMappingFull() const
 {
-    return m_cfgColorMapping.isFull();
+    return (m_cfgColorMapping.size() >= m_cfgColorMapping.capacity());
 }
 
 const char* HSDConfig::getHost() const
@@ -793,9 +791,9 @@ int HSDConfig::getNumberOfColorMappingEntries()
     return m_cfgColorMapping.size();
 }
 
-const HSDConfig::ColorMapping* HSDConfig::getColorMapping(int index)
+const HSDConfig::ColorMapping& HSDConfig::getColorMapping(size_t index) const
 {
-    return m_cfgColorMapping.get(index);
+    return m_cfgColorMapping[index];
 }
 
 int HSDConfig::getNumberOfDeviceMappingEntries() const
@@ -803,23 +801,21 @@ int HSDConfig::getNumberOfDeviceMappingEntries() const
     return m_cfgDeviceMapping.size();
 }
 
-const HSDConfig::DeviceMapping* HSDConfig::getDeviceMapping(int index) const
+const HSDConfig::DeviceMapping& HSDConfig::getDeviceMapping(size_t index) const
 {
-    return m_cfgDeviceMapping.get(index);
+    return m_cfgDeviceMapping[index];
 }
 
 int HSDConfig::getLedNumber(std::string_view device, DeviceType deviceType)
 {
     int number = -1;
 
-    for(size_t i = 0; i < m_cfgDeviceMapping.size(); i++)
+    for(const auto& mapping : m_cfgDeviceMapping)
     {
-        const DeviceMapping* mapping = m_cfgDeviceMapping.get(i);
-
-        if(deviceType == mapping->type &&
-           std::strcmp(mapping->name.data(), device.data()) == 0)
+        if(deviceType == mapping.type &&
+           std::strcmp(mapping.name.data(), device.data()) == 0)
         {
-            number = mapping->ledNumber;
+            number = mapping.ledNumber;
             break;
         }
     }
@@ -829,13 +825,13 @@ int HSDConfig::getLedNumber(std::string_view device, DeviceType deviceType)
 
 std::optional<std::pair<std::string_view, DeviceType>> HSDConfig::getDeviceInfo(int ledNumber)
 {
-    for(size_t i = 0; i < m_cfgDeviceMapping.size(); i++)
+    for(const auto& mapping : m_cfgDeviceMapping)
     {
-        const auto dm = m_cfgDeviceMapping.get(i);
-
-        if(dm && ledNumber == dm->ledNumber)
+        if(ledNumber == mapping.ledNumber)
         {
-            return std::make_pair(std::string_view(dm->name.data()), dm->type);
+            Serial.print("DEBUG: Name = ");
+            Serial.println(mapping.name.data());
+            return std::make_pair(std::string_view(mapping.name.data()), mapping.type);
         }
     }
 
@@ -848,9 +844,9 @@ int HSDConfig::getColorMapIndex(DeviceType deviceType, std::string_view msg)
 
     for(size_t i = 0; i < m_cfgColorMapping.size(); i++)
     {
-        const ColorMapping* mapping = m_cfgColorMapping.get(i);
+        auto mapping = m_cfgColorMapping[i];
 
-        if(deviceType == mapping->type && std::strcmp(mapping->msg.data(), msg.data()) == 0)
+        if(deviceType == mapping.type && std::strcmp(mapping.msg.data(), msg.data()) == 0)
         {
             index = i;
             break;
@@ -862,10 +858,10 @@ int HSDConfig::getColorMapIndex(DeviceType deviceType, std::string_view msg)
 
 Behavior HSDConfig::getLedBehavior(int colorMapIndex)
 {
-    return m_cfgColorMapping.get(colorMapIndex)->behavior;
+    return m_cfgColorMapping[colorMapIndex].behavior;
 }
 
 Color HSDConfig::getLedColor(int colorMapIndex)
 {
-    return m_cfgColorMapping.get(colorMapIndex)->color;
+    return m_cfgColorMapping[colorMapIndex].color;
 }

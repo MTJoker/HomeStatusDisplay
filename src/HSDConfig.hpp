@@ -3,7 +3,7 @@
 #include "HSDConfigFile.hpp"
 #include "HSDEnums.hpp"
 #include "HSDUtils.hpp"
-#include "PreAllocatedLinkedList.hpp"
+#include <vector>
 
 inline constexpr const char* jsonKeyHost = "host";
 inline constexpr const char* jsonKeyWifiSsid = "wifiSSID";
@@ -133,20 +133,20 @@ class HSDConfig
     int getNumberOfDeviceMappingEntries() const;
     int getNumberOfColorMappingEntries();
 
-    bool addDeviceMappingEntry(int entryNum, std::string_view name, DeviceType type, int ledNumber);
-    bool deleteColorMappingEntry(int entryNum);
+    bool addDeviceMappingEntry(std::string_view name, DeviceType type, int ledNumber);
+    bool deleteColorMappingEntry(size_t entryNum);
     bool deleteAllDeviceMappingEntries();
     bool isDeviceMappingDirty() const;
     bool isDeviceMappingFull() const;
 
-    bool addColorMappingEntry(int entryNum, std::string_view name, DeviceType type, Color color, Behavior behavior);
-    bool deleteDeviceMappingEntry(int entryNum);
+    bool addColorMappingEntry(std::string_view name, DeviceType type, Color color, Behavior behavior);
+    bool deleteDeviceMappingEntry(size_t entryNum);
     bool deleteAllColorMappingEntries();
     bool isColorMappingDirty() const;
     bool isColorMappingFull() const;
 
-    const DeviceMapping* getDeviceMapping(int index) const;
-    const ColorMapping* getColorMapping(int index);
+    const DeviceMapping& getDeviceMapping(size_t index) const;
+    const ColorMapping& getColorMapping(size_t index) const;
     int getLedNumber(std::string_view device, DeviceType type);
     std::optional<std::pair<std::string_view, DeviceType>> getDeviceInfo(int ledNumber);
 
@@ -207,10 +207,10 @@ class HSDConfig
     static constexpr size_t MaxColorMapEntries = 30;
     static constexpr size_t MaxDeviceMapEntries = 40;
 
-    PreAllocatedLinkedList<ColorMapping> m_cfgColorMapping;
+    std::vector<ColorMapping> m_cfgColorMapping;
     bool m_cfgColorMappingDirty = false;
 
-    PreAllocatedLinkedList<DeviceMapping> m_cfgDeviceMapping;
+    std::vector<DeviceMapping> m_cfgDeviceMapping;
     bool m_cfgDeviceMappingDirty = false;
 
     std::array<char, MaxVersionLen + 1> m_cfgVersion{};

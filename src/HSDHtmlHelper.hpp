@@ -12,12 +12,12 @@ class HSDHtmlHelper
     String getFooter() const;
 
     String getColorMappingTableHeader() const;
-    String getColorMappingTableEntry(int entryNum, const HSDConfig::ColorMapping* mapping) const;
+    String getColorMappingTableEntry(int entryNum, const HSDConfig::ColorMapping& mapping) const;
     String getColorMappingTableFooter() const;
     String getColorMappingTableAddEntryForm(int newEntryNum, bool isFull) const;
 
     String getDeviceMappingTableHeader() const;
-    String getDeviceMappingTableEntry(int entryNum, const HSDConfig::DeviceMapping* mapping) const;
+    String getDeviceMappingTableEntry(int entryNum, const HSDConfig::DeviceMapping& mapping) const;
     String getDeviceMappingTableFooter() const;
     String getDeviceMappingTableAddEntryForm(int newEntryNum, bool isFull) const;
 

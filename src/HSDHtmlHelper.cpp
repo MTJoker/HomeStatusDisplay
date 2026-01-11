@@ -77,7 +77,7 @@ String HSDHtmlHelper::getColorMappingTableHeader() const
              " </tr>");
 }
 
-String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::ColorMapping* mapping) const
+String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::ColorMapping& mapping) const
 {
     String html;
     if(entryNum % 2 == 0)
@@ -90,14 +90,14 @@ String HSDHtmlHelper::getColorMappingTableEntry(int entryNum, const HSDConfig::C
     }
     html += entryNum;
     html += F("</td><td>");
-    html += mapping->msg.data();
+    html += mapping.msg.data();
     html += F("</td><td>");
-    html += toString(mapping->type);
+    html += toString(mapping.type);
     html += F("</td><td>");
     html += F("<div class='hsdcolor' style='background-color:");
-    html += color2htmlColor(mapping->color);
+    html += color2htmlColor(mapping.color);
     html += F("';></div></td><td>");
-    html += toString(mapping->behavior);
+    html += toString(mapping.behavior);
     html += F("</td></tr>");
 
     return html;
@@ -145,7 +145,7 @@ String HSDHtmlHelper::getDeviceMappingTableHeader() const
              " </tr>");
 }
 
-String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::DeviceMapping* mapping) const
+String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::DeviceMapping& mapping) const
 {
     String html;
 
@@ -159,11 +159,11 @@ String HSDHtmlHelper::getDeviceMappingTableEntry(int entryNum, const HSDConfig::
     }
     html += entryNum;
     html += F("</td><td>");
-    html += mapping->name.data();
+    html += mapping.name.data();
     html += F("</td><td>");
-    html += toString(mapping->type);
+    html += toString(mapping.type);
     html += F("</td><td>");
-    html += mapping->ledNumber;
+    html += mapping.ledNumber;
     html += F("</td></tr>");
 
     return html;
