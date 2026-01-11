@@ -429,12 +429,13 @@ bool HSDWebserver::addColorMappingEntry()
 {
     bool success = false;
 
-    if(m_server.hasArg("n") && m_server.hasArg("t") &&
+    if(m_server.hasArg("i") && m_server.hasArg("n") && m_server.hasArg("t") &&
        m_server.hasArg("c") && m_server.hasArg("b"))
     {
         if(!m_server.arg("n").isEmpty())
         {
             success = m_config.addColorMappingEntry(
+                static_cast<size_t>(m_server.arg("i").toInt()),
                 m_server.arg("n").c_str(),
                 static_cast<DeviceType>(m_server.arg("t").toInt()),
                 static_cast<Color>(HSDConfig::id2color(m_server.arg("c").toInt())),
@@ -551,11 +552,13 @@ bool HSDWebserver::addDeviceMappingEntry()
 {
     bool success = false;
 
-    if(m_server.hasArg("n") && m_server.hasArg("t") && m_server.hasArg("l"))
+    if(m_server.hasArg("i") && m_server.hasArg("n") && m_server.hasArg("t") &&
+       m_server.hasArg("l"))
     {
         if(!m_server.arg("n").isEmpty())
         {
             success = m_config.addDeviceMappingEntry(
+                static_cast<size_t>(m_server.arg("i").toInt()),
                 m_server.arg("n").c_str(),
                 static_cast<DeviceType>(m_server.arg("t").toInt()),
                 m_server.arg("l").toInt());

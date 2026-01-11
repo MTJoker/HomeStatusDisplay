@@ -213,6 +213,7 @@ bool HSDConfig::readColorMappingConfigFile()
             Serial.println(F(""));
 
             success = true;
+            size_t index = 0;
 
             for(JsonPair kv : json)
             {
@@ -224,11 +225,14 @@ bool HSDConfig::readColorMappingConfigFile()
                    entry[jsonKeyColorMappingBehavior].is<int>())
                 {
                     addColorMappingEntry(
+                        index,
                         entry[jsonKeyColorMappingMsg].as<const char*>(),
                         static_cast<DeviceType>(entry[jsonKeyColorMappingType].as<int>()),
                         id2color(entry[jsonKeyColorMappingColor].as<int>()),
                         static_cast<Behavior>(entry[jsonKeyColorMappingBehavior].as<int>()));
                 }
+
+                index++;
             }
         }
         else
@@ -269,6 +273,7 @@ bool HSDConfig::readDeviceMappingConfigFile()
             Serial.println(F(""));
 
             success = true;
+            size_t index = 0;
 
             for(JsonPair kv : json)
             {
@@ -279,10 +284,13 @@ bool HSDConfig::readDeviceMappingConfigFile()
                    entry[jsonKeyDeviceMappingLed].is<int>())
                 {
                     addDeviceMappingEntry(
+                        index,
                         entry[jsonKeyDeviceMappingName].as<const char*>(),
                         static_cast<DeviceType>(entry[jsonKeyDeviceMappingType].as<int>()),
                         entry[jsonKeyDeviceMappingLed].as<int>());
                 }
+
+                index++;
             }
         }
         else
@@ -528,16 +536,22 @@ void HSDConfig::onFileWriteError()
     LittleFS.format();
     Serial.println(F("Done."));
 }
-bool HSDConfig::addDeviceMappingEntry(std::string_view name, DeviceType type, int ledNumber)
+
+bool HSDConfig::addDeviceMappingEntry(size_t entryNum, std::string_view name, DeviceType type, int ledNumber)
 {
     bool success = false;
 
-    Serial.print(F("Adding or editing device mapping entry, values: "));
-    Serial.println("name " + String(name.data()) + ", type " + toString(type) + ", LED number " + String(ledNumber));
+    Serial.print(F("Adding or editing device mapping entry at index "));
+    Serial.println(String(entryNum) + " with name " + name.data() + ", type " +
+                   toString(type) + ", LED number " + String(ledNumber));
 
-    if(!isDeviceMappingFull())
+    if(entryNum < m_cfgDeviceMapping.capacity())
     {
-        m_cfgDeviceMapping.emplace_back(DeviceMapping(name, type, ledNumber));
+        if(entryNum >= m_cfgDeviceMapping.size())
+        {
+            m_cfgDeviceMapping.resize(entryNum + 1);
+        }
+        m_cfgDeviceMapping[entryNum] = DeviceMapping(name, type, ledNumber);
         m_cfgDeviceMappingDirty = true;
         success = true;
     }
@@ -579,18 +593,22 @@ bool HSDConfig::isDeviceMappingFull() const
     return (m_cfgDeviceMapping.size() >= m_cfgDeviceMapping.capacity());
 }
 
-bool HSDConfig::addColorMappingEntry(std::string_view msg, DeviceType type, Color color, Behavior behavior)
+bool HSDConfig::addColorMappingEntry(size_t entryNum, std::string_view msg, DeviceType type, Color color, Behavior behavior)
 {
     bool success = false;
 
-    Serial.print(F("Adding or editing color mapping entry, values: "));
-    Serial.println("name " + String(msg.data()) + ", type " +
+    Serial.print(F("Adding or editing color mapping entry at index "));
+    Serial.println(String(entryNum) + ", new values: name " + msg.data() + ", type " +
                    toString(type) + ", color " + toString(color) + ", behavior " +
                    toString(behavior));
 
-    if(!isColorMappingFull())
+    if(entryNum < m_cfgColorMapping.capacity())
     {
-        m_cfgColorMapping.emplace_back(ColorMapping(msg, type, color, behavior));
+        if(entryNum >= m_cfgColorMapping.size())
+        {
+            m_cfgColorMapping.resize(entryNum + 1);
+        }
+        m_cfgColorMapping[entryNum] = ColorMapping(msg, type, color, behavior);
         m_cfgColorMappingDirty = true;
         success = true;
     }

@@ -133,13 +133,13 @@ class HSDConfig
     int getNumberOfDeviceMappingEntries() const;
     int getNumberOfColorMappingEntries();
 
-    bool addDeviceMappingEntry(std::string_view name, DeviceType type, int ledNumber);
+    bool addDeviceMappingEntry(size_t entryNum, std::string_view name, DeviceType type, int ledNumber);
     bool deleteColorMappingEntry(size_t entryNum);
     bool deleteAllDeviceMappingEntries();
     bool isDeviceMappingDirty() const;
     bool isDeviceMappingFull() const;
 
-    bool addColorMappingEntry(std::string_view name, DeviceType type, Color color, Behavior behavior);
+    bool addColorMappingEntry(size_t entryNum, std::string_view name, DeviceType type, Color color, Behavior behavior);
     bool deleteDeviceMappingEntry(size_t entryNum);
     bool deleteAllColorMappingEntries();
     bool isColorMappingDirty() const;
