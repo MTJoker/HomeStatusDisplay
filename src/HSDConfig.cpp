@@ -343,7 +343,7 @@ void HSDConfig::writeColorMappingConfigFile()
             Serial.println(String(mapping.msg.data()));
 
             JsonObject colorMappingEntry = json[String(index)].to<JsonObject>();
-            colorMappingEntry[jsonKeyColorMappingMsg] = mapping.msg;
+            colorMappingEntry[jsonKeyColorMappingMsg] = mapping.msg.data();
             colorMappingEntry[jsonKeyColorMappingType] = static_cast<int>(mapping.type);
             colorMappingEntry[jsonKeyColorMappingColor] = static_cast<int>(color2id(mapping.color));
             colorMappingEntry[jsonKeyColorMappingBehavior] = static_cast<int>(mapping.behavior);
