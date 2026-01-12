@@ -14,8 +14,10 @@ HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds,
     m_updateServer.setup(&m_server);
 }
 
-void HSDWebserver::begin()
+void HSDWebserver::begin(HSDDebug::DebugData debugData)
 {
+    m_debugData = debugData;
+
     Serial.println();
     Serial.println(F("Starting WebServer."));
 
@@ -46,7 +48,6 @@ void HSDWebserver::handleClient(unsigned long deviceUptime)
 {
     m_deviceUptimeMinutes = deviceUptime;
     m_server.handleClient();
-    yield();
 }
 
 void HSDWebserver::deliverStatusPage()
@@ -373,10 +374,27 @@ bool HSDWebserver::deliverMaintenancePage()
     html += F("</b></p>");
 
     auto freeHeap = ESP.getFreeHeap();
+    auto fragmentation = ESP.getHeapFragmentation();
 
     html += F("<p>Free Heap: <b>");
     html += freeHeap;
-    html += F(" Bytes</b></p>");
+    html += F(" Bytes</b><br />");
+    html += F("Heap fragmentation: <b>");
+    html += fragmentation;
+    html += F(" %</b></p>");
+
+    if(m_debugData.isValid())
+    {
+        html += F("Debug: LastStep = ");
+        html += static_cast<uint32_t>(m_debugData.lastStep);
+        html += F(", lastHeap = ");
+        html += m_debugData.lastHeap;
+        html += F(", lastHeapFrag = ");
+        html += m_debugData.lastHeapFrag;
+        html += F(", BootCount = ");
+        html += m_debugData.bootCount;
+        html += F("</p>");
+    }
 
     html += F("<form><p><input type='submit' class='button'value='Reboot' id='reset' name='reset'> Reboot device</p>");
     html += F("<input type='button' class='button'onclick=\"location.href='./update'\"  value='Update Firmware'> Update Firmware of device</p>");

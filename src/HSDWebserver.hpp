@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDConfig.hpp"
+#include "HSDDebug.hpp"
 #include "HSDHtmlHelper.hpp"
 #include "HSDLeds.hpp"
 #include "HSDMqtt.hpp"
@@ -13,7 +14,7 @@ class HSDWebserver
   public:
     HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt);
 
-    void begin();
+    void begin(HSDDebug::DebugData debug);
     void handleClient(unsigned long deviceUptime);
 
   private:
@@ -53,4 +54,6 @@ class HSDWebserver
     unsigned long m_deviceUptimeMinutes;
     const HSDHtmlHelper m_html;
     File m_configRestoreFile;
+
+    HSDDebug::DebugData m_debugData;
 };

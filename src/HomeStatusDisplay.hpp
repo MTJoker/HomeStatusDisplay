@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HSDConfig.hpp"
+#include "HSDDebug.hpp"
 #include "HSDEnums.hpp"
 #include "HSDLeds.hpp"
 #include "HSDMqtt.hpp"
@@ -10,7 +11,7 @@
 class HomeStatusDisplay
 {
   public:
-    HomeStatusDisplay();
+    HomeStatusDisplay(std::unique_ptr<IHSDDebug> debug);
 
     void begin(const char* version, const char* identifier);
     void loop();
@@ -44,6 +45,8 @@ class HomeStatusDisplay
     HSDWebserver m_webServer;
     HSDMqtt m_mqttHandler;
     HSDLeds m_leds;
+
+    std::unique_ptr<IHSDDebug> m_debug;
 
     ConnectionState m_lastWifiConnectionState = ConnectionState::Disconnected;
     ConnectionState m_lastMqttConnectionState = ConnectionState::Disconnected;

@@ -11,12 +11,13 @@ constexpr unsigned long OneMinuteMillis = 60000;
 
 int getFreeRamSize();
 
-HomeStatusDisplay::HomeStatusDisplay()
+HomeStatusDisplay::HomeStatusDisplay(std::unique_ptr<IHSDDebug> debug)
     : m_wifi(m_config)
     , m_webServer(m_config, m_leds, m_mqttHandler)
     , m_mqttHandler(m_config, [this](auto&&... args)
                     { mqttCallback(std::forward<decltype(args)>(args)...); })
     , m_leds(m_config)
+    , m_debug(std::move(debug))
 {
 }
 
@@ -27,36 +28,38 @@ void HomeStatusDisplay::begin(const char* version, const char* identifier)
 
     Serial.println(ESP.getResetReason());
 
+    m_debug->begin();
     m_config.begin(version, identifier);
-    m_webServer.begin();
+    m_webServer.begin(m_debug->snapShot());
     m_leds.begin();
     m_wifi.begin();
     m_mqttHandler.begin();
-
-    Serial.print(F("Free RAM: "));
-    Serial.println(ESP.getFreeHeap());
 }
 
 void HomeStatusDisplay::loop()
 {
+    m_debug->setStep(HSDDebug::LastStep::CalcUpTime);
     const auto uptime = calcUptime();
 
+    m_debug->setStep(HSDDebug::LastStep::CheckConnections);
     checkConnections();
-    yield();
 
+    m_debug->setStep(HSDDebug::LastStep::Wifi);
     m_wifi.handleConnection();
-    yield();
 
+    m_debug->setStep(HSDDebug::LastStep::Web);
     m_webServer.handleClient(uptime);
-    yield();
 
+    m_debug->setStep(HSDDebug::LastStep::Mqtt);
     if(m_wifi.connected())
     {
         m_mqttHandler.handle();
-        yield();
     }
 
+    m_debug->setStep(HSDDebug::LastStep::Leds);
     m_leds.update();
+
+    m_debug->setStep(HSDDebug::LastStep::Delay);
     delay(100);
 }
 
