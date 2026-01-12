@@ -9,7 +9,9 @@ HSDLeds::HSDLeds(const HSDConfig& config) noexcept
 void HSDLeds::begin()
 {
     const auto numLeds = m_config.getNumberOfLeds();
+
     m_ledState.assign(numLeds, LedState{});
+    m_lastFrame.assign(numLeds, 0);
 
     const auto pin = m_config.getLedDataPin();
     const auto type = (m_config.getLedType() == 0) ? NEO_GRB : NEO_GRBW;
@@ -84,17 +86,31 @@ bool HSDLeds::isLedOn(const LedState& led) const noexcept
 void HSDLeds::updateStripe() noexcept
 {
     uint32_t index = 0;
+    bool frameChanged = false;
 
     for(const auto& led : m_ledState)
     {
-        const uint32_t color =
+        const auto color =
             isLedOn(led) ? static_cast<uint32_t>(led.color)
                          : static_cast<uint32_t>(Color::None);
 
-        m_stripe->setPixelColor(index++, color);
+        if(m_lastFrame[index] != color)
+        {
+            m_lastFrame[index] = color;
+            m_stripe->setPixelColor(index, color);
+            frameChanged = true;
+        }
+
+        index++;
     }
 
-    m_stripe->show();
+    // dont update stripe if no visible change is available
+    if(frameChanged)
+    {
+        yield();
+        m_stripe->show();
+        yield();
+    }
 }
 
 void HSDLeds::updateBlink(uint32_t now) noexcept

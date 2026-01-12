@@ -47,6 +47,7 @@ class HSDLeds
 
     std::unique_ptr<Adafruit_NeoPixel> m_stripe;
     std::vector<LedState> m_ledState;
+    std::vector<uint32_t> m_lastFrame;
 
     bool m_blinkOn = false;
     bool m_flashOn = false;
