@@ -1,0 +1,59 @@
+#pragma once
+
+#include "HSDConfig.hpp"
+#include "HSDDebug.hpp"
+#include "HSDHtmlHelper.hpp"
+#include "HSDLeds.hpp"
+#include "HSDMqtt.hpp"
+#include <ESP8266HTTPUpdateServer.h>
+#include <ESP8266WebServer.h>
+
+class HSDWebserver
+{
+
+  public:
+    HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt);
+
+    void begin(HSDDebug::DebugData debug);
+    void handleClient(unsigned long deviceUptime);
+
+  private:
+    void deliverStatusPage();
+    bool deliverMaintenancePage();
+    void deliverMainConfigPage();
+    void deliverColorMappingConfigPage();
+    void deliverDeviceMappingConfigPage();
+    void deliverNotFoundPage();
+    void handleBackup();
+    void handleRestoreUpload();
+    void handleRestoreFinish();
+
+    void checkReboot();
+
+    bool updateMainConfig();
+
+    bool needAdd();
+    bool needDelete();
+    bool needDeleteAll();
+    bool needSave();
+    bool needUndo();
+
+    bool addColorMappingEntry();
+    bool deleteColorMappingEntry();
+
+    bool addDeviceMappingEntry();
+    bool deleteDeviceMappingEntry();
+
+    bool updateDeviceMappingConfig();
+
+    ESP8266WebServer m_server;
+    ESP8266HTTPUpdateServer m_updateServer;
+    HSDConfig& m_config;
+    const HSDLeds& m_leds;
+    const HSDMqtt& m_mqtt;
+    unsigned long m_deviceUptimeMinutes;
+    const HSDHtmlHelper m_html;
+    File m_configRestoreFile;
+
+    HSDDebug::DebugData m_debugData;
+};
