@@ -13,7 +13,7 @@ class HomeStatusDisplay
   public:
     HomeStatusDisplay(std::unique_ptr<IHSDDebug> debug);
 
-    void begin(const char* version, const char* identifier);
+    void begin();
     void loop();
 
   private:

@@ -1,4 +1,5 @@
 #include "HSDDebug.hpp"
+#include <Arduino.h>
 
 // survives reboot, but not power cycle
 static HSDDebug::DebugData debugData __attribute__((section(".noinit")));

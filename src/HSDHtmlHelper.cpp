@@ -1,5 +1,6 @@
 #include "HSDHtmlHelper.hpp"
 #include "HSDEnumsToString.hpp"
+#include "Version.hpp"
 
 inline const __FlashStringHelper* selectedStr()
 {
@@ -10,7 +11,7 @@ inline const __FlashStringHelper* emptyStr()
     return F("");
 }
 
-String HSDHtmlHelper::getHeader(const char* title, const char* host, const char* version, uint32_t reloadSeconds) const
+String HSDHtmlHelper::getHeader(const char* title, const char* host, uint32_t reloadSeconds) const
 {
     String header;
     header.reserve(1500);
@@ -40,7 +41,7 @@ String HSDHtmlHelper::getHeader(const char* title, const char* host, const char*
     header += F("<font size='+3'>");
     header += String(host);
     header += F("</font><font size='-3'>V");
-    header += String(version);
+    header += Version::String;
     header += F("</font>");
 
     header += F("<form><p><input type='button' class='button' onclick=\"location.href='./'\"  value='Status'>");

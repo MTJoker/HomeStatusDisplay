@@ -1,14 +1,13 @@
 #pragma once
 
 #include "HSDConfig.hpp"
-#include <Arduino.h>
-#include <ESP8266WebServer.h>
+#include <IPAddress.h>
 
 class HSDHtmlHelper
 {
 
   public:
-    String getHeader(const char* title, const char* host, const char* version, uint32_t reloadSeconds) const;
+    String getHeader(const char* title, const char* host, uint32_t reloadSeconds) const;
     String getFooter() const;
 
     String getColorMappingTableHeader() const;

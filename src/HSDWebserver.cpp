@@ -2,8 +2,7 @@
 #include "HSDEnumsToString.hpp"
 #include "LittleFS.h"
 
-HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds,
-                           const HSDMqtt& mqtt)
+HSDWebserver::HSDWebserver(HSDConfig& config, const HSDLeds& leds, const HSDMqtt& mqtt)
     : m_server(80)
     , m_config(config)
     , m_leds(leds)
@@ -55,7 +54,7 @@ void HSDWebserver::deliverStatusPage()
     String html;
     html.reserve(3000);
 
-    html = m_html.getHeader("Status", m_config.getHost(), m_config.getVersion(), 10);
+    html = m_html.getHeader("Status", m_config.getHost(), 10);
 
     if(WiFi.status() == WL_CONNECTED)
     {
@@ -70,7 +69,7 @@ void HSDWebserver::deliverStatusPage()
         html += F("<p>Device is not connected to local network<p>");
     }
 
-    if(m_mqtt.connected())
+    if(m_mqtt.isConnected())
     {
         html += F("<p>Device is connected to  MQTT broker <b>");
         html += m_config.getMqttServer();
@@ -151,8 +150,7 @@ void HSDWebserver::deliverMainConfigPage()
     String html;
     html.reserve(3500);
 
-    html = m_html.getHeader("General configuration", m_config.getHost(),
-                            m_config.getVersion(), 0);
+    html = m_html.getHeader("General configuration", m_config.getHost(), 0);
 
     html += F("<form><font face='Verdana,Arial,Helvetica'>");
 
@@ -256,9 +254,14 @@ void HSDWebserver::deliverMainConfigPage()
     html += String(m_config.getLedBrightness());
     html += F("' size='30' maxlength='5' placeholder='1-255'></td></tr></table>");
 
-    html += F("<input type='submit' class='button' value='Save'>");
+    html += F("<input type='submit' class='button' value='Save'></form>");
 
-    html += F("</form></font></body></html>");
+    if(needSave)
+    {
+        html += F("<p style='color:red'>Config was changed. Please reboot to activate.</p>");
+    }
+
+    html += F("</font></body></html>");
 
     Serial.print(F("Page size: "));
     Serial.println(html.length());
@@ -308,8 +311,7 @@ void HSDWebserver::deliverColorMappingConfigPage()
     String html;
     html.reserve(8000);
 
-    html = m_html.getHeader("Color mapping configuration", m_config.getHost(),
-                            m_config.getVersion(), 0);
+    html = m_html.getHeader("Color mapping configuration", m_config.getHost(), 0);
 
     html += m_html.getColorMappingTableHeader();
 
@@ -363,7 +365,7 @@ bool HSDWebserver::deliverMaintenancePage()
     String html;
     html.reserve(2000);
 
-    html = m_html.getHeader("Maintenance", m_config.getHost(), m_config.getVersion(), 0);
+    html = m_html.getHeader("Maintenance", m_config.getHost(), 0);
 
     html += F("<p>Last reset reason: <b>");
     html += ESP.getResetReason();
@@ -514,8 +516,7 @@ void HSDWebserver::deliverDeviceMappingConfigPage()
     String html;
     html.reserve(8000);
 
-    html = m_html.getHeader("Device mapping configuration", m_config.getHost(),
-                            m_config.getVersion(), 0);
+    html = m_html.getHeader("Device mapping configuration", m_config.getHost(), 0);
 
     html += m_html.getDeviceMappingTableHeader();
 

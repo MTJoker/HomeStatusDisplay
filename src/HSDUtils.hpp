@@ -1,4 +1,5 @@
 #pragma once
+
 #include <array>
 #include <cstring>
 #include <string_view>

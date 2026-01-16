@@ -6,8 +6,7 @@
 static constexpr int MaxSizeMainConfigFile = 400;
 static constexpr int MaxSizeColorMappingConfigFile = 1500;
 static constexpr int MaxSizeDeviceMappingConfigFile = 1900;
-
-static constexpr uint8_t DefaultLedBrightness = 50;
+static constexpr const char* DefaultHostName = "HomeStatusDisplay";
 
 HSDConfig::HSDConfig()
     : m_mainConfigFile("/config.json")
@@ -23,31 +22,25 @@ HSDConfig::HSDConfig()
     Serial.print("m_cfgDeviceMapping.capacity() ? ");
     Serial.println(m_cfgDeviceMapping.capacity());
 
-    // reset non-configurable members
-    setVersion("");
-    setHost("");
-
-    // reset configurable members
     resetMainConfigData();
     resetColorMappingConfigData();
     resetDeviceMappingConfigData();
 }
 
-void HSDConfig::begin(const char* version, const char* defaultIdentifier)
+void HSDConfig::begin()
 {
     Serial.println(F(""));
     Serial.println(F("Initializing config."));
 
-    setVersion(version);
-    setHost(defaultIdentifier);
+    setHost(DefaultHostName);
 
     if(LittleFS.begin())
     {
         Serial.println(F("Mounted file system."));
 
-        readMainConfigFile();
-        readColorMappingConfigFile();
-        readDeviceMappingConfigFile();
+        m_mainConfigExists = readMainConfigFile();
+        m_colorMappingConfigExists = readColorMappingConfigFile();
+        m_deviceMappingConfigExists = readDeviceMappingConfigFile();
     }
     else
     {
@@ -59,6 +52,7 @@ void HSDConfig::resetMainConfigData()
 {
     Serial.println(F("Deleting main config data."));
 
+    setHost("");
     setWifiSSID("");
     setWifiPSK("");
 
@@ -72,7 +66,7 @@ void HSDConfig::resetMainConfigData()
     setNumberOfLeds(0);
     setLedDataPin(0);
     setLedType(0);
-    setLedBrightness(DefaultLedBrightness);
+    setLedBrightness(0);
 }
 
 void HSDConfig::resetColorMappingConfigData()
@@ -87,6 +81,16 @@ void HSDConfig::resetDeviceMappingConfigData()
     Serial.println(F("Deleting device mapping config data."));
     m_cfgDeviceMapping.clear();
     m_cfgDeviceMappingDirty = true;
+}
+
+bool HSDConfig::hasWifiConfig() const
+{
+    return m_mainConfigExists && m_cfgWifiSSID[0] != '\0';
+}
+
+bool HSDConfig::hasMqttConfig() const
+{
+    return m_mainConfigExists && m_cfgMqttServer[0] != '\0';
 }
 
 bool HSDConfig::readMainConfigFile()
@@ -154,12 +158,6 @@ bool HSDConfig::readMainConfigFile()
             Serial.println(error.c_str());
         }
     }
-    else
-    {
-        Serial.println(F("Creating default main config file."));
-        resetMainConfigData();
-        writeMainConfigFile();
-    }
 
     return success;
 }
@@ -170,7 +168,9 @@ void HSDConfig::printMainConfigFile(JsonObject& json)
     Serial.println(json[jsonKeyHost].as<const char*>());
     Serial.print(F("  - wifiSSID        : "));
     Serial.println(json[jsonKeyWifiSsid].as<const char*>());
-    Serial.println(F("  - wifiPSK         : not shown"));
+    Serial.print(F("  - wifiPSK         : "));
+    const char* wifiPwd = json[jsonKeyWifiPsk].as<const char*>();
+    (wifiPwd != nullptr && wifiPwd[0] != '\0') ? Serial.println("not shown") : Serial.println();
     Serial.print(F("  - mqttServer      : "));
     Serial.println(json[jsonKeyMqttServer].as<const char*>());
     Serial.print(F("  - mqttUser        : "));
@@ -243,12 +243,6 @@ bool HSDConfig::readColorMappingConfigFile()
             Serial.println(error.c_str());
         }
     }
-    else
-    {
-        Serial.println(F("Creating default color mapping config file."));
-        resetColorMappingConfigData();
-        writeColorMappingConfigFile();
-    }
 
     m_cfgColorMappingDirty = false;
     return success;
@@ -300,12 +294,6 @@ bool HSDConfig::readDeviceMappingConfigFile()
             Serial.print(F("Could not parse config data: "));
             Serial.println(error.c_str());
         }
-    }
-    else
-    {
-        Serial.println(F("Creating default device mapping config file."));
-        resetDeviceMappingConfigData();
-        writeDeviceMappingConfigFile();
     }
 
     m_cfgDeviceMappingDirty = false;
@@ -660,17 +648,6 @@ const char* HSDConfig::getHost() const
 bool HSDConfig::setHost(const char* host)
 {
     copyToArray(m_cfgHost, host);
-    return true;
-}
-
-const char* HSDConfig::getVersion() const
-{
-    return m_cfgVersion.data();
-}
-
-bool HSDConfig::setVersion(const char* version)
-{
-    copyToArray(m_cfgVersion, version);
     return true;
 }
 

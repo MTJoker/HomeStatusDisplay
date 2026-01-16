@@ -3,6 +3,7 @@
 #include "HSDConfigFile.hpp"
 #include "HSDEnums.hpp"
 #include "HSDUtils.hpp"
+#include <array>
 #include <vector>
 
 inline constexpr const char* jsonKeyHost = "host";
@@ -74,7 +75,9 @@ class HSDConfig
 
     HSDConfig();
 
-    void begin(const char* version, const char* defaultIdentifier);
+    void begin();
+    bool hasWifiConfig() const;
+    bool hasMqttConfig() const;
 
     void saveMain();
     void saveColorMapping();
@@ -83,9 +86,6 @@ class HSDConfig
     void updateDeviceMapping();
     bool createBackup(String& out) const;
     bool restoreBackup(const String& in);
-
-    const char* getVersion() const;
-    bool setVersion(const char* version);
 
     const char* getHost() const;
     bool setHost(const char* host);
@@ -194,7 +194,6 @@ class HSDConfig
 
     void onFileWriteError();
 
-    static constexpr size_t MaxVersionLen = 20;
     static constexpr size_t MaxHostLen = 30;
     static constexpr size_t MaxWifiSsidLen = 30;
     static constexpr size_t MaxWifiPskLen = 30;
@@ -213,7 +212,6 @@ class HSDConfig
     std::vector<DeviceMapping> m_cfgDeviceMapping;
     bool m_cfgDeviceMappingDirty = false;
 
-    std::array<char, MaxVersionLen + 1> m_cfgVersion{};
     std::array<char, MaxHostLen + 1> m_cfgHost{};
     std::array<char, MaxWifiSsidLen + 1> m_cfgWifiSSID{};
     std::array<char, MaxWifiPskLen + 1> m_cfgWifiPSK{};
@@ -231,4 +229,8 @@ class HSDConfig
     HSDConfigFile m_mainConfigFile;
     HSDConfigFile m_colorMappingConfigFile;
     HSDConfigFile m_deviceMappingConfigFile;
+
+    bool m_mainConfigExists = false;
+    bool m_colorMappingConfigExists = false;
+    bool m_deviceMappingConfigExists = false;
 };

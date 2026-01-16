@@ -1,28 +1,49 @@
 #pragma once
 
-#include "HSDConfig.hpp"
+#include <cstdint>
+
+class HSDConfig;
 
 class HSDWifi
 {
   public:
+    enum class State
+    {
+        NoConfig,   // no WLAN-config available
+        Connecting, // STA connecting
+        Connected,  // STA connected
+        Failed,     // too many failed attempts
+        AccessPoint // SoftAP active
+    };
+
     explicit HSDWifi(const HSDConfig& config);
 
     void begin();
-    void handleConnection();
-    bool connected() const;
+    void handle();
+
+    bool isConnected() const;
+    bool isAccessPointActive() const;
+    State getState() const
+    {
+        return m_state;
+    }
 
   private:
-    void startAccessPoint();
+    void startSta();
+    void startAp();
+    void stopAp();
 
-    static constexpr int MaxConnectRetries = 100;
-    static constexpr unsigned long RetryDelayMs = 500;
+    void handleConnecting();
+    void handleConnected();
 
+  private:
     const HSDConfig& m_config;
 
-    bool m_connectionFailed = false;
-    int m_retryCount = 0;
-    unsigned long m_millisLastConnectTry = 0;
+    State m_state = State::NoConfig;
 
-    bool m_accessPointActive = false;
-    bool m_lastConnectStatus = false;
+    unsigned long m_stateTimestamp = 0;
+    uint8_t m_retryCount = 0;
+
+    static constexpr unsigned long ConnectTimeoutMs = 15000;
+    static constexpr uint8_t MaxRetries = 3;
 };

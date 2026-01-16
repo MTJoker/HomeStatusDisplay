@@ -29,6 +29,8 @@ void HSDLeds::set(uint32_t ledNum, Behavior behavior, Color color) noexcept
 {
     if(ledNum >= m_ledState.size())
     {
+        Serial.print(F("Invalid LED number:  "));
+        Serial.println(ledNum);
         return;
     }
 

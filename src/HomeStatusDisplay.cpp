@@ -21,7 +21,7 @@ HomeStatusDisplay::HomeStatusDisplay(std::unique_ptr<IHSDDebug> debug)
 {
 }
 
-void HomeStatusDisplay::begin(const char* version, const char* identifier)
+void HomeStatusDisplay::begin()
 {
     Serial.begin(115200);
     Serial.println();
@@ -29,7 +29,7 @@ void HomeStatusDisplay::begin(const char* version, const char* identifier)
     Serial.println(ESP.getResetReason());
 
     m_debug->begin();
-    m_config.begin(version, identifier);
+    m_config.begin();
     m_webServer.begin(m_debug->snapShot());
     m_leds.begin();
     m_wifi.begin();
@@ -45,13 +45,13 @@ void HomeStatusDisplay::loop()
     checkConnections();
 
     m_debug->setStep(HSDDebug::LastStep::Wifi);
-    m_wifi.handleConnection();
+    m_wifi.handle();
 
     m_debug->setStep(HSDDebug::LastStep::Web);
     m_webServer.handleClient(uptime);
 
     m_debug->setStep(HSDDebug::LastStep::Mqtt);
-    if(m_wifi.connected())
+    if(m_wifi.isConnected())
     {
         m_mqttHandler.handle();
     }
@@ -214,8 +214,8 @@ void HomeStatusDisplay::checkConnections()
         return connected ? ConnectionState::Connected : ConnectionState::Disconnected;
     };
 
-    const ConnectionState currentWifiState = toState(m_wifi.connected());
-    const ConnectionState currentMqttState = toState(m_mqttHandler.connected());
+    const ConnectionState currentWifiState = toState(m_wifi.isConnected());
+    const ConnectionState currentMqttState = toState(m_mqttHandler.isConnected());
 
     const bool wifiChanged = (currentWifiState != m_lastWifiConnectionState);
     const bool mqttChanged = (currentMqttState != m_lastMqttConnectionState);

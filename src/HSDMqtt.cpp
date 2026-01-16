@@ -24,7 +24,7 @@ void HSDMqtt::begin()
 
 void HSDMqtt::handle()
 {
-    if(connected())
+    if(isConnected())
     {
         m_pubSubClient.loop();
         return;
@@ -48,13 +48,19 @@ void HSDMqtt::handle()
     }
 }
 
-bool HSDMqtt::connected() const
+bool HSDMqtt::isConnected() const
 {
     return m_pubSubClient.connected();
 }
 
 bool HSDMqtt::reconnect()
 {
+    if(!m_config.hasMqttConfig())
+    {
+        Serial.println(F("No MQTT config available."));
+        return false;
+    }
+
     String clientId = F("HomeStatusDisplay-");
     clientId += String(ESP.getChipId(), HEX);
 

@@ -1,9 +1,5 @@
 #include "HSDDebug.hpp"
 #include "HomeStatusDisplay.hpp"
-#include <Arduino.h>
-
-constexpr const char* Version = "1.0.0 beta";
-constexpr const char* DefaultIdentifier = "HomeStatusDisplay";
 
 std::unique_ptr<IHSDDebug> createDebug()
 {
@@ -18,7 +14,7 @@ HomeStatusDisplay display(createDebug());
 
 void setup()
 {
-    display.begin(Version, DefaultIdentifier);
+    display.begin();
 }
 
 void loop()

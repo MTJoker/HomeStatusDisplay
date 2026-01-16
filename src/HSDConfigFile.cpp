@@ -1,5 +1,4 @@
 #include "HSDConfigFile.hpp"
-
 #include <LittleFS.h>
 
 HSDConfigFile::HSDConfigFile(std::string_view fileName) noexcept
