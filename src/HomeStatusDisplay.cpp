@@ -60,7 +60,7 @@ void HomeStatusDisplay::loop()
     m_leds.update();
 
     m_debug->setStep(HSDDebug::LastStep::Delay);
-    delay(100);
+    delay(1);
 }
 
 unsigned long HomeStatusDisplay::calcUptime()
