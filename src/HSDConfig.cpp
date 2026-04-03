@@ -341,10 +341,10 @@ void HSDConfig::writeColorMappingConfigFile()
             Serial.println(String(mapping.msg.data()));
 
             JsonObject colorMappingEntry = json[String(index)].to<JsonObject>();
-            colorMappingEntry[jsonKeyColorMappingMsg] = mapping.msg.data();
-            colorMappingEntry[jsonKeyColorMappingType] = static_cast<int>(mapping.type);
-            colorMappingEntry[jsonKeyColorMappingColor] = static_cast<int>(color2id(mapping.color));
-            colorMappingEntry[jsonKeyColorMappingBehavior] = static_cast<int>(mapping.behavior);
+            colorMappingEntry[jsonKeyColorMappingMsg].set(mapping.msg.data());
+            colorMappingEntry[jsonKeyColorMappingType].set(static_cast<int>(mapping.type));
+            colorMappingEntry[jsonKeyColorMappingColor].set(static_cast<int>(color2id(mapping.color)));
+            colorMappingEntry[jsonKeyColorMappingBehavior].set(static_cast<int>(mapping.behavior));
         }
         else
         {
@@ -377,9 +377,9 @@ void HSDConfig::writeDeviceMappingConfigFile()
             Serial.println(String(index));
 
             JsonObject deviceMappingEntry = json[String(index)].to<JsonObject>();
-            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping.name;
-            deviceMappingEntry[jsonKeyDeviceMappingType] = static_cast<int>(mapping.type);
-            deviceMappingEntry[jsonKeyDeviceMappingLed] = static_cast<int>(mapping.ledNumber);
+            deviceMappingEntry[jsonKeyDeviceMappingName].set(mapping.name.data());
+            deviceMappingEntry[jsonKeyDeviceMappingType].set(static_cast<int>(mapping.type));
+            deviceMappingEntry[jsonKeyDeviceMappingLed].set(static_cast<int>(mapping.ledNumber));
         }
         else
         {
