@@ -72,6 +72,11 @@ void HSDWifi::startSta()
     Serial.println(F("..."));
 
     WiFi.mode(WIFI_STA);
+    if(!WiFi.hostname(m_config.getHost()))
+    {
+        Serial.println(F("Failed to set WiFi hostname."));
+    }
+
     WiFi.begin(m_config.getWifiSSID(), m_config.getWifiPSK());
 
     m_stateTimestamp = millis();
