@@ -191,6 +191,11 @@ void HSDWebserver::deliverMainConfigPage()
     html += String(m_config.getMqttServer());
     html += F("' size='30' maxlength='40' placeholder='IP or hostname'></td></tr>");
 
+    html += F("<tr><td>Port</td>");
+    html += F("  <td><input type='number' id='mqttPort' name='mqttPort' value='");
+    html += String(m_config.getMqttPort());
+    html += F("' min='1' max='65535' step='1'></td></tr>");
+
     html += F("<tr><td>Username</td>");
     html += F("  <td><input type='text' id='mqttUser' name='mqttUser' value='");
     html += String(m_config.getMqttUser());
@@ -731,6 +736,11 @@ bool HSDWebserver::updateMainConfig()
     if(m_server.hasArg(jsonKeyMqttServer))
     {
         needSave |= m_config.setMqttServer(m_server.arg(jsonKeyMqttServer).c_str());
+    }
+
+    if(m_server.hasArg(jsonKeyMqttPort))
+    {
+        needSave |= m_config.setMqttPort(m_server.arg(jsonKeyMqttPort).toInt());
     }
 
     if(m_server.hasArg(jsonKeyMqttUser))

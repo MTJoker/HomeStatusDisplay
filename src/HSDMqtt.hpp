@@ -21,7 +21,6 @@ class HSDMqtt
     bool isUserValid(const char* user) const;
 
     static constexpr unsigned long RetryDelayMs = 5000;
-    static constexpr uint16_t MqttPort = 1883;
 
     WiFiClient m_wifiClient;
     mutable PubSubClient m_pubSubClient;

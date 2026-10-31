@@ -57,6 +57,7 @@ void HSDConfig::resetMainConfigData()
     setWifiPSK("");
 
     setMqttServer("");
+    setMqttPort(1883);
     setMqttUser("");
     setMqttPassword("");
     setMqttStatusTopic("");
@@ -134,6 +135,14 @@ bool HSDConfig::readMainConfigFile()
                 setWifiSSID(json[jsonKeyWifiSsid].as<const char*>());
                 setWifiPSK(json[jsonKeyWifiPsk].as<const char*>());
                 setMqttServer(json[jsonKeyMqttServer].as<const char*>());
+                if(json[jsonKeyMqttPort].is<uint16_t>())
+                {
+                    setMqttPort(json[jsonKeyMqttPort].as<uint16_t>());
+                }
+                else if(!json[jsonKeyMqttPort].isNull())
+                {
+                    Serial.println(F("Invalid MQTT port in config; using default port 1883."));
+                }
                 setMqttUser(json[jsonKeyMqttUser].as<const char*>());
                 setMqttPassword(json[jsonKeyMqttPassword].as<const char*>());
                 setMqttStatusTopic(json[jsonKeyMqttStatusTopic].as<const char*>());
@@ -309,6 +318,7 @@ void HSDConfig::writeMainConfigFile()
     json[jsonKeyWifiSsid] = m_cfgWifiSSID.data();
     json[jsonKeyWifiPsk] = m_cfgWifiPSK.data();
     json[jsonKeyMqttServer] = m_cfgMqttServer.data();
+    json[jsonKeyMqttPort] = m_cfgMqttPort;
     json[jsonKeyMqttUser] = m_cfgMqttUser.data();
     json[jsonKeyMqttPassword] = m_cfgMqttPassword.data();
     json[jsonKeyMqttStatusTopic] = m_cfgMqttStatusTopic.data();
@@ -681,6 +691,23 @@ const char* HSDConfig::getMqttServer() const
 bool HSDConfig::setMqttServer(const char* server)
 {
     copyToArray(m_cfgMqttServer, server);
+    return true;
+}
+
+uint16_t HSDConfig::getMqttPort() const
+{
+    return m_cfgMqttPort;
+}
+
+bool HSDConfig::setMqttPort(int32_t port)
+{
+    if(port < 1 || port > 65535)
+    {
+        Serial.println(F("Invalid MQTT port; expected a value from 1 to 65535."));
+        return false;
+    }
+
+    m_cfgMqttPort = static_cast<uint16_t>(port);
     return true;
 }
 
