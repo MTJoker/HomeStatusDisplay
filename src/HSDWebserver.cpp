@@ -175,11 +175,11 @@ void HSDWebserver::deliverMainConfigPage()
 
     html += F("<td><input type='text' id='wifiSSID' name='wifiSSID' value='");
     html += String(m_config.getWifiSSID());
-    html += F("' size='30' maxlength='40' placeholder='SSID'></td>");
+    html += F("' size='30' maxlength='32' placeholder='SSID'></td>");
     html += F("</tr><tr><td>Password</td>");
     html += F("  <td><input type='password' id='wifiPSK' name='wifiPSK' value='");
     html += String(m_config.getWifiPSK());
-    html += F("' size='30' maxlength='40' placeholder='Password'></td></tr>");
+    html += F("' size='30' maxlength='64' placeholder='Password'></td></tr>");
 
     html += F(" <tr>"
               "  <td><b><font size='+1'>MQTT</font></b></td>"
@@ -190,6 +190,11 @@ void HSDWebserver::deliverMainConfigPage()
     html += F("  <td><input type='text' id='mqttServer' name='mqttServer' value='");
     html += String(m_config.getMqttServer());
     html += F("' size='30' maxlength='40' placeholder='IP or hostname'></td></tr>");
+
+    html += F("<tr><td>Port</td>");
+    html += F("  <td><input type='number' id='mqttPort' name='mqttPort' value='");
+    html += String(m_config.getMqttPort());
+    html += F("' min='1' max='65535' step='1'></td></tr>");
 
     html += F("<tr><td>Username</td>");
     html += F("  <td><input type='text' id='mqttUser' name='mqttUser' value='");
@@ -731,6 +736,11 @@ bool HSDWebserver::updateMainConfig()
     if(m_server.hasArg(jsonKeyMqttServer))
     {
         needSave |= m_config.setMqttServer(m_server.arg(jsonKeyMqttServer).c_str());
+    }
+
+    if(m_server.hasArg(jsonKeyMqttPort))
+    {
+        needSave |= m_config.setMqttPort(m_server.arg(jsonKeyMqttPort).toInt());
     }
 
     if(m_server.hasArg(jsonKeyMqttUser))

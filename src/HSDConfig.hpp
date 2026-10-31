@@ -10,6 +10,7 @@ inline constexpr const char* jsonKeyHost = "host";
 inline constexpr const char* jsonKeyWifiSsid = "wifiSSID";
 inline constexpr const char* jsonKeyWifiPsk = "wifiPSK";
 inline constexpr const char* jsonKeyMqttServer = "mqttServer";
+inline constexpr const char* jsonKeyMqttPort = "mqttPort";
 inline constexpr const char* jsonKeyMqttUser = "mqttUser";
 inline constexpr const char* jsonKeyMqttPassword = "mqttPassword";
 inline constexpr const char* jsonKeyMqttStatusTopic = "mqttStatusTopic";
@@ -98,6 +99,9 @@ class HSDConfig
 
     const char* getMqttServer() const;
     bool setMqttServer(const char* server);
+
+    uint16_t getMqttPort() const;
+    bool setMqttPort(int32_t port);
 
     const char* getMqttUser() const;
     bool setMqttUser(const char* user);
@@ -195,9 +199,9 @@ class HSDConfig
     void onFileWriteError();
 
     static constexpr size_t MaxHostLen = 30;
-    static constexpr size_t MaxWifiSsidLen = 30;
-    static constexpr size_t MaxWifiPskLen = 30;
-    static constexpr size_t MaxMqttServerLen = 20;
+    static constexpr size_t MaxWifiSsidLen = 32;
+    static constexpr size_t MaxWifiPskLen = 64;
+    static constexpr size_t MaxMqttServerLen = 40;
     static constexpr size_t MaxMqttUserLen = 30;
     static constexpr size_t MaxMqttPasswordLen = 30;
     static constexpr size_t MaxMqttStatusTopicLen = 50;
@@ -216,6 +220,7 @@ class HSDConfig
     std::array<char, MaxWifiSsidLen + 1> m_cfgWifiSSID{};
     std::array<char, MaxWifiPskLen + 1> m_cfgWifiPSK{};
     std::array<char, MaxMqttServerLen + 1> m_cfgMqttServer{};
+    uint16_t m_cfgMqttPort = 1883;
     std::array<char, MaxMqttUserLen + 1> m_cfgMqttUser{};
     std::array<char, MaxMqttPasswordLen + 1> m_cfgMqttPassword{};
     std::array<char, MaxMqttStatusTopicLen + 1> m_cfgMqttStatusTopic{};

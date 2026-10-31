@@ -3,9 +3,9 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-static constexpr int MaxSizeMainConfigFile = 400;
-static constexpr int MaxSizeColorMappingConfigFile = 1500;
-static constexpr int MaxSizeDeviceMappingConfigFile = 1900;
+static constexpr int MaxSizeMainConfigFile = 2600;
+static constexpr int MaxSizeColorMappingConfigFile = 4096;
+static constexpr int MaxSizeDeviceMappingConfigFile = 8192;
 static constexpr const char* DefaultHostName = "HomeStatusDisplay";
 
 HSDConfig::HSDConfig()
@@ -57,6 +57,7 @@ void HSDConfig::resetMainConfigData()
     setWifiPSK("");
 
     setMqttServer("");
+    setMqttPort(1883);
     setMqttUser("");
     setMqttPassword("");
     setMqttStatusTopic("");
@@ -96,12 +97,12 @@ bool HSDConfig::hasMqttConfig() const
 bool HSDConfig::readMainConfigFile()
 {
     bool success = false;
-    char fileBuffer[MaxSizeMainConfigFile];
+    std::vector<char> fileBuffer(MaxSizeMainConfigFile, 0);
 
-    if(m_mainConfigFile.read(fileBuffer, MaxSizeMainConfigFile))
+    if(m_mainConfigFile.read(fileBuffer.data(), fileBuffer.size()))
     {
         JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, fileBuffer);
+        DeserializationError error = deserializeJson(doc, fileBuffer.data());
 
         if(!error)
         {
@@ -134,6 +135,14 @@ bool HSDConfig::readMainConfigFile()
                 setWifiSSID(json[jsonKeyWifiSsid].as<const char*>());
                 setWifiPSK(json[jsonKeyWifiPsk].as<const char*>());
                 setMqttServer(json[jsonKeyMqttServer].as<const char*>());
+                if(json[jsonKeyMqttPort].is<uint16_t>())
+                {
+                    setMqttPort(json[jsonKeyMqttPort].as<uint16_t>());
+                }
+                else if(!json[jsonKeyMqttPort].isNull())
+                {
+                    Serial.println(F("Invalid MQTT port in config; using default port 1883."));
+                }
                 setMqttUser(json[jsonKeyMqttUser].as<const char*>());
                 setMqttPassword(json[jsonKeyMqttPassword].as<const char*>());
                 setMqttStatusTopic(json[jsonKeyMqttStatusTopic].as<const char*>());
@@ -197,14 +206,13 @@ void HSDConfig::printMainConfigFile(JsonObject& json)
 bool HSDConfig::readColorMappingConfigFile()
 {
     bool success = false;
-    char fileBuffer[MaxSizeColorMappingConfigFile];
-    memset(fileBuffer, 0, MaxSizeColorMappingConfigFile);
+    std::vector<char> fileBuffer(MaxSizeColorMappingConfigFile, 0);
     resetColorMappingConfigData();
 
-    if(m_colorMappingConfigFile.read(fileBuffer, MaxSizeColorMappingConfigFile))
+    if(m_colorMappingConfigFile.read(fileBuffer.data(), fileBuffer.size()))
     {
         JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, fileBuffer);
+        DeserializationError error = deserializeJson(doc, fileBuffer.data());
 
         if(!error)
         {
@@ -251,14 +259,14 @@ bool HSDConfig::readColorMappingConfigFile()
 bool HSDConfig::readDeviceMappingConfigFile()
 {
     bool success = false;
-    char fileBuffer[MaxSizeDeviceMappingConfigFile];
-    memset(fileBuffer, 0, MaxSizeDeviceMappingConfigFile);
+
+    std::vector<char> fileBuffer(MaxSizeDeviceMappingConfigFile, 0);
     resetDeviceMappingConfigData();
 
-    if(m_deviceMappingConfigFile.read(fileBuffer, MaxSizeDeviceMappingConfigFile))
+    if(m_deviceMappingConfigFile.read(fileBuffer.data(), fileBuffer.size()))
     {
         JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, fileBuffer);
+        DeserializationError error = deserializeJson(doc, fileBuffer.data());
 
         if(!error)
         {
@@ -309,6 +317,7 @@ void HSDConfig::writeMainConfigFile()
     json[jsonKeyWifiSsid] = m_cfgWifiSSID.data();
     json[jsonKeyWifiPsk] = m_cfgWifiPSK.data();
     json[jsonKeyMqttServer] = m_cfgMqttServer.data();
+    json[jsonKeyMqttPort] = m_cfgMqttPort;
     json[jsonKeyMqttUser] = m_cfgMqttUser.data();
     json[jsonKeyMqttPassword] = m_cfgMqttPassword.data();
     json[jsonKeyMqttStatusTopic] = m_cfgMqttStatusTopic.data();
@@ -377,7 +386,7 @@ void HSDConfig::writeDeviceMappingConfigFile()
             Serial.println(String(index));
 
             JsonObject deviceMappingEntry = json[String(index)].to<JsonObject>();
-            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping.name;
+            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping.name.data();
             deviceMappingEntry[jsonKeyDeviceMappingType] = static_cast<int>(mapping.type);
             deviceMappingEntry[jsonKeyDeviceMappingLed] = static_cast<int>(mapping.ledNumber);
         }
@@ -681,6 +690,23 @@ const char* HSDConfig::getMqttServer() const
 bool HSDConfig::setMqttServer(const char* server)
 {
     copyToArray(m_cfgMqttServer, server);
+    return true;
+}
+
+uint16_t HSDConfig::getMqttPort() const
+{
+    return m_cfgMqttPort;
+}
+
+bool HSDConfig::setMqttPort(int32_t port)
+{
+    if(port < 1 || port > 65535)
+    {
+        Serial.println(F("Invalid MQTT port; expected a value from 1 to 65535."));
+        return false;
+    }
+
+    m_cfgMqttPort = static_cast<uint16_t>(port);
     return true;
 }
 

@@ -14,11 +14,11 @@ void HSDMqtt::begin()
 
     if(mqttIpAddr.fromString(server))
     {
-        m_pubSubClient.setServer(mqttIpAddr, MqttPort);
+        m_pubSubClient.setServer(mqttIpAddr, m_config.getMqttPort());
     }
     else
     {
-        m_pubSubClient.setServer(server, MqttPort);
+        m_pubSubClient.setServer(server, m_config.getMqttPort());
     }
 }
 
