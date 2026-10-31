@@ -199,9 +199,9 @@ class HSDConfig
     void onFileWriteError();
 
     static constexpr size_t MaxHostLen = 30;
-    static constexpr size_t MaxWifiSsidLen = 30;
+    static constexpr size_t MaxWifiSsidLen = 32;
     static constexpr size_t MaxWifiPskLen = 64;
-    static constexpr size_t MaxMqttServerLen = 20;
+    static constexpr size_t MaxMqttServerLen = 40;
     static constexpr size_t MaxMqttUserLen = 30;
     static constexpr size_t MaxMqttPasswordLen = 30;
     static constexpr size_t MaxMqttStatusTopicLen = 50;

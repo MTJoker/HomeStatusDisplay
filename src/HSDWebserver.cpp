@@ -175,7 +175,7 @@ void HSDWebserver::deliverMainConfigPage()
 
     html += F("<td><input type='text' id='wifiSSID' name='wifiSSID' value='");
     html += String(m_config.getWifiSSID());
-    html += F("' size='30' maxlength='40' placeholder='SSID'></td>");
+    html += F("' size='30' maxlength='32' placeholder='SSID'></td>");
     html += F("</tr><tr><td>Password</td>");
     html += F("  <td><input type='password' id='wifiPSK' name='wifiPSK' value='");
     html += String(m_config.getWifiPSK());

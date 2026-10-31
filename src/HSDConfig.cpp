@@ -3,9 +3,9 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-static constexpr int MaxSizeMainConfigFile = 600;
-static constexpr int MaxSizeColorMappingConfigFile = 1500;
-static constexpr int MaxSizeDeviceMappingConfigFile = 3000;
+static constexpr int MaxSizeMainConfigFile = 2600;
+static constexpr int MaxSizeColorMappingConfigFile = 4096;
+static constexpr int MaxSizeDeviceMappingConfigFile = 8192;
 static constexpr const char* DefaultHostName = "HomeStatusDisplay";
 
 HSDConfig::HSDConfig()
@@ -97,12 +97,12 @@ bool HSDConfig::hasMqttConfig() const
 bool HSDConfig::readMainConfigFile()
 {
     bool success = false;
-    char fileBuffer[MaxSizeMainConfigFile];
+    std::vector<char> fileBuffer(MaxSizeMainConfigFile, 0);
 
-    if(m_mainConfigFile.read(fileBuffer, MaxSizeMainConfigFile))
+    if(m_mainConfigFile.read(fileBuffer.data(), fileBuffer.size()))
     {
         JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, fileBuffer);
+        DeserializationError error = deserializeJson(doc, fileBuffer.data());
 
         if(!error)
         {
@@ -206,14 +206,13 @@ void HSDConfig::printMainConfigFile(JsonObject& json)
 bool HSDConfig::readColorMappingConfigFile()
 {
     bool success = false;
-    char fileBuffer[MaxSizeColorMappingConfigFile];
-    memset(fileBuffer, 0, MaxSizeColorMappingConfigFile);
+    std::vector<char> fileBuffer(MaxSizeColorMappingConfigFile, 0);
     resetColorMappingConfigData();
 
-    if(m_colorMappingConfigFile.read(fileBuffer, MaxSizeColorMappingConfigFile))
+    if(m_colorMappingConfigFile.read(fileBuffer.data(), fileBuffer.size()))
     {
         JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, fileBuffer);
+        DeserializationError error = deserializeJson(doc, fileBuffer.data());
 
         if(!error)
         {
