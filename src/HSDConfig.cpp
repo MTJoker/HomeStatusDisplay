@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-static constexpr int MaxSizeMainConfigFile = 400;
+static constexpr int MaxSizeMainConfigFile = 600;
 static constexpr int MaxSizeColorMappingConfigFile = 1500;
 static constexpr int MaxSizeDeviceMappingConfigFile = 3000;
 static constexpr const char* DefaultHostName = "HomeStatusDisplay";
