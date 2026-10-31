@@ -5,7 +5,7 @@
 
 static constexpr int MaxSizeMainConfigFile = 400;
 static constexpr int MaxSizeColorMappingConfigFile = 1500;
-static constexpr int MaxSizeDeviceMappingConfigFile = 1900;
+static constexpr int MaxSizeDeviceMappingConfigFile = 3000;
 static constexpr const char* DefaultHostName = "HomeStatusDisplay";
 
 HSDConfig::HSDConfig()
@@ -251,14 +251,14 @@ bool HSDConfig::readColorMappingConfigFile()
 bool HSDConfig::readDeviceMappingConfigFile()
 {
     bool success = false;
-    char fileBuffer[MaxSizeDeviceMappingConfigFile];
-    memset(fileBuffer, 0, MaxSizeDeviceMappingConfigFile);
+
+    std::vector<char> fileBuffer(MaxSizeDeviceMappingConfigFile, 0);
     resetDeviceMappingConfigData();
 
-    if(m_deviceMappingConfigFile.read(fileBuffer, MaxSizeDeviceMappingConfigFile))
+    if(m_deviceMappingConfigFile.read(fileBuffer.data(), fileBuffer.size()))
     {
         JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, fileBuffer);
+        DeserializationError error = deserializeJson(doc, fileBuffer.data());
 
         if(!error)
         {
@@ -341,10 +341,10 @@ void HSDConfig::writeColorMappingConfigFile()
             Serial.println(String(mapping.msg.data()));
 
             JsonObject colorMappingEntry = json[String(index)].to<JsonObject>();
-            colorMappingEntry[jsonKeyColorMappingMsg].set(mapping.msg.data());
-            colorMappingEntry[jsonKeyColorMappingType].set(static_cast<int>(mapping.type));
-            colorMappingEntry[jsonKeyColorMappingColor].set(static_cast<int>(color2id(mapping.color)));
-            colorMappingEntry[jsonKeyColorMappingBehavior].set(static_cast<int>(mapping.behavior));
+            colorMappingEntry[jsonKeyColorMappingMsg] = mapping.msg.data();
+            colorMappingEntry[jsonKeyColorMappingType] = static_cast<int>(mapping.type);
+            colorMappingEntry[jsonKeyColorMappingColor] = static_cast<int>(color2id(mapping.color));
+            colorMappingEntry[jsonKeyColorMappingBehavior] = static_cast<int>(mapping.behavior);
         }
         else
         {
@@ -377,9 +377,9 @@ void HSDConfig::writeDeviceMappingConfigFile()
             Serial.println(String(index));
 
             JsonObject deviceMappingEntry = json[String(index)].to<JsonObject>();
-            deviceMappingEntry[jsonKeyDeviceMappingName].set(mapping.name.data());
-            deviceMappingEntry[jsonKeyDeviceMappingType].set(static_cast<int>(mapping.type));
-            deviceMappingEntry[jsonKeyDeviceMappingLed].set(static_cast<int>(mapping.ledNumber));
+            deviceMappingEntry[jsonKeyDeviceMappingName] = mapping.name.data();
+            deviceMappingEntry[jsonKeyDeviceMappingType] = static_cast<int>(mapping.type);
+            deviceMappingEntry[jsonKeyDeviceMappingLed] = static_cast<int>(mapping.ledNumber);
         }
         else
         {
